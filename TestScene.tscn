@@ -1,0 +1,28 @@
+[gd_scene load_steps=5 format=3 uid="uid://bugpf1v4nhci"]
+
+[ext_resource type="PackedScene" uid="uid://rsjcev5cw42o" path="res://Player/Player.tscn" id="1_pjmdx"]
+[ext_resource type="PackedScene" uid="uid://dgx065uvkv0mq" path="res://Camera/PlayerCamera.tscn" id="2_htf01"]
+[ext_resource type="Script" path="res://Camera/PlayerCamera.cs" id="3_0nvah"]
+
+[sub_resource type="QuadMesh" id="QuadMesh_mbf37"]
+
+[node name="Main" type="Node3D"]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(10, 0, 0, 0, -4.37114e-07, 10, 0, -10, -4.37114e-07, 0, 0, 0)
+mesh = SubResource("QuadMesh_mbf37")
+
+[node name="Player" parent="." instance=ExtResource("1_pjmdx")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0469379, 0.199003, -0.287592)
+
+[node name="PlayerCamera" parent="." instance=ExtResource("2_htf01")]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+
+[node name="Node3D" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.0677018, 0.997706, 0, -0.997706, 0.0677018, 0, 0, 0)
+script = ExtResource("3_0nvah")
+Snap = true
+
+[node name="SpotLight3D" type="SpotLight3D" parent="Node3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.153296, 0.0647019, 3.4429)
