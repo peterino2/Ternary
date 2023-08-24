@@ -21,7 +21,7 @@ public partial class Player : Node3D
 		Velocity.X = InputVector.X * (float)delta * WalkingSpeed;
 		Velocity.Z = InputVector.Y * (float)delta * WalkingSpeed;
 		Position = Position + Velocity;
-
+		
 		Sprite.SetVelocity(InputVector.Length() * WalkingSpeed);
 
 		if(InputVector.Y > 0.0f)
