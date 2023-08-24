@@ -2,55 +2,61 @@
 
 [ext_resource type="Script" path="res://Session/LoginScreenUI.cs" id="1_6i4np"]
 
-[node name="Control" type="Control"]
+[node name="LoginScreen" type="Control" node_paths=PackedStringArray("ConnectToServer", "HostServerButton", "IPAddressTextEdit", "PortTextEdit")]
 layout_mode = 3
 anchors_preset = 0
 offset_right = 650.0
 offset_bottom = 472.0
 script = ExtResource("1_6i4np")
+ConnectToServer = NodePath("ConnectToServerButton")
+HostServerButton = NodePath("HostServerButton")
+IPAddressTextEdit = NodePath("IPAddressTextEdit")
+PortTextEdit = NodePath("PortTextButton")
 
-[node name="Button" type="Button" parent="."]
-layout_mode = 0
+[node name="ConnectToServerButton" type="Button" parent="."]
+layout_mode = 2
 offset_left = 8.0
 offset_top = 138.0
-offset_right = 212.0
-offset_bottom = 203.0
+offset_right = 174.0
+offset_bottom = 169.0
 text = "Connect To Server"
 
-[node name="TextEdit" type="TextEdit" parent="."]
+[node name="IPAddressTextEdit" type="TextEdit" parent="."]
 layout_mode = 0
 offset_left = 113.0
 offset_top = 2.0
-offset_right = 242.0
-offset_bottom = 31.0
+offset_right = 277.0
+offset_bottom = 40.0
 text = "127.0.0.1"
 
-[node name="TextEdit2" type="TextEdit" parent="."]
+[node name="PortTextButton" type="TextEdit" parent="."]
 offset_left = 114.0
 offset_top = 39.0
-offset_right = 243.0
-offset_bottom = 68.0
-text = "7777"
+offset_right = 276.0
+offset_bottom = 82.0
+text = "42069"
 
 [node name="RichTextLabel2" type="RichTextLabel" parent="."]
-offset_left = 6.0
-offset_top = 36.0
-offset_right = 90.0
-offset_bottom = 65.0
+layout_mode = 2
+offset_left = 7.0
+offset_top = 43.0
+offset_right = 173.0
+offset_bottom = 68.0
 text = "Port
 "
 
 [node name="RichTextLabel" type="RichTextLabel" parent="."]
-layout_mode = 0
+layout_mode = 2
 offset_left = 4.0
 offset_top = 3.0
-offset_right = 88.0
-offset_bottom = 32.0
+offset_right = 170.0
+offset_bottom = 27.0
 text = "IP Address"
 
-[node name="Button2" type="Button" parent="."]
+[node name="HostServerButton" type="Button" parent="."]
+layout_mode = 2
 offset_left = 244.0
 offset_top = 141.0
-offset_right = 448.0
-offset_bottom = 206.0
+offset_right = 410.0
+offset_bottom = 172.0
 text = "(DEBUG) Host server"

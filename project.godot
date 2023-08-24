@@ -11,13 +11,18 @@ config_version=5
 [application]
 
 config/name="Sprite Test"
-run/main_scene="res://TestScene.tscn"
+run/main_scene="res://Session.tscn"
 config/features=PackedStringArray("4.1", "C#", "Mobile")
 config/icon="res://icon.svg"
 
 [autoload]
 
 GameState="*res://Session/GameState.cs"
+
+[display]
+
+window/size/viewport_width=640
+window/size/viewport_height=480
 
 [dotnet]
 

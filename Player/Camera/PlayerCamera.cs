@@ -30,7 +30,6 @@ public partial class PlayerCamera : Node3D
 		var Dir = (ViewTarget.Position - Position).Normalized();
 		var Len = (ViewTarget.Position - Position).Length();
 
-
 		float Speed = (float) Len / 0.5f * 2f;
 
 		Vector3 Velocity = new Vector3(
