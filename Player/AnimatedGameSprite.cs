@@ -56,7 +56,14 @@ public partial class AnimatedGameSprite : AnimatedSprite3D
 	public void CommitNewAnimation()
 	{
 		Play(CurrentAnim);
-		SpeedScale = Velocity / PlayScaleVelocityBase;
+		if(Velocity > 0.01f)
+		{
+			SpeedScale = Velocity / PlayScaleVelocityBase;
+		}
+		else 
+		{
+			SpeedScale = 1.0f;
+		}
 		FlipH = Flipped;
 	}
 

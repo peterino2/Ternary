@@ -17,6 +17,11 @@ public partial class PlayerCamera : Node3D
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
+		if(ViewTarget == null)
+		{
+			ViewTarget = GetNode<Node3D>("/root/Main/Player");
+			return;
+		}
 		if(Snap)
 		{
 			Position = ViewTarget.Position;
@@ -24,7 +29,7 @@ public partial class PlayerCamera : Node3D
 		}
 		var Dir = (ViewTarget.Position - Position).Normalized();
 		var Len = (ViewTarget.Position - Position).Length();
-		GD.PrintRich(GetNode<GameState>("/root/GlobalGameState").testString);
+
 
 		float Speed = (float) Len / 0.5f * 2f;
 
