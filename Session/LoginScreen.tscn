@@ -1,17 +1,15 @@
 [gd_scene load_steps=2 format=3 uid="uid://d1h16g1vrg2o4"]
 
-[ext_resource type="Script" path="res://Session/GameState.cs" id="1_8a2pc"]
+[ext_resource type="Script" path="res://Session/LoginScreenUI.cs" id="1_6i4np"]
 
-[node name="LoginScreen" type="Node3D"]
-script = ExtResource("1_8a2pc")
-
-[node name="Control" type="Control" parent="."]
+[node name="Control" type="Control"]
 layout_mode = 3
 anchors_preset = 0
 offset_right = 650.0
 offset_bottom = 472.0
+script = ExtResource("1_6i4np")
 
-[node name="Button" type="Button" parent="Control"]
+[node name="Button" type="Button" parent="."]
 layout_mode = 0
 offset_left = 8.0
 offset_top = 138.0
@@ -19,7 +17,7 @@ offset_right = 212.0
 offset_bottom = 203.0
 text = "Connect To Server"
 
-[node name="TextEdit" type="TextEdit" parent="Control"]
+[node name="TextEdit" type="TextEdit" parent="."]
 layout_mode = 0
 offset_left = 113.0
 offset_top = 2.0
@@ -27,14 +25,14 @@ offset_right = 242.0
 offset_bottom = 31.0
 text = "127.0.0.1"
 
-[node name="TextEdit2" type="TextEdit" parent="Control"]
+[node name="TextEdit2" type="TextEdit" parent="."]
 offset_left = 114.0
 offset_top = 39.0
 offset_right = 243.0
 offset_bottom = 68.0
 text = "7777"
 
-[node name="RichTextLabel2" type="RichTextLabel" parent="Control"]
+[node name="RichTextLabel2" type="RichTextLabel" parent="."]
 offset_left = 6.0
 offset_top = 36.0
 offset_right = 90.0
@@ -42,7 +40,7 @@ offset_bottom = 65.0
 text = "Port
 "
 
-[node name="RichTextLabel" type="RichTextLabel" parent="Control"]
+[node name="RichTextLabel" type="RichTextLabel" parent="."]
 layout_mode = 0
 offset_left = 4.0
 offset_top = 3.0
@@ -50,7 +48,7 @@ offset_right = 88.0
 offset_bottom = 32.0
 text = "IP Address"
 
-[node name="Button2" type="Button" parent="Control"]
+[node name="Button2" type="Button" parent="."]
 offset_left = 244.0
 offset_top = 141.0
 offset_right = 448.0

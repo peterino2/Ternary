@@ -15,6 +15,10 @@ run/main_scene="res://TestScene.tscn"
 config/features=PackedStringArray("4.1", "C#", "Mobile")
 config/icon="res://icon.svg"
 
+[autoload]
+
+GameState="*res://Session/GameState.cs"
+
 [dotnet]
 
 project/assembly_name="Sprite Test"

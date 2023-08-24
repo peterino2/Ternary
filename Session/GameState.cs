@@ -9,6 +9,8 @@ public partial class GameState : Node
 	[Export] private Node levelNode;
 	[Export] private PackedScene levelScene;
 	[Export] private int MaxPeers = 32;
+	
+	public string testString = "nibba";
 
 	private void LogError(string Msg)
 	{
@@ -24,7 +26,7 @@ public partial class GameState : Node
 	{
 		MaybeTerminatePeer();
 	}
-	
+
 	private void MaybeTerminatePeer() 
 	{
 		if(Multiplayer.MultiplayerPeer != null)
@@ -36,7 +38,6 @@ public partial class GameState : Node
 
 	private void ClientSendSessionLoaded() 
 	{
-
 	}
 
 
@@ -44,18 +45,15 @@ public partial class GameState : Node
 	{
 		ENetMultiplayerPeer peer = new ENetMultiplayerPeer();
 		Error e = peer.CreateServer(port);
-
 		if(peer.GetConnectionStatus() == MultiplayerPeer.ConnectionStatus.Disconnected)
 		{
 			GD.PrintRich($"[color=red] Failed To Start Server");
 			return;
 		}
-
 		Multiplayer.MultiplayerPeer = peer;
 		
 		GD.PrintRich($"[color=green] Successfully created server peer");
 		StartGame();
-
 	}
 
 

@@ -1,8 +1,8 @@
 [gd_scene load_steps=5 format=3 uid="uid://bugpf1v4nhci"]
 
 [ext_resource type="PackedScene" uid="uid://rsjcev5cw42o" path="res://Player/Player.tscn" id="1_pjmdx"]
-[ext_resource type="PackedScene" uid="uid://dgx065uvkv0mq" path="res://Camera/PlayerCamera.tscn" id="2_htf01"]
-[ext_resource type="Script" path="res://Camera/PlayerCamera.cs" id="3_0nvah"]
+[ext_resource type="PackedScene" uid="uid://dgx065uvkv0mq" path="res://Player/Camera/PlayerCamera.tscn" id="2_htf01"]
+[ext_resource type="Script" path="res://Player/Camera/PlayerCamera.cs" id="3_0nvah"]
 
 [sub_resource type="QuadMesh" id="QuadMesh_mbf37"]
 

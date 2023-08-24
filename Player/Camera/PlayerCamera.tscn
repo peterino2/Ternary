@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://dgx065uvkv0mq"]
+
+[ext_resource type="Script" path="res://Player/Camera/PlayerCamera.cs" id="1_bqrp0"]
+
+[node name="PlayerCamera" type="Node3D"]
+script = ExtResource("1_bqrp0")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.419436, 0.907785, 0, -0.907785, 0.419436, 0, 5.83578, 2.30328)
