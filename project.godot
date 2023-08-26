@@ -11,13 +11,15 @@ config_version=5
 [application]
 
 config/name="Sprite Test"
-run/main_scene="res://Session.tscn"
+run/main_scene="res://Scenes/SC_Session.tscn"
 config/features=PackedStringArray("4.1", "C#", "Mobile")
 config/icon="res://icon.svg"
 
 [autoload]
 
+GameSession="*res://Session/GameSession.cs"
 GameState="*res://Session/GameState.cs"
+LocalPlayerSubsystem="*res://Session/Subsystems/LocalPlayerSubsystem.cs"
 
 [display]
 

@@ -5,12 +5,18 @@ public partial class Player : Node3D
 {
 	AnimatedGameSprite Sprite;
 	[Export] public float WalkingSpeed = 2.5f;
+	public bool IsLocalPlayer = false;
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
 		Sprite = GetNode<AnimatedGameSprite>("Node3D/Sprite");
 		Sprite.Play("IdleDown");
+	}
+
+	public void RegisterAsLocalPlayer()
+	{
+		LocalPlayerSubsystem.Get().RegisterLocalPlayer(this);
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.

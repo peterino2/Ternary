@@ -1,7 +1,7 @@
 using Godot;
 using System;
 
-public partial class Session : Node3D
+public partial class SC_Session : Node3D
 {
 
 	[Export] private Node levelNode;
@@ -10,8 +10,6 @@ public partial class Session : Node3D
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
-		GameState.state.levelNode = levelNode;
-		GameState.state.levelScene = levelScene;
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
