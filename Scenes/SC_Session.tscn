@@ -1,11 +1,18 @@
-[gd_scene load_steps=2 format=3 uid="uid://cj1bupy3yk8hh"]
+[gd_scene load_steps=3 format=3 uid="uid://cj1bupy3yk8hh"]
 
+[ext_resource type="PackedScene" uid="uid://qrtdwhrqmacy" path="res://Scenes/UI_ServerAdmin.tscn" id="2_mik0y"]
 [ext_resource type="PackedScene" uid="uid://d1h16g1vrg2o4" path="res://Session/LoginScreen.tscn" id="3_4b4fp"]
 
 [node name="Session" type="Node3D"]
 
-[node name="Control" parent="." instance=ExtResource("3_4b4fp")]
-offset_left = 19.0
-offset_top = 10.0
-offset_right = 669.0
-offset_bottom = 482.0
+[node name="Login Controls" parent="." instance=ExtResource("3_4b4fp")]
+offset_left = 3.0
+offset_top = 5.0
+offset_right = 653.0
+offset_bottom = 477.0
+
+[node name="ServerAdmin" parent="." instance=ExtResource("2_mik0y")]
+visible = false
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="."]
+spawn_path = NodePath("..")

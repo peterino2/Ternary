@@ -22,7 +22,7 @@ LocalPlayerSubsystem -> UI_LocalPlayer
     - Primary point recieving point of RPCs from the server.
     - Contains several subsystems
         - LocalPlayerSubsystem
-        - GameplayNetEngine
+        - GameNetEngine
 
 - LocalPlayerSubsystem.cs
     - Spawned by GameState's OnReady, owned by GameState
@@ -37,9 +37,48 @@ LocalPlayerSubsystem -> UI_LocalPlayer
 ```
 GameSession -> GameState
 GameState -> LocalPlayerSubsystem
-GameState -> GameplayNetEngine
+GameState -> GameNetEngine
 LocalPlayerSubsystem -> SC_Camera
 LocalPlayerSubsystem -> UI_LocalPlayer
 ```
 
 *Messaging Graph*
+
+
+
+# Connection Flow
+
+- Server starts up
+- Server goes into lobby mode and waits until admin initiates game start or if any other settings are met.
+
+- Client connects, sends client information
+- [Live Service] Server pulls client information from Live Service, validates client
+- Client GameState goes into Lobby mode.
+- Server sends GameState info over to client
+
+- Server Sends prepare signal over to client, with info confirming the gamemode.
+    - Client switches into a loading screen
+    - Paths and scenes to prepare:
+    - Load map
+    - Other players' information
+    - Game Validation Signal
+    - Game UI is loaded at this point, Server and Login UI are hidden.
+
+- When clients recieve validation signal GameState transitions into validation.
+    - Start Sending back to the server everything that they're ready and loaded, 
+        - They send back that they have the full player list, and what parameters to load the game with
+    - GameNetEngine Starts, and loads user input configurations,
+        - Loads input libraries and establishes heartbeat with server
+        - Starts up command frames and rollback data.
+    - GameNetEngine Spawns ActorPool
+- Server Sends Game Start to all clients
+- Clients go into game start mode
+    - When game start signal is recieved, the clients will begin gameplay.
+
+
+# Spawner ref flow
+
+/root/
+    - Dungeon<GameLevel>
+        - Entities
+

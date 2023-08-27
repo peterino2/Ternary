@@ -1,0 +1,86 @@
+[gd_scene load_steps=3 format=3 uid="uid://qrtdwhrqmacy"]
+
+[ext_resource type="Script" path="res://Scenes/UI_ServerAdmin.cs" id="1_m2qlm"]
+[ext_resource type="PackedScene" uid="uid://5s2n56hciecg" path="res://Scenes/UI_ServerAdminClientEntry.tscn" id="2_huaxl"]
+
+[node name="ServerAdmin" type="Control" node_paths=PackedStringArray("StatusLabel", "ShutdownServerButton", "StartGameServer", "PlayerListBoxContainer")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_bottom = 2.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_m2qlm")
+StatusLabel = NodePath("StatusLabel")
+ShutdownServerButton = NodePath("ShutDownServer")
+StartGameServer = NodePath("StartGame")
+PlayerListBoxContainer = NodePath("PlayerList")
+PlayerListEntryScene = ExtResource("2_huaxl")
+
+[node name="PlayerList" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1.0
+offset_top = 27.0
+offset_bottom = -1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ShutDownServer" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 1.637
+anchor_bottom = 1.637
+offset_left = 73.0
+offset_top = -367.034
+offset_right = 213.0
+offset_bottom = -323.034
+grow_vertical = 0
+action_mode = 0
+text = "Shutdown server"
+
+[node name="StartGame" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 1.637
+anchor_bottom = 1.637
+offset_left = 387.0
+offset_top = -365.034
+offset_right = 527.0
+offset_bottom = -321.034
+grow_vertical = 0
+action_mode = 0
+text = "Start Game"
+
+[node name="RichTextLabel" type="RichTextLabel" parent="."]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -264.0
+offset_top = -84.0
+offset_right = -132.0
+offset_bottom = -54.0
+grow_horizontal = 0
+grow_vertical = 0
+text = "Status: "
+
+[node name="StatusLabel" type="RichTextLabel" parent="."]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -191.0
+offset_top = -84.0
+offset_right = -29.0
+offset_bottom = -54.0
+grow_horizontal = 0
+grow_vertical = 0
+text = "Waiting to start..."

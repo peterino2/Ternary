@@ -1,0 +1,53 @@
+[gd_scene load_steps=2 format=3 uid="uid://5s2n56hciecg"]
+
+[ext_resource type="Script" path="res://Scenes/UI_PlayerListEntry.cs" id="1_cw550"]
+
+[node name="UI_ServerAdminClientEntry" type="Control" node_paths=PackedStringArray("PlayerNameLabel", "PlayerIdLabel", "PingLabel", "KickButton")]
+custom_minimum_size = Vector2(0, 45)
+layout_mode = 3
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 48.0
+grow_horizontal = 2
+script = ExtResource("1_cw550")
+PlayerNameLabel = NodePath("HBoxContainer/PlayerNameLabel")
+PlayerIdLabel = NodePath("HBoxContainer/PlayerIDLabel")
+PingLabel = NodePath("HBoxContainer/PingLabel")
+KickButton = NodePath("HBoxContainer/Button")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PlayerNameLabel" type="RichTextLabel" parent="HBoxContainer"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+theme_override_font_sizes/normal_font_size = 28
+text = "Player 1"
+scroll_active = false
+threaded = true
+
+[node name="PlayerIDLabel" type="RichTextLabel" parent="HBoxContainer"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+theme_override_font_sizes/normal_font_size = 28
+text = "ID:42069"
+scroll_active = false
+threaded = true
+
+[node name="PingLabel" type="RichTextLabel" parent="HBoxContainer"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+theme_override_font_sizes/normal_font_size = 28
+text = "150000ms"
+scroll_active = false
+threaded = true
+
+[node name="Button" type="Button" parent="HBoxContainer"]
+layout_mode = 2
+text = "kick
+"

@@ -1,0 +1,13 @@
+[gd_scene load_steps=2 format=3 uid="uid://c3g7w2d2hl06l"]
+
+[ext_resource type="Script" path="res://Scenes/GameLevel.cs" id="1_2hvep"]
+
+[node name="DarkDungeon" type="Node3D" node_paths=PackedStringArray("EntitiesNode")]
+script = ExtResource("1_2hvep")
+EntitiesNode = NodePath("Entities")
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="."]
+_spawnable_scenes = PackedStringArray("res://Player/Player.tscn")
+spawn_path = NodePath("../Entities")
+
+[node name="Entities" type="Node3D" parent="."]

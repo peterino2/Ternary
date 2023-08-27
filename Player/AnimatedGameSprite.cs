@@ -81,11 +81,6 @@ public partial class AnimatedGameSprite : AnimatedSprite3D
 				CurrentAnim = WalkDown;
 			}
 
-			if(facing == FacingDirection.Right )
-			{
-				CurrentAnim = WalkRight;
-			}
-
 			if(facing == FacingDirection.Right  || facing == FacingDirection.Left)
 			{
 				CurrentAnim = WalkRight;

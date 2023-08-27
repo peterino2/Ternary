@@ -2,16 +2,18 @@
 
 [ext_resource type="Script" path="res://Session/LoginScreenUI.cs" id="1_6i4np"]
 
-[node name="LoginScreen" type="Control" node_paths=PackedStringArray("ConnectToServer", "HostServerButton", "IPAddressTextEdit", "PortTextEdit")]
+[node name="LoginScreen" type="Control" node_paths=PackedStringArray("ConnectToServer", "HostServerButton", "IPAddressTextEdit", "PortTextEdit", "PlayerName", "ErrorLabel")]
 layout_mode = 3
 anchors_preset = 0
-offset_right = 650.0
-offset_bottom = 472.0
+offset_right = 441.0
+offset_bottom = 190.0
 script = ExtResource("1_6i4np")
 ConnectToServer = NodePath("ConnectToServerButton")
 HostServerButton = NodePath("HostServerButton")
 IPAddressTextEdit = NodePath("IPAddressTextEdit")
 PortTextEdit = NodePath("PortTextButton")
+PlayerName = NodePath("PlayerNameTextEdit")
+ErrorLabel = NodePath("ErrorMessage")
 
 [node name="ConnectToServerButton" type="Button" parent="."]
 layout_mode = 2
@@ -35,7 +37,7 @@ offset_left = 114.0
 offset_top = 39.0
 offset_right = 276.0
 offset_bottom = 82.0
-text = "42069"
+text = "7777"
 
 [node name="RichTextLabel2" type="RichTextLabel" parent="."]
 layout_mode = 2
@@ -61,3 +63,32 @@ offset_top = 141.0
 offset_right = 410.0
 offset_bottom = 172.0
 text = "(DEBUG) Host server"
+
+[node name="PlayerNameTextEdit" type="TextEdit" parent="."]
+layout_mode = 0
+offset_left = 113.0
+offset_top = 85.0
+offset_right = 333.0
+offset_bottom = 128.0
+text = "ShadowRealmJimbo"
+
+[node name="PlayerNameLabel" type="RichTextLabel" parent="."]
+layout_mode = 0
+offset_left = 6.0
+offset_top = 89.0
+offset_right = 172.0
+offset_bottom = 114.0
+text = "PlayerName"
+
+[node name="ErrorMessage" type="Button" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 0.964
+anchor_bottom = 1.074
+offset_right = -0.124023
+offset_bottom = -0.0599976
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 0.27451, 0, 1)
+text = "ERROR:"
