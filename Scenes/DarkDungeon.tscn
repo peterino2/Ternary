@@ -1,13 +1,28 @@
-[gd_scene load_steps=2 format=3 uid="uid://c3g7w2d2hl06l"]
+[gd_scene load_steps=5 format=3 uid="uid://c3g7w2d2hl06l"]
 
 [ext_resource type="Script" path="res://Scenes/GameLevel.cs" id="1_2hvep"]
+[ext_resource type="PackedScene" uid="uid://dgx065uvkv0mq" path="res://Player/Camera/PlayerCamera.tscn" id="2_56pto"]
+[ext_resource type="PackedScene" uid="uid://rsjcev5cw42o" path="res://Player/Player.tscn" id="2_vv5tr"]
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_6nxq5"]
 
 [node name="DarkDungeon" type="Node3D" node_paths=PackedStringArray("EntitiesNode")]
 script = ExtResource("1_2hvep")
 EntitiesNode = NodePath("Entities")
+AvatarScene = ExtResource("2_vv5tr")
+
+[node name="PlayerCamera" parent="." instance=ExtResource("2_56pto")]
 
 [node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="."]
 _spawnable_scenes = PackedStringArray("res://Player/Player.tscn")
 spawn_path = NodePath("../Entities")
+spawn_limit = 32
 
 [node name="Entities" type="Node3D" parent="."]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 0, 0, 0)
+mesh = SubResource("PlaneMesh_6nxq5")
+
+[node name="SpotLight3D" type="SpotLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.267339, 0.963602, 0, -0.963602, 0.267339, 0, 3.44199, 0.665027)

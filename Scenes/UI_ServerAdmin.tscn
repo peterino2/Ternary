@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://qrtdwhrqmacy"]
+[gd_scene load_steps=4 format=3 uid="uid://qrtdwhrqmacy"]
 
 [ext_resource type="Script" path="res://Scenes/UI_ServerAdmin.cs" id="1_m2qlm"]
 [ext_resource type="PackedScene" uid="uid://5s2n56hciecg" path="res://Scenes/UI_ServerAdminClientEntry.tscn" id="2_huaxl"]
+[ext_resource type="PackedScene" uid="uid://c3g7w2d2hl06l" path="res://Scenes/DarkDungeon.tscn" id="2_vja7x"]
 
 [node name="ServerAdmin" type="Control" node_paths=PackedStringArray("StatusLabel", "ShutdownServerButton", "StartGameServer", "PlayerListBoxContainer")]
 layout_mode = 3
@@ -15,6 +16,7 @@ script = ExtResource("1_m2qlm")
 StatusLabel = NodePath("StatusLabel")
 ShutdownServerButton = NodePath("ShutDownServer")
 StartGameServer = NodePath("StartGame")
+PackedScene = ExtResource("2_vja7x")
 PlayerListBoxContainer = NodePath("PlayerList")
 PlayerListEntryScene = ExtResource("2_huaxl")
 

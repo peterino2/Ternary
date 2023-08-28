@@ -34,18 +34,6 @@ public partial class UI_PlayerListEntry: Control
 		PlayerIdLabel.Text = NewId.ToString();
 	}
 
-	double PingTime = 1.0;
-
-	public override void _Process(double Delta)
-	{
-		PingTime -= Delta;
-		if(PingTime < 0 )
-		{
-			PingTime = 1.0;
-			UpdatePing();
-		}
-	}
-
 	public void UpdatePing()
 	{
 		var Peer = (ENetMultiplayerPeer)Multiplayer.MultiplayerPeer;

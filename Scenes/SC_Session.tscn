@@ -15,4 +15,5 @@ offset_bottom = 477.0
 visible = false
 
 [node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="."]
+_spawnable_scenes = PackedStringArray("res://Scenes/DarkDungeon.tscn")
 spawn_path = NodePath("..")

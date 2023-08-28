@@ -6,12 +6,17 @@ public partial class PlayerCamera : Node3D
 	public Node3D ViewTarget;
 	
 	[Export] bool Snap = false;
+	[Export] bool AutoFindPlayer = true;
 	float RotationAngle = 0;
 	
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
-		ViewTarget = GetNode<Node3D>("/root/Main/Player");
+	}
+
+	public void SetViewTarget(Node3D NewViewTarget)
+	{
+		ViewTarget = NewViewTarget;
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -19,7 +24,10 @@ public partial class PlayerCamera : Node3D
 	{
 		if(ViewTarget == null)
 		{
-			ViewTarget = GetNode<Node3D>("/root/Main/Player");
+            if(LocalPlayerSubsystem.Get().LocalPlayer != null)
+            {
+                ViewTarget = LocalPlayerSubsystem.Get().LocalPlayer;
+            }
 			return;
 		}
 		if(Snap)

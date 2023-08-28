@@ -8,6 +8,8 @@ using System.Net.NetworkInformation;
 
 public partial class GameSession: Node
 {
+
+
 	// ==== statics ====
 	public static GameSession StaticInstance;
 
@@ -23,14 +25,23 @@ public partial class GameSession: Node
 	// We do not support listen server, dedicated only
 	[Export] private int MaxPeers = 32 + 1;
 
-	public long PeerId = 0;
-	public string HostName = "";
-	public int HostPort = 0;
-	public string PlayerName = "ShadowRealmJimbo";
+	// Client/Server session information
+	public long PeerId = 0; // 0 for disconnected, 1 for server, Other positive numbers are clients
+	public string HostName = ""; // loopback host name.
+	public int HostPort = 0; // only valid when acting as server or when connected
+	public string PlayerName = "<Unknown>";  // only valid when acknowledged by server.
 
-    public bool LoginVerifiedClient = false;
+	// when set to true, this client has been VERIFIED by server ans is good to recieve further comms.
+	public bool LoginVerifiedClient = false; 
+
+	// Only set when this is created as the server.
+	public bool HasAuthority = false;
+
+	// Only set when the game is created on the server.
+	public bool GameStarted = false;
 
 	public Godot.Collections.Dictionary<string, long> PlayerIDs = new Godot.Collections.Dictionary<string, long>();
+	public Godot.Collections.Dictionary<long, bool> Verification = new Godot.Collections.Dictionary<long, bool>();
 
 	private byte[] giga = new byte[512];
 	bool once = true;
@@ -78,11 +89,12 @@ public partial class GameSession: Node
 
 	public void PeerConnectedServer(long Id)
 	{
-        // I'm not sure if the server gets one itself.
+		// I'm not sure if the server gets one itself.
 		if(Id == 1 || PeerId != 1)
 			return;
 
 		UI_ServerAdmin.Get().AddPlayerToList("<Unknown>", Id);
+		Verification[Id] = false;
 	}
 
 	public double HeartBeat = 1.0;
@@ -150,7 +162,9 @@ public partial class GameSession: Node
 
 		UI_ServerAdmin.Get().SetVisiblityAndProcess(true);
 		LoginScreenUI.Get().SetVisiblityAndProcess(false);
+		HasAuthority = true;
 	}
+
 
 	public void ShutdownServer()
 	{
@@ -193,11 +207,16 @@ public partial class GameSession: Node
 		}
 	}
 
+	// Server validation of the new incomming player.
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
 	public void ValidatePlayerServer(string PlayerName)
 	{
+		if(PeerId != 1)
+		{
+			return;
+		}
 		NU.Ok("New Player Name Request: " + PlayerName);
-		if(PlayerIDs.ContainsKey(PlayerName))
+		if(PlayerIDs.ContainsKey(PlayerName) )
 		{
 			NU.Error("Duplicate Player name found, diconnecting player " + Multiplayer.GetRemoteSenderId());
 			DisconnectWithMessage(Multiplayer.GetRemoteSenderId(), "Denied, name already in use");
@@ -207,24 +226,27 @@ public partial class GameSession: Node
 		Rpc("ValidatePlayerAckClient", new Variant[]{ PlayerName });
 		UI_ServerAdmin.Get().SetPlayerName(PlayerName, Multiplayer.GetRemoteSenderId());
 		PlayerIDs[PlayerName] =  Multiplayer.GetRemoteSenderId();
+		Verification[Multiplayer.GetRemoteSenderId()] = true;
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
 	public void ValidatePlayerAckClient(string PlayerName)
 	{
 		NU.Ok("Login Accepted Name:" + PlayerName);
-        LoginVerifiedClient = true;
-        LoginScreenUI.Get().UpdateSessionState();
+		LoginVerifiedClient = true;
+		LoginScreenUI.Get().UpdateSessionState();
 	}
 
+
+	// ===== Disconnections  =========
 	public void DisconnectWithMessage(long PeerToDisconnect, string Message)
 	{
-		Rpc("DisconnectClient", new Variant[]{ PeerToDisconnect, Message }) ;
+		Rpc("OnDisconnectClient", new Variant[]{ PeerToDisconnect, Message }) ;
 		PendingDisconnections.Add(new DisconnectRequest( PeerToDisconnect));
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-	public void DisconnectClient(long PeerToDisconnect, string Message)
+	public void OnDisconnectClient(long PeerToDisconnect, string Message)
 	{
 		// message wasn't intended for us
 		if(PeerToDisconnect != PeerId)
@@ -235,5 +257,25 @@ public partial class GameSession: Node
 		LoginScreenUI.Get().ShowError("Server issued a disconnect with message: " + Message);
 	}
 
+	// =========================
+	// START THE GAME 
+	// =========================
+
+	// Sends the signal to all clients that the game is about to begin
+	public void StartGame(Node3D LevelNode, PackedScene LevelScene)
+	{
+		// assert(PeerId == 1);
+		// assert(GameStarted = false);
+		if(LevelNode == null)
+		{
+			NU.Error("Invalid node passed in to StartGame()");
+			return;
+		}
+		NU.Print("Server Starting Game...");
+		GameState.Get().LevelNode = LevelNode;
+		GameState.Get().LevelScene = LevelScene;
+		GameStarted = true;
+		GameState.Get().PrepareGame();
+	}
 }
 

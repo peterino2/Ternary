@@ -1,12 +1,19 @@
-[gd_scene load_steps=5 format=3 uid="uid://rsjcev5cw42o"]
+[gd_scene load_steps=6 format=3 uid="uid://rsjcev5cw42o"]
 
 [ext_resource type="Script" path="res://Player/Player.cs" id="1_akdl1"]
 [ext_resource type="SpriteFrames" uid="uid://bvu37pp2ixv3l" path="res://Player/PlayerSpriteFrames.tres" id="1_nmibg"]
 [ext_resource type="Script" path="res://Player/AnimatedGameSprite.cs" id="3_02lru"]
 [ext_resource type="Script" path="res://Player/Nameplate.cs" id="4_hg8tv"]
 
-[node name="Player" type="Node3D"]
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_ejvr1"]
+properties/0/path = NodePath(".:OwnerId")
+properties/0/spawn = true
+properties/0/sync = false
+properties/0/watch = false
+
+[node name="Player" type="Node3D" node_paths=PackedStringArray("Sync")]
 script = ExtResource("1_akdl1")
+Sync = NodePath("MultiplayerSynchronizer")
 
 [node name="Node3D" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.652932, 0.757417, 0, -0.757417, 0.652932, 0, 0, 0)
@@ -29,3 +36,6 @@ no_depth_test = true
 fixed_size = true
 text = "xx WutangLegend420 xxx"
 script = ExtResource("4_hg8tv")
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_ejvr1")

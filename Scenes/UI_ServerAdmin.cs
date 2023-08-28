@@ -18,6 +18,8 @@ public partial class UI_ServerAdmin : Control
 	[Export] private RichTextLabel StatusLabel;
 	[Export] private Button ShutdownServerButton;
 	[Export] private Button StartGameServer;
+	[Export] private PackedScene PackedScene;
+
 	[Export] private BoxContainer PlayerListBoxContainer;
 	[Export] private PackedScene PlayerListEntryScene;
 
@@ -28,8 +30,16 @@ public partial class UI_ServerAdmin : Control
 	{
 		StaticInstance = this;
 		ShutdownServerButton.ButtonDown += ShutdownServer;
+		StartGameServer.ButtonDown += StartGame;
 		NU.Print("serverAdmin running");
 	}
+
+	public void StartGame() 
+	{
+		var rootnode = GetNode<Node3D>("/root/Session");
+		GameSession.Get().StartGame(rootnode, PackedScene);
+	}
+
 
 	public void SetVisiblityAndProcess(bool NewVisibility)
 	{
@@ -65,7 +75,6 @@ public partial class UI_ServerAdmin : Control
 	{
 		for(int i = 0; i < PlayerListEntries.Count; i += 1)
 		{
-			NU.Print("Updating ping for: " + PlayerListEntries[i].Id.ToString());
 			PlayerListEntries[i].UpdatePing();
 		}
 	}

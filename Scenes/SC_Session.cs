@@ -3,7 +3,6 @@ using System;
 
 public partial class SC_Session : Node3D
 {
-
 	[Export] private Node levelNode;
 	[Export] private PackedScene levelScene;
 	

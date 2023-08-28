@@ -5,7 +5,7 @@ public partial class GameLevel : Node3D
 {
 	// ==== static ====
 	public static GameLevel StaticInstance;
-	public GameLevel Get()
+	public static GameLevel Get()
 	{
 		return StaticInstance;
 	}
@@ -17,12 +17,17 @@ public partial class GameLevel : Node3D
 	// ==== /static ====
 	
 	[Export] public Node3D EntitiesNode;
-	
+	[Export] public PackedScene AvatarScene;
+
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
 		if(StaticInstance == null)
 			StaticInstance = this;
+
+		GameState.Get().Level = this;
+		GameState.Get().LevelReady = true;
+		GameState.Get().UpdateLoadingState();
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
