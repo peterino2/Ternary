@@ -26,6 +26,18 @@ public class NU
 			GD.PrintRich($"[color=green]Client [" + GameSession.Get().PeerId.ToString() + "]: " + printString);
 		}
 	}
+    
+	public static void Warning(string printString)
+	{
+		if(GameSession.Get().PeerId == 1)
+		{
+			GD.PrintRich($"[color=yellow]Server: " + printString);
+		}
+		else 
+		{
+			GD.PrintRich($"[color=yellow]Client [" + GameSession.Get().PeerId.ToString() + "]: " + printString);
+		}
+	}
 
 	public static void Error(string printString)
 	{

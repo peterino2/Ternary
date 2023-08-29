@@ -82,3 +82,14 @@ LocalPlayerSubsystem -> UI_LocalPlayer
     - Dungeon<GameLevel>
         - Entities
 
+
+
+# Movement and reconciliation flow
+
+On Local Client:
+
+1. Get the local input, and begin accumulating movement.
+2. While accumulating movement,
+    - Resolve our current Location and DeltaPosition off of the last command frame.
+    - Present location and rotation
+

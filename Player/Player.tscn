@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3 uid="uid://rsjcev5cw42o"]
+[gd_scene load_steps=7 format=3 uid="uid://rsjcev5cw42o"]
 
 [ext_resource type="Script" path="res://Player/Player.cs" id="1_akdl1"]
 [ext_resource type="SpriteFrames" uid="uid://bvu37pp2ixv3l" path="res://Player/PlayerSpriteFrames.tres" id="1_nmibg"]
@@ -10,6 +10,17 @@ properties/0/path = NodePath(".:OwnerId")
 properties/0/spawn = true
 properties/0/sync = false
 properties/0/watch = false
+properties/1/path = NodePath(".:PositionSync")
+properties/1/spawn = true
+properties/1/sync = true
+properties/1/watch = false
+properties/2/path = NodePath(".:NetMoveSync")
+properties/2/spawn = true
+properties/2/sync = true
+properties/2/watch = false
+
+[sub_resource type="SphereMesh" id="SphereMesh_u7x4k"]
+radius = 0.2
 
 [node name="Player" type="Node3D" node_paths=PackedStringArray("Sync")]
 script = ExtResource("1_akdl1")
@@ -28,14 +39,21 @@ sprite_frames = ExtResource("1_nmibg")
 animation = &"WalkLeft"
 script = ExtResource("3_02lru")
 
-[node name="Nameplate" type="Label3D" parent="Node3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 5.96046e-08, 0, 0, 1, 0, 1.52055, 0.138506)
+[node name="Nameplate" type="Label3D" parent="Node3D" node_paths=PackedStringArray("Player")]
+transform = Transform3D(1, 0, 0, 0, 1, 5.96046e-08, 0, 2.98023e-08, 1, 0, 1.52055, 0.138506)
 pixel_size = 0.0007
 double_sided = false
 no_depth_test = true
 fixed_size = true
 text = "xx WutangLegend420 xxx"
 script = ExtResource("4_hg8tv")
+Player = NodePath("../..")
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_interval = 0.05
+delta_interval = 0.05
 replication_config = SubResource("SceneReplicationConfig_ejvr1")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+visible = false
+mesh = SubResource("SphereMesh_u7x4k")

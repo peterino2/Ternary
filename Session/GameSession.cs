@@ -40,7 +40,8 @@ public partial class GameSession: Node
 	// Only set when the game is created on the server.
 	public bool GameStarted = false;
 
-	public Godot.Collections.Dictionary<string, long> PlayerIDs = new Godot.Collections.Dictionary<string, long>();
+	public Godot.Collections.Dictionary<string, long> IdsByName = new Godot.Collections.Dictionary<string, long>();
+	public Godot.Collections.Dictionary<long, string> NamesById = new Godot.Collections.Dictionary<long, string>();
 	public Godot.Collections.Dictionary<long, bool> Verification = new Godot.Collections.Dictionary<long, bool>();
 
 	private byte[] giga = new byte[512];
@@ -131,7 +132,7 @@ public partial class GameSession: Node
 	{
 		GD.PrintRich($"[color=green] Successfully connected as server peer: " + Multiplayer.GetUniqueId().ToString());
 		PeerId = Multiplayer.GetUniqueId();
-		Rpc("ValidatePlayerServer", new Variant[] {PlayerName});
+		RpcId(1, nameof(ValidatePlayerServer), new Variant[] {PlayerName});
 	}
 
 
@@ -207,6 +208,14 @@ public partial class GameSession: Node
 		}
 	}
 
+    private void BroadCastPlayerList()
+    {
+        foreach(KeyValuePair<long, string> pair in NamesById)
+        {
+		    Rpc(nameof(RecievePlayerInfoClient), new Variant[]{ pair.Key, pair.Value });
+        }
+    }
+
 	// Server validation of the new incomming player.
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
 	public void ValidatePlayerServer(string PlayerName)
@@ -216,25 +225,38 @@ public partial class GameSession: Node
 			return;
 		}
 		NU.Ok("New Player Name Request: " + PlayerName);
-		if(PlayerIDs.ContainsKey(PlayerName) )
+		if(IdsByName.ContainsKey(PlayerName) )
 		{
 			NU.Error("Duplicate Player name found, diconnecting player " + Multiplayer.GetRemoteSenderId());
 			DisconnectWithMessage(Multiplayer.GetRemoteSenderId(), "Denied, name already in use");
 			return;
 		}
 
-		Rpc("ValidatePlayerAckClient", new Variant[]{ PlayerName });
+
 		UI_ServerAdmin.Get().SetPlayerName(PlayerName, Multiplayer.GetRemoteSenderId());
-		PlayerIDs[PlayerName] =  Multiplayer.GetRemoteSenderId();
+		IdsByName[PlayerName] =  Multiplayer.GetRemoteSenderId();
+        NamesById[Multiplayer.GetRemoteSenderId()] = PlayerName;
 		Verification[Multiplayer.GetRemoteSenderId()] = true;
+
+        BroadCastPlayerList();
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-	public void ValidatePlayerAckClient(string PlayerName)
+	public void RecievePlayerInfoClient(long ClientId, string PlayerName)
 	{
-		NU.Ok("Login Accepted Name:" + PlayerName);
-		LoginVerifiedClient = true;
-		LoginScreenUI.Get().UpdateSessionState();
+        if(ClientId == PeerId)
+        {
+            LoginVerifiedClient = true;
+            LoginScreenUI.Get().UpdateSessionState();
+        }
+
+        if(!NamesById.ContainsKey(ClientId))
+        {
+		    NU.Ok("NewPlayerRecieved: " + PlayerName + $"[{ClientId.ToString()}]");
+        }
+
+		IdsByName[PlayerName] = ClientId;
+        NamesById[ClientId] = PlayerName;
 	}
 
 
