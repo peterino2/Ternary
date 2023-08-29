@@ -46,6 +46,10 @@ public partial class GameNetEngine: Node
 	[Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Unreliable)]
 	public void BroadCastCommandFrame(long NewCommandFrame)
 	{
+        if(GameSession.Get().PeerId == 1)
+        {
+            return;
+        }
         if(NewCommandFrame > CommandFrame)
         {
             NU.Warning(

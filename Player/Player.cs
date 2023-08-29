@@ -24,7 +24,6 @@ public partial class Player : Node3D
 		Sprite = GetNode<AnimatedGameSprite>("Node3D/Sprite");
 		Sprite.Play("IdleDown");
         Sync.Synchronized += OnSynchronized;
-        GameNetEngine.Get().NetTickables += OnNetTick;
 
         if(OwnerId == GameSession.Get().PeerId)
         {
@@ -133,6 +132,7 @@ public partial class Player : Node3D
 		
         return MovedPosition;
     }
+    double NetTickTime = 0;
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
@@ -143,7 +143,18 @@ public partial class Player : Node3D
         }
 
         ProcessInputs(delta);
+        TickPrediction(delta);
 
+        NetTickTime -= delta;
+        if(NetTickTime < 0)
+        {
+            NetTickTime = GameNetEngine.Get().TickDelta;
+            OnNetTick(0, GameNetEngine.Get().TickDelta);
+        }
+	}
+
+    private void TickPrediction(double delta)
+    {
         if(UsePrediction)
         {
             Position = GetMovedPosition(Position, LocalInput);
@@ -156,7 +167,7 @@ public partial class Player : Node3D
                 Position = Position.Lerp(ServerPredictedPosition, 0.4f);
             }
         }
-	}
+    }
 
     private void ProcessInputs(double delta)
     {
