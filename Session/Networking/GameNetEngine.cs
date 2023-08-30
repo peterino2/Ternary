@@ -50,6 +50,7 @@ public partial class GameNetEngine: Node
         {
             return;
         }
+
         if(NewCommandFrame > CommandFrame)
         {
             NU.Warning(

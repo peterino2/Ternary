@@ -9,7 +9,6 @@ using System.Net.NetworkInformation;
 public partial class GameSession: Node
 {
 
-
 	// ==== statics ====
 	public static GameSession StaticInstance;
 
@@ -224,6 +223,7 @@ public partial class GameSession: Node
 		{
 			return;
 		}
+
 		NU.Ok("New Player Name Request: " + PlayerName);
 		if(IdsByName.ContainsKey(PlayerName) )
 		{
@@ -239,6 +239,14 @@ public partial class GameSession: Node
 		Verification[Multiplayer.GetRemoteSenderId()] = true;
 
         BroadCastPlayerList();
+        var PlayerCountToStart = SessionConfigs.Get().SettingsConfig.AutoStartGamePlayerCount;
+        if(PlayerCountToStart > 0 )
+        {
+            if(IdsByName.Count >= PlayerCountToStart)
+            {
+                UI_ServerAdmin.Get().StartGame();
+            }
+        }
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]

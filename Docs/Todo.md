@@ -92,4 +92,4 @@ On Local Client:
 2. While accumulating movement,
     - Resolve our current Location and DeltaPosition off of the last command frame.
     - Present location and rotation
-
+    - if we recieve a position and direction for a new command frame,

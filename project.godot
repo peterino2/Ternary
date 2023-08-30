@@ -21,6 +21,7 @@ GameSession="*res://Session/GameSession.cs"
 GameState="*res://Session/GameState.cs"
 LocalPlayerSubsystem="*res://Session/Subsystems/LocalPlayerSubsystem.cs"
 GameNetEngine="*res://Session/Networking/GameNetEngine.cs"
+SessionConfigs="*res://Session/SessionConfigs.cs"
 
 [display]
 

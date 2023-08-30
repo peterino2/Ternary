@@ -11,6 +11,7 @@ public partial class Player : Node3D
     [Export] public Vector2 NetMoveSync = new Vector2(0,0);
 
     Vector2 AccumulatedMovement = new Vector2(0,0);
+    Vector2 SyncAccumulatedMovement = new Vector2(0,0);
     Vector2 LocalInput = new Vector2(0,0);
     Vector3 LastDeltaPosition = new Vector3(0,0,0);
 
@@ -46,8 +47,10 @@ public partial class Player : Node3D
         if(!IsLocalPlayer)
         {
             UpdateSpriteVelocityAndFacing(NetMoveSync, GameNetEngine.Get().TickDelta);
-            Position = PositionSync;
+            return;
         }
+
+        SyncAccumulatedMovement = new Vector2(0, 0);
     }
 
 	public void SetOwnerServer(long NewOwner)
@@ -139,6 +142,7 @@ public partial class Player : Node3D
 	{
         if(!IsLocalPlayer)
         {
+            TickInterpolation(delta);
             return;
         }
 
@@ -153,19 +157,33 @@ public partial class Player : Node3D
         }
 	}
 
+    private void TickInterpolation(double delta)
+    {
+        if((PositionSync - Position).Length() < (float) delta * WalkingSpeed)
+        {
+            Position = PositionSync;
+        }
+        else {
+            Position = Position + (PositionSync - Position).Normalized() * (float) delta * WalkingSpeed;
+        }
+    }
+
     private void TickPrediction(double delta)
     {
+        var ServerPredictedPosition = GetMovedPosition(PositionSync, SyncAccumulatedMovement);
+        UpdateSpriteVelocityAndFacing(LocalInput, delta);
         if(UsePrediction)
         {
             Position = GetMovedPosition(Position, LocalInput);
-            UpdateSpriteVelocityAndFacing(LocalInput, delta);
-            var ServerPredictedPosition = GetMovedPosition(PositionSync, AccumulatedMovement);
-
             Vector3 NetError = Position - (ServerPredictedPosition);
-            if(NetError.Length() > 0.2f)
+            if(NetError.Length() > 0.3f)
             {
                 Position = Position.Lerp(ServerPredictedPosition, 0.4f);
             }
+        }
+        else 
+        {
+            Position = ServerPredictedPosition;
         }
     }
 
@@ -175,7 +193,10 @@ public partial class Player : Node3D
 		var InputVector = Input.GetVector("MoveLeft", "MoveRight", "MoveUp", "MoveDown");
         InputVector = InputVector.Normalized();
         LocalInput = InputVector * (float)delta;
+        var offset = new Vector2(InputVector.X * (float) delta, InputVector.Y * (float) delta);
 
-        AccumulatedMovement += new Vector2(InputVector.X * (float) delta, InputVector.Y * (float) delta);
+        AccumulatedMovement += offset;
+        SyncAccumulatedMovement += offset;
+ 
     }
 }
