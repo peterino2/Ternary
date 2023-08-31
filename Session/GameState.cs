@@ -79,4 +79,10 @@ public partial class GameState: Node
 		AvatarSpawnedServer[Multiplayer.GetRemoteSenderId()] = newPlayer;
 	}
 
+    public void RemovePlayer(long Id)
+    {
+        AvatarSpawnedServer[Id].QueueFree();
+		AvatarSpawnedServer.Remove(Id);
+    }
+
 }

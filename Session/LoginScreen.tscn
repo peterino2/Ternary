@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://Session/LoginScreenUI.cs" id="1_6i4np"]
 
-[node name="LoginScreen" type="Control" node_paths=PackedStringArray("ConnectToServer", "HostServerButton", "IPAddressTextEdit", "PortTextEdit", "PlayerName", "ErrorLabel")]
+[node name="LoginScreen" type="Control" node_paths=PackedStringArray("ConnectToServer", "HostServerButton", "IPAddressTextEdit", "PortTextEdit", "PlayerName", "ErrorLabel", "RequestGameStartButton")]
 layout_mode = 3
 anchors_preset = 0
 offset_right = 441.0
@@ -14,6 +14,7 @@ IPAddressTextEdit = NodePath("IPAddressTextEdit")
 PortTextEdit = NodePath("PortTextButton")
 PlayerName = NodePath("PlayerNameTextEdit")
 ErrorLabel = NodePath("ErrorMessage")
+RequestGameStartButton = NodePath("RequestGameStart")
 
 [node name="ConnectToServerButton" type="Button" parent="."]
 layout_mode = 2
@@ -43,7 +44,7 @@ text = "7777"
 layout_mode = 2
 offset_left = 7.0
 offset_top = 43.0
-offset_right = 173.0
+offset_right = 51.0
 offset_bottom = 68.0
 text = "Port
 "
@@ -52,7 +53,7 @@ text = "Port
 layout_mode = 2
 offset_left = 4.0
 offset_top = 3.0
-offset_right = 170.0
+offset_right = 93.0
 offset_bottom = 27.0
 text = "IP Address"
 
@@ -76,9 +77,18 @@ text = "ShadowRealmJimbo"
 layout_mode = 0
 offset_left = 6.0
 offset_top = 89.0
-offset_right = 172.0
+offset_right = 105.0
 offset_bottom = 114.0
 text = "PlayerName"
+
+[node name="RequestGameStart" type="Button" parent="."]
+visible = false
+layout_mode = 0
+offset_left = 11.0
+offset_top = 189.0
+offset_right = 196.0
+offset_bottom = 234.0
+text = "Request Game Start"
 
 [node name="ErrorMessage" type="Button" parent="."]
 visible = false

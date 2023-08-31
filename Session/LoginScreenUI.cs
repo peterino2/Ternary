@@ -20,6 +20,7 @@ public partial class LoginScreenUI : Control
 	[Export] private TextEdit PlayerName;
 
 	[Export] private Button ErrorLabel;
+	[Export] private Button RequestGameStartButton;
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
@@ -27,14 +28,15 @@ public partial class LoginScreenUI : Control
 		StaticInstance = this;
 		HostServerButton.ButtonDown += OnHostServerButton;
 		ConnectToServer.ButtonDown += OnConnectToServerButton;
+        RequestGameStartButton.ButtonDown += OnRequestGameStart;
 
 		ErrorLabel.ButtonDown += OnErrorAck;
 	}
 
-	// Called every frame. 'delta' is the elapsed time since the previous frame.
-	public override void _Process(double delta)
-	{
-	}
+    public void OnRequestGameStart() 
+    {
+        GameSession.Get().RequestGameStartFromClient();
+    }
 
 	private void OnHostServerButton()
 	{
@@ -75,6 +77,7 @@ public partial class LoginScreenUI : Control
             IPAddressTextEdit.Editable = false;
             PortTextEdit.Editable = false;
             PlayerName.Editable = false;
+            RequestGameStartButton.Visible = true;
         }
     }
 }
