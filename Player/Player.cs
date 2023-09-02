@@ -7,8 +7,11 @@ public partial class Player : Node3D
 	[Export] public float WalkingSpeed = 2.5f;
 	[Export] public long OwnerId = 0;
     [Export] public MultiplayerSynchronizer Sync;
+
+    // State variables
     [Export] public Vector3 PositionSync = new Vector3(0,0,0);
     [Export] public Vector2 NetMoveSync = new Vector2(0,0);
+    //
 
     Vector2 AccumulatedMovement = new Vector2(0,0);
     Vector2 SyncAccumulatedMovement = new Vector2(0,0);
@@ -26,6 +29,11 @@ public partial class Player : Node3D
 		Sprite.Play("IdleDown");
         Sync.Synchronized += OnSynchronized;
 
+        if(GameSession.Get().PeerId == 1)
+        {
+            GameNetEngine.Get().OnSyncCommand += OnSyncCommand;
+        }
+
         if(OwnerId == GameSession.Get().PeerId)
         {
             RegisterAsLocalPlayer();
@@ -33,6 +41,14 @@ public partial class Player : Node3D
         }
 	}
 
+    // This function is only called on the server side,
+    // It is called when the server is ready to broadcast state for a given command frame.
+    public void OnSyncCommand(long CommandFrame, double Delta)
+    {
+        Rpc(nameof(RecieveGameStateClient), new Variant[]{CommandFrame, PositionSync, NetMoveSync});
+    }
+
+    // This function is callled when the local client is ready to submit a list of accumulated movement for a given command frame.
     public void OnNetTick(long CommandFrame, double NetTickDelta)
     {
         if(IsLocalPlayer)
@@ -53,11 +69,29 @@ public partial class Player : Node3D
         SyncAccumulatedMovement = new Vector2(0, 0);
     }
 
+    // This function is called on all clients when the server broadcasts the
+    // state of this class for a given command Frame
+	[Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Unreliable)]
+    public void RecieveGameStateClient(long CommandFrame, Vector3 NewPositionSync, Vector2 NewNetMoveSync)
+    {
+        PositionSync = NewPositionSync;
+        NetMoveSync = NewNetMoveSync;
+
+        if(!IsLocalPlayer)
+        {
+            UpdateSpriteVelocityAndFacing(NetMoveSync, GameNetEngine.Get().TickDelta);
+            return;
+        }
+
+        SyncAccumulatedMovement = new Vector2(0, 0);
+    }
+
 	public void SetOwnerServer(long NewOwner)
 	{
 		OwnerId = NewOwner;
 	}
 
+    // Called by Server to Update the Ownership of a given actor
 	[Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
 	public void SetOwnerOnClient(long NewOwner)
 	{
@@ -69,6 +103,10 @@ public partial class Player : Node3D
 		}
 	}
 
+    // Sent from client to server, via RpcId(1...
+    // This sends forward our accumulated movement vector along with a proosed position, that 
+    // the client believes we've moved to
+    //
     [Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Unreliable)]
     private void SubmitMove(long CommandFrame, Vector2 NewMove, Vector3 ProposedPosition)
     {
@@ -84,18 +122,28 @@ public partial class Player : Node3D
         }
 
         // Check that the sender has the ownership needed to move us
-        if(Sender == OwnerId)
+        if(Sender != OwnerId)
         {
-            AccumulatedMovement = NewMove;
-            Position = GetMovedPosition(Position, AccumulatedMovement);
-            if((ProposedPosition - Position).Length() < 0.2f * (float)GameNetEngine.Get().TickDelta)
-            {
-                Position = ProposedPosition;
-            }
-            UpdateSpriteVelocityAndFacing(AccumulatedMovement, GameNetEngine.Get().TickDelta);
-            NetMoveSync = AccumulatedMovement;
-            PositionSync = Position;
+            NU.Error(
+                "Client" 
+                + Sender.ToString()
+                + " is trying to send moves to me but i'm owned by " + OwnerId.ToString()
+            );
+            return;
         }
+
+        AccumulatedMovement = NewMove;
+        Position = GetMovedPosition(Position, AccumulatedMovement);
+
+        // If the client's proposed position is reachable and within an error tolerance.
+        // we can take it at it's word and move there.
+        if((ProposedPosition - Position).Length() < 0.3f * (float)GameNetEngine.Get().TickDelta)
+        {
+            Position = ProposedPosition;
+        }
+        UpdateSpriteVelocityAndFacing(AccumulatedMovement, GameNetEngine.Get().TickDelta);
+        NetMoveSync = AccumulatedMovement;
+        PositionSync = Position;
     }
 
 	public void RegisterAsLocalPlayer()
@@ -193,10 +241,12 @@ public partial class Player : Node3D
 		var InputVector = Input.GetVector("MoveLeft", "MoveRight", "MoveUp", "MoveDown");
         InputVector = InputVector.Normalized();
         LocalInput = InputVector * (float)delta;
-        var offset = new Vector2(InputVector.X * (float) delta, InputVector.Y * (float) delta);
+        AccumulatedMovement += LocalInput;
+        SyncAccumulatedMovement += LocalInput;
+    }
 
-        AccumulatedMovement += offset;
-        SyncAccumulatedMovement += offset;
- 
+    public void ShutDownNet() 
+    {
+        GameNetEngine.Get().OnSyncCommand -= OnSyncCommand;
     }
 }

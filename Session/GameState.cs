@@ -81,6 +81,7 @@ public partial class GameState: Node
 
     public void RemovePlayer(long Id)
     {
+        AvatarSpawnedServer[Id].ShutDownNet();
         AvatarSpawnedServer[Id].QueueFree();
 		AvatarSpawnedServer.Remove(Id);
     }

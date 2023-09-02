@@ -15,8 +15,9 @@ public partial class GameNetEngine: Node
     public double TickDelta = 0.05;
     public double TimeTilTick = 0.0;
 
+    // ==============================================
     public delegate void NetTickDelegate(long CommandFrame, double Delta);
-    public event NetTickDelegate NetTickables;
+    public event NetTickDelegate OnSyncCommand;
 
     public override void _Ready() 
     {
@@ -39,7 +40,7 @@ public partial class GameNetEngine: Node
             {
                 Rpc(nameof(BroadCastCommandFrame), new Variant[] {CommandFrame});
             }
-            NetTickables?.Invoke(CommandFrame, TickDelta);
+            OnSyncCommand?.Invoke(CommandFrame, TickDelta);
         }
     }
 
@@ -51,16 +52,20 @@ public partial class GameNetEngine: Node
             return;
         }
 
-        if(NewCommandFrame > CommandFrame)
+        if(NewCommandFrame > CommandFrame + 1)
         {
-            NU.Warning(
-                "Server is running a command frame newer than ours, forcefully updating " 
-                + CommandFrame.ToString() + "->" + NewCommandFrame.ToString());
-            CommandFrame =  NewCommandFrame;
+            if(NewCommandFrame > CommandFrame + 3)
+            {
+                NU.Warning(
+                    "Server is running a command frame much newer than ours, forcefully updating " 
+                    + CommandFrame.ToString() + "->" + NewCommandFrame.ToString());
+            }
+
+            CommandFrame = NewCommandFrame + 1;
             TimeTilTick = 0;
         }
 
-        if((CommandFrame - NewCommandFrame) > 2)
+        if((CommandFrame - NewCommandFrame) > 3)
         {
             NU.Warning(
                 "Client is running faster than server? rolling back command frame." 

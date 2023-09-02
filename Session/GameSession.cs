@@ -308,6 +308,11 @@ public partial class GameSession: Node
 	{
 		// assert(PeerId == 1);
 		// assert(GameStarted = false);
+        if(GameStarted != false)
+        {
+			NU.Warning("Start game signal ignored, game already started");
+            return;
+        }
 		if(LevelNode == null)
 		{
 			NU.Error("Invalid node passed in to StartGame()");
@@ -337,6 +342,11 @@ public partial class GameSession: Node
         // TODO add an admin/Root system.
         // ALSO TODO: Dont store games session stuff on the UI_ServerAdmin... maybe?
         UI_ServerAdmin.Get().StartGame();
+    }
+
+    public bool IsServer() 
+    {
+        return PeerId == 1;
     }
 }
 
