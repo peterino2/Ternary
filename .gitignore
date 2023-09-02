@@ -3,4 +3,5 @@
 .vs/
 Build/
 Builds/
+export_presets.cfg
 deployhost.txt
