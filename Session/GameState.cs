@@ -75,6 +75,7 @@ public partial class GameState: Node
         var newPlayer = GameLevel.Get().AvatarScene.Instantiate() as Player;
         newPlayer.Name = "Player" + Multiplayer.GetRemoteSenderId().ToString();
         newPlayer.SetOwnerServer(Multiplayer.GetRemoteSenderId());
+
         GameLevel.Get().GetEntitiesRoot().AddChild(newPlayer);
 		AvatarSpawnedServer[Multiplayer.GetRemoteSenderId()] = newPlayer;
 	}

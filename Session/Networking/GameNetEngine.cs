@@ -17,7 +17,8 @@ public partial class GameNetEngine: Node
 
     // ==============================================
     public delegate void NetTickDelegate(long CommandFrame, double Delta);
-    public event NetTickDelegate OnSyncCommand;
+    public event NetTickDelegate OnSyncFrame; // called by the server, when it's time to broadcast a sync
+    public event NetTickDelegate OnNetTick; // Called by the local clinet it's time to submit a sync
 
     public override void _Ready() 
     {
@@ -29,18 +30,23 @@ public partial class GameNetEngine: Node
         TickDelta = NewTickDelta;
     }
 
-    public override void _Process(double delta)
+    public void _Process(double delta)
     {
-        TimeTilTick -= delta;
+        TimeTilTick -= delta; // todo... check what happens when the server fps is too high... or low.
         if(TimeTilTick < 0)
         {
-            TimeTilTick = TickDelta;
             CommandFrame += 1;
             if(GameSession.Get().PeerId == 1)
             {
                 Rpc(nameof(BroadCastCommandFrame), new Variant[] {CommandFrame});
+                OnSyncFrame?.Invoke(CommandFrame, TickDelta);
             }
-            OnSyncCommand?.Invoke(CommandFrame, TickDelta);
+            else
+            {
+                OnNetTick?.Invoke(CommandFrame, TickDelta);
+            }
+
+            TimeTilTick = TickDelta;
         }
     }
 
@@ -72,6 +78,7 @@ public partial class GameNetEngine: Node
                 + CommandFrame.ToString() + "->" + NewCommandFrame.ToString());
             CommandFrame =  NewCommandFrame;
         }
+
 	}
 
 }

@@ -1,9 +1,10 @@
-[gd_scene load_steps=7 format=3 uid="uid://rsjcev5cw42o"]
+[gd_scene load_steps=8 format=3 uid="uid://rsjcev5cw42o"]
 
 [ext_resource type="Script" path="res://Player/Player.cs" id="1_akdl1"]
 [ext_resource type="SpriteFrames" uid="uid://bvu37pp2ixv3l" path="res://Player/PlayerSpriteFrames.tres" id="1_nmibg"]
 [ext_resource type="Script" path="res://Player/AnimatedGameSprite.cs" id="3_02lru"]
 [ext_resource type="Script" path="res://Player/Nameplate.cs" id="4_hg8tv"]
+[ext_resource type="Script" path="res://Locomotion/CharacterMover.cs" id="5_vmiwq"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_ejvr1"]
 properties/0/path = NodePath(".:OwnerId")
@@ -14,8 +15,9 @@ properties/0/watch = false
 [sub_resource type="SphereMesh" id="SphereMesh_u7x4k"]
 radius = 0.2
 
-[node name="Player" type="Node3D" node_paths=PackedStringArray("Sync")]
+[node name="Player" type="Node3D" node_paths=PackedStringArray("Mover", "Sync")]
 script = ExtResource("1_akdl1")
+Mover = NodePath("MoverComponent")
 Sync = NodePath("MultiplayerSynchronizer")
 
 [node name="Node3D" type="Node3D" parent="."]
@@ -49,3 +51,6 @@ replication_config = SubResource("SceneReplicationConfig_ejvr1")
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 visible = false
 mesh = SubResource("SphereMesh_u7x4k")
+
+[node name="MoverComponent" type="Node" parent="."]
+script = ExtResource("5_vmiwq")
