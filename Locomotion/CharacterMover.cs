@@ -8,14 +8,17 @@ public partial class CharacterMover: Node
 
 	// === settings ===
 	[Export] public float ServerMovementLeniency = 0.3f;
-	[Export] public float MaxPredictionDesyncLength = 0.3f;
-	[Export] public float PredictionDesyncLerpScale = 0.3f;
+	[Export] public float MaxPredictionDesyncLength = 0.8f;
+	[Export] public float MinPredictionDesyncLength = 0.3f;
+	[Export] public float PredictionDesyncLerpScale = 0.1f;
 	
 	[Export] public Node3D Base;
+	[Export] public bool UsePredictionSmoothing = true;
 
 	[Export] public Vector3 PositionSync = new Vector3(0,0,0);
 	[Export] public Vector2 NetMoveSync = new Vector2(0,0);
 
+    public double LastDelta = 0.01f;
 	// Input Vector scaled for this last frame
 	Vector2 LocalInput = new Vector2(0,0);
 
@@ -25,7 +28,7 @@ public partial class CharacterMover: Node
 	// Accumulated sum of inputs since the last command frame state
 	Vector2 AccumulatedMovementSinceSync = new Vector2(0,0);
 
-	public bool LocallyControlled = false;
+	public bool IsLocallyControlled = false;
 	private double NetTickTime  = 0;
 
 	public override void _Ready()
@@ -35,14 +38,16 @@ public partial class CharacterMover: Node
     // call me from your object's ready after my setup is complete
 	public void SetupNetTickables()
 	{
-        if(OwnerId == GameSession.Get().OwnerId)
+        if(OwnerId == GameSession.Get().PeerId)
         {
-            GameNetEngine.Get().OnSyncFrame += OnSyncFrame;
+            NU.Ok("Movement component setup to send.");
+            GameNetEngine.Get().OnNetTick += OnNetTick;
         }
 
         if(GameSession.Get().IsServer())
         {
-            GameNetEngine.Get().OnNetTick += OnNetTick;
+            NU.Ok("Movement component setup, reciever");
+            GameNetEngine.Get().OnSyncFrame += OnSyncFrame;
         }
 	}
 
@@ -64,31 +69,75 @@ public partial class CharacterMover: Node
         RpcId(1, nameof(SubmitMove), new Variant[] {
             GameNetEngine.Get().CommandFrame, 
             AccumulatedMovement,
-            Position
+            Base.Position
         });
+        AccumulatedMovement = new Vector2(0,0);
     }
 
 	public void SetOwner(long NewOwnerId) 
 	{
 		OwnerId = NewOwnerId;
-		LocallyControlled = (OwnerId == GameSession.Get().PeerId);
+		IsLocallyControlled = (OwnerId == GameSession.Get().PeerId);
 	}
 
 	// Have this get called from the owner's _Process function, at the end.
 	// do it after all AddMovementInput()s are called
     // updates every frame
-	public void TickUpdate(double Delta)
+	public void TickUpdates(double Delta)
 	{
+        //1. Server Auth move.
+        if(IsLocallyControlled)
+        {
+            TickPrediction(Delta);
+        }
+        else 
+        {
+            TickInterpolation(Delta);
+        }
 	}
-    
+
+    public Vector2 GetLastMove()
+    {
+        if(!IsLocallyControlled)
+        {
+            return NetMoveSync;
+        }
+        else
+        {
+            return LocalInput;
+        }
+    }
+
+	private void TickPrediction(double delta)
+	{
+		var ServerPredictedPosition = SimulateMovedPosition(PositionSync, AccumulatedMovementSinceSync, MovementSpeed);
+		if(UsePredictionSmoothing)
+		{
+			Base.Position = SimulateMovedPosition(Base.Position, LocalInput, MovementSpeed);
+			Vector3 NetError = Base.Position - (ServerPredictedPosition);
+			if(NetError.Length() > MinPredictionDesyncLength)
+			{
+				Base.Position = Base.Position.Lerp(ServerPredictedPosition, PredictionDesyncLerpScale);
+			}
+            else if(NetError.Length() > MaxPredictionDesyncLength)
+            {
+                Base.Position = ServerPredictedPosition;
+            }
+		}
+		else 
+		{
+			Base.Position = ServerPredictedPosition;
+		}
+	}
+
 	private void TickInterpolation(double delta)
 	{
-		if((PositionSync - Position).Length() < (float) delta * WalkingSpeed)
+		if((PositionSync - Base.Position).Length() < (float) delta * MovementSpeed)
 		{
-			Position = PositionSync;
+			Base.Position = PositionSync;
 		}
 		else {
-			Position = Position + (PositionSync - Position).Normalized() * (float) delta * WalkingSpeed;
+			Base.Position = Base.Position + (PositionSync - Base.Position).Normalized() * (float) delta * MovementSpeed;
 		}
 	}
 
@@ -99,7 +148,8 @@ public partial class CharacterMover: Node
 	{
 		PositionSync = NewPositionSync;
 		NetMoveSync = NewNetMoveSync;
-		SyncAccumulatedMovement = new Vector2(0, 0);
+        LastDelta = GameNetEngine.Get().TickDelta;
+		AccumulatedMovementSinceSync = new Vector2(0, 0);
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Unreliable)]
@@ -128,21 +178,28 @@ public partial class CharacterMover: Node
 		}
 
 		AccumulatedMovement = NewMove;
-		Position = SimulateMovedPosition(Position, AccumulatedMovement, MovementSpeed);
+        LastDelta = GameNetEngine.Get().TickDelta;
+		Base.Position = SimulateMovedPosition(Base.Position, AccumulatedMovement, MovementSpeed);
 
-        if((Proposed Position -  Position).Length() < 0.3f * (float) GameNetEngine.Get().TickDelta)
+        if((ProposedPosition -  Base.Position).Length() < 0.3f * (float) GameNetEngine.Get().TickDelta)
         {
-            Position = ProposedPosition;
+            Base.Position = ProposedPosition;
         }
         NetMoveSync = AccumulatedMovement;
-        PositionSync = Position;
+        PositionSync = Base.Position;
 	}
 
 	// Adds basic movement input, use axis values and delta time.
 	// you typically want to use this one.
 	public void AddMovementInput(Vector2 MovementInput, double delta)
 	{
+        if(!IsLocallyControlled)
+        {
+            NU.Error("Client is adding Movement input to a character it doesn't own : " + OwnerId.ToString());
+            return;
+        }
 		AddMovementInputRaw(MovementInput.Normalized() * (float) delta);
+        LastDelta = delta;
 	}
 
 	// Low level adds an accumulated value to the movement input
@@ -153,20 +210,17 @@ public partial class CharacterMover: Node
 		AccumulatedMovementSinceSync += MovementInput;
 	}
 
-    public void TickPrediction(double delta)
-    {
-    }
-
 	// Core movement logic
-	private Vector3 SimulateMovedPosition(
+    public virtual Vector3 SimulateMovedPosition(
 			Vector3 StartPosition,
 			Vector2 MovementInput,
 			float SimulatedMovementSpeed)
 	{
 		var DeltaPosition = new Vector3(
             MovementInput.X * SimulatedMovementSpeed,
-            MovementInput.Y * SimulatedMovementSpeed, 
-            0);
+            0,
+            MovementInput.Y * SimulatedMovementSpeed
+        );
 
 		var MovedPosition = StartPosition + DeltaPosition;
 		// TODO: do collision resolution here.
@@ -175,7 +229,7 @@ public partial class CharacterMover: Node
 
 	public void ShutdownNetTickables() 
 	{
-        if(OwnerId == GameSession.Get())
+        if(OwnerId == GameSession.Get().PeerId)
         {
             GameNetEngine.Get().OnNetTick -= OnNetTick;
         }

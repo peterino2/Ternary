@@ -30,7 +30,7 @@ public partial class GameNetEngine: Node
         TickDelta = NewTickDelta;
     }
 
-    public void _Process(double delta)
+    public override void _Process(double delta)
     {
         TimeTilTick -= delta; // todo... check what happens when the server fps is too high... or low.
         if(TimeTilTick < 0)

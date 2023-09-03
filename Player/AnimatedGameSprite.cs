@@ -27,6 +27,7 @@ public partial class AnimatedGameSprite : AnimatedSprite3D
 	private float Velocity = 0.0f;
 	private string CurrentAnim = "IdleDown";
 	private bool Flipped = false;
+    public bool ForceFlip = false;
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
@@ -104,7 +105,7 @@ public partial class AnimatedGameSprite : AnimatedSprite3D
 			}
 		}
 
-		if(facing == FacingDirection.Left )
+		if(facing == FacingDirection.Left || ForceFlip)
 		{
 			Flipped = true;
 		}

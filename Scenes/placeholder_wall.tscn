@@ -10,6 +10,7 @@ albedo_color = Color(1, 0.431373, 0.0509804, 1)
 [node name="Wall" type="Node3D"]
 
 [node name="PlaceholderWall" type="StaticBody3D" parent="."]
+input_ray_pickable = false
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="PlaceholderWall"]
 shape = SubResource("BoxShape3D_tfj1u")

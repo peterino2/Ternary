@@ -1,40 +1,52 @@
-[gd_scene load_steps=8 format=3 uid="uid://rsjcev5cw42o"]
+[gd_scene load_steps=10 format=3 uid="uid://rsjcev5cw42o"]
 
 [ext_resource type="Script" path="res://Player/Player.cs" id="1_akdl1"]
-[ext_resource type="SpriteFrames" uid="uid://bvu37pp2ixv3l" path="res://Player/PlayerSpriteFrames.tres" id="1_nmibg"]
+[ext_resource type="Script" path="res://Locomotion/CharacterMover.cs" id="2_1ooas"]
 [ext_resource type="Script" path="res://Player/AnimatedGameSprite.cs" id="3_02lru"]
+[ext_resource type="SpriteFrames" uid="uid://dn731ywtgunkt" path="res://Assets/Bankman_Warrior_SF.tres" id="3_tedje"]
 [ext_resource type="Script" path="res://Player/Nameplate.cs" id="4_hg8tv"]
-[ext_resource type="Script" path="res://Locomotion/CharacterMover.cs" id="5_vmiwq"]
+[ext_resource type="SpriteFrames" uid="uid://b2ccr3788eav5" path="res://Assets/Bankman_Arrow.tres" id="6_s1ife"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_ejvr1"]
 properties/0/path = NodePath(".:OwnerId")
 properties/0/spawn = true
-properties/0/sync = false
+properties/0/sync = true
 properties/0/watch = false
 
 [sub_resource type="SphereMesh" id="SphereMesh_u7x4k"]
 radius = 0.2
 
-[node name="Player" type="Node3D" node_paths=PackedStringArray("Mover", "Sync")]
+[sub_resource type="SphereShape3D" id="SphereShape3D_g6wc3"]
+
+[node name="Player" type="CharacterBody3D" node_paths=PackedStringArray("Mover", "ArrowBase", "Sync")]
 script = ExtResource("1_akdl1")
-Mover = NodePath("MoverComponent")
+Mover = NodePath("MovementComponent")
+ArrowBase = NodePath("ArrowBase")
 Sync = NodePath("MultiplayerSynchronizer")
+
+[node name="MovementComponent" type="Node" parent="." node_paths=PackedStringArray("Base")]
+script = ExtResource("2_1ooas")
+Base = NodePath("..")
 
 [node name="Node3D" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.652932, 0.757417, 0, -0.757417, 0.652932, 0, 0, 0)
 
 [node name="Sprite" type="AnimatedSprite3D" parent="Node3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.901507, -0.0570955)
+transform = Transform3D(1, 0, 0, 0, 1, -2.98023e-08, 0, 2.98023e-08, 1, 0, 0.845446, 0.348727)
 cast_shadow = 0
-pixel_size = 0.05
+pixel_size = 0.008
 shaded = true
 texture_filter = 0
-sprite_frames = ExtResource("1_nmibg")
-animation = &"WalkLeft"
+sprite_frames = ExtResource("3_tedje")
+animation = &"IdleUp"
 script = ExtResource("3_02lru")
+IdleRight = "IdleDown"
+WalkUp = "IdleUp"
+WalkDown = "IdleDown"
+WalkRight = "IdleDown"
 
 [node name="Nameplate" type="Label3D" parent="Node3D" node_paths=PackedStringArray("Player")]
-transform = Transform3D(1, 0, 0, 0, 1, 5.96046e-08, 0, 2.98023e-08, 1, 0, 1.52055, 0.138506)
+transform = Transform3D(1, 0, 0, 0, 1, 5.96046e-08, 0, 2.98023e-08, 1, 0, 2.17348, 0.895923)
 pixel_size = 0.0007
 double_sided = false
 no_depth_test = true
@@ -51,6 +63,16 @@ replication_config = SubResource("SceneReplicationConfig_ejvr1")
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 visible = false
 mesh = SubResource("SphereMesh_u7x4k")
+skeleton = NodePath("")
 
-[node name="MoverComponent" type="Node" parent="."]
-script = ExtResource("5_vmiwq")
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.3, 0)
+shape = SubResource("SphereShape3D_g6wc3")
+
+[node name="ArrowBase" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0.00242555)
+
+[node name="Sprite3D" type="AnimatedSprite3D" parent="ArrowBase"]
+transform = Transform3D(0.2, 0, 0, 0, -8.74228e-09, -0.2, 0, 0.2, -8.74228e-09, 0, 0, 0.667819)
+sprite_frames = ExtResource("6_s1ife")
+animation = &"IdleDown"

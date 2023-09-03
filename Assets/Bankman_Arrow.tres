@@ -1,0 +1,18 @@
+[gd_resource type="SpriteFrames" load_steps=3 format=3 uid="uid://b2ccr3788eav5"]
+
+[ext_resource type="Texture2D" uid="uid://makty78yqbxk" path="res://Assets/Bankman_DirectionalArrow.png" id="1_5ccrk"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_d51qb"]
+atlas = ExtResource("1_5ccrk")
+region = Rect2(0, 0, 800, 1200)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_d51qb")
+}],
+"loop": true,
+"name": &"IdleDown",
+"speed": 5.0
+}]
