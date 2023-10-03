@@ -19,7 +19,7 @@ public partial class Player : Node3D
 	Vector2 AccumulatedMovement = new Vector2(0,0);
 	Vector2 SyncAccumulatedMovement = new Vector2(0,0);
 	Vector2 LocalInput = new Vector2(0,0);
-    Vector2 MouseVector = new Vector2(0,0);
+	Vector2 MouseVector = new Vector2(0,0);
 	Vector3 LastDeltaPosition = new Vector3(0,0,0);
 
 	[Export] bool UsePrediction = true;
@@ -39,14 +39,14 @@ public partial class Player : Node3D
 		}
 
 		Mover.SetOwner(OwnerId);
-        Mover.SetBase(this);
-        Mover.SetupNetTickables();
+		Mover.SetBase(this);
+		Mover.SetupNetTickables();
 	}
 
 	public void SetOwnerServer(long NewOwner)
 	{
 		OwnerId = NewOwner;
-        Mover.SetOwner(NewOwner);
+		Mover.SetOwner(NewOwner);
 	}
 
 	// Called by Server to Update the Ownership of a given actor
@@ -54,7 +54,7 @@ public partial class Player : Node3D
 	public void SetOwnerOnClient(long NewOwner)
 	{
 		OwnerId = NewOwner;
-        Mover.SetOwner(NewOwner);
+		Mover.SetOwner(NewOwner);
 
 		if(NewOwner == GameSession.Get().PeerId)
 		{
@@ -71,8 +71,8 @@ public partial class Player : Node3D
 	{
 		Sprite.SetVelocity(Input.Length() / ((float) Delta) * WalkingSpeed);
 
-        Sprite.ForceFlip = false;
-        float deadzone = 0.2f;
+		Sprite.ForceFlip = false;
+		float deadzone = 0.2f;
 
 		if(MouseVector.X > deadzone && MouseVector.Y > deadzone)
 		{
@@ -85,20 +85,20 @@ public partial class Player : Node3D
 		if(MouseVector.X < -deadzone && MouseVector.Y < -deadzone)
 		{
 			Sprite.SetFacingDir(AnimatedGameSprite.FacingDirection.Up);
-            Sprite.ForceFlip = true;
+			Sprite.ForceFlip = true;
 		}
 		if(MouseVector.X < -deadzone && MouseVector.Y > deadzone)
 		{
 			Sprite.SetFacingDir(AnimatedGameSprite.FacingDirection.Left);
 		}
 
-        if(IsLocalPlayer)
-            ArrowBase.Rotation = new Vector3(0, (float)Math.Atan2(-MouseVector.Y, MouseVector.X) + 0.5f * (float) Math.PI, 0);
+		if(IsLocalPlayer)
+			ArrowBase.Rotation = new Vector3(0, (float)Math.Atan2(-MouseVector.Y, MouseVector.X) + 0.5f * (float) Math.PI, 0);
 
-        // -- +- 
-        // -+ ++
+		// -- +- 
+		// -+ ++
 
-        /*
+		/*
 		if(MouseVector.X > 0.0f)
 		{
 			Sprite.SetFacingDir(AnimatedGameSprite.FacingDirection.Right);
@@ -115,7 +115,7 @@ public partial class Player : Node3D
 		{
 			Sprite.SetFacingDir(AnimatedGameSprite.FacingDirection.Up);
 		}
-        */
+		*/
 	}
 
 	private Vector3 GetMovedPosition(Vector3 StartPosition, Vector2 Input)
@@ -132,28 +132,28 @@ public partial class Player : Node3D
 
 	public override void _Process(double delta)
 	{
-        if(IsLocalPlayer)
-        {
-            var InputVector = Input.GetVector("MoveLeft", "MoveRight", "MoveUp", "MoveDown").Normalized();
-            Mover.AddMovementInput(InputVector, delta);
-        }
+		if(IsLocalPlayer)
+		{
+			var InputVector = Input.GetVector("MoveLeft", "MoveRight", "MoveUp", "MoveDown").Normalized();
+			Mover.AddMovementInput(InputVector, delta);
+		}
 
-        Mover.TickUpdates(delta);
+		Mover.TickUpdates(delta);
 
-        if(!GameSession.Get().IsServer())
-        {
-            var MousePosition = GetViewport().GetMousePosition();
-            var ViewportSize = GetViewport().GetVisibleRect().Size;
-            MouseVector = MousePosition - (ViewportSize / 2.0f);
-            MouseVector = MouseVector.Normalized();
+		if(!GameSession.Get().IsServer())
+		{
+			var MousePosition = GetViewport().GetMousePosition();
+			var ViewportSize = GetViewport().GetVisibleRect().Size;
+			MouseVector = MousePosition - (ViewportSize / 2.0f);
+			MouseVector = MouseVector.Normalized();
 
-            UpdateSpriteVelocityAndFacing(Mover.GetLastMove(), Mover.LastDelta, MouseVector);
-        }
+			UpdateSpriteVelocityAndFacing(Mover.GetLastMove(), Mover.LastDelta, MouseVector);
+		}
 
 	}
 
 	public void ShutDownNet() 
 	{
-        Mover.ShutdownNetTickables();
+		Mover.ShutdownNetTickables();
 	}
 }
