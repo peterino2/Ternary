@@ -28,15 +28,15 @@ public partial class LoginScreenUI : Control
 		StaticInstance = this;
 		HostServerButton.ButtonDown += OnHostServerButton;
 		ConnectToServer.ButtonDown += OnConnectToServerButton;
-        RequestGameStartButton.ButtonDown += OnRequestGameStart;
+		RequestGameStartButton.ButtonDown += OnRequestGameStart;
 
 		ErrorLabel.ButtonDown += OnErrorAck;
 	}
 
-    public void OnRequestGameStart() 
-    {
-        GameSession.Get().RequestGameStartFromClient();
-    }
+	public void OnRequestGameStart() 
+	{
+		GameSession.Get().RequestGameStartFromClient();
+	}
 
 	private void OnHostServerButton()
 	{
@@ -68,16 +68,16 @@ public partial class LoginScreenUI : Control
 		ErrorLabel.SetProcess(false);
 	}
 
-    public void UpdateSessionState()
-    {
-        var Session = GameSession.Get();
+	public void UpdateSessionState()
+	{
+		var Session = GameSession.Get();
 
-        if(Session.LoginVerifiedClient)
-        {
-            IPAddressTextEdit.Editable = false;
-            PortTextEdit.Editable = false;
-            PlayerName.Editable = false;
-            RequestGameStartButton.Visible = true;
-        }
-    }
+		if(Session.LoginVerifiedClient)
+		{
+			IPAddressTextEdit.Editable = false;
+			PortTextEdit.Editable = false;
+			PlayerName.Editable = false;
+			RequestGameStartButton.Visible = true;
+		}
+	}
 }

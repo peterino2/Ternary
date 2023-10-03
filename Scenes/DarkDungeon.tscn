@@ -1,9 +1,10 @@
-[gd_scene load_steps=6 format=3 uid="uid://c3g7w2d2hl06l"]
+[gd_scene load_steps=7 format=3 uid="uid://c3g7w2d2hl06l"]
 
 [ext_resource type="Script" path="res://Scenes/GameLevel.cs" id="1_2hvep"]
 [ext_resource type="PackedScene" uid="uid://dgx065uvkv0mq" path="res://Player/Camera/PlayerCamera.tscn" id="2_56pto"]
 [ext_resource type="PackedScene" uid="uid://rsjcev5cw42o" path="res://Player/Player.tscn" id="2_vv5tr"]
 [ext_resource type="PackedScene" uid="uid://di5wktkrde5xr" path="res://Scenes/placeholder_wall.tscn" id="4_6rr58"]
+[ext_resource type="PackedScene" uid="uid://iod314ewkyha" path="res://Scenes/Balls/Ball.tscn" id="4_7e234"]
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_6nxq5"]
 
@@ -18,6 +19,9 @@ AvatarScene = ExtResource("2_vv5tr")
 _spawnable_scenes = PackedStringArray("res://Player/Player.tscn")
 spawn_path = NodePath("../Entities")
 spawn_limit = 32
+
+[node name="Ball" parent="MultiplayerSpawner" instance=ExtResource("4_7e234")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.988111, 0)
 
 [node name="Entities" type="Node3D" parent="."]
 

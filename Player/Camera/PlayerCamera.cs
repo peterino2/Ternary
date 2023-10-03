@@ -24,10 +24,10 @@ public partial class PlayerCamera : Node3D
 	{
 		if(ViewTarget == null)
 		{
-            if(LocalPlayerSubsystem.Get().LocalPlayer != null)
-            {
-                ViewTarget = LocalPlayerSubsystem.Get().LocalPlayer;
-            }
+			if(LocalPlayerSubsystem.Get().LocalPlayer != null)
+			{
+				ViewTarget = LocalPlayerSubsystem.Get().LocalPlayer;
+			}
 			return;
 		}
 		if(Snap)

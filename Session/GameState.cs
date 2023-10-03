@@ -41,11 +41,11 @@ public partial class GameState: Node
 	{
 		if(LevelReady && !AvatarSpawned)
 		{
-            if(GameSession.Get().PeerId != 1)
-            {
-                RpcId(1, nameof(SpawnAvatar), new Variant[]{ GameSession.Get().PlayerName });
-			    AvatarSpawned = true;
-            }
+			if(GameSession.Get().PeerId != 1)
+			{
+				RpcId(1, nameof(SpawnAvatar), new Variant[]{ GameSession.Get().PlayerName });
+				AvatarSpawned = true;
+			}
 		}
 	}
 
@@ -54,7 +54,7 @@ public partial class GameState: Node
 		LevelNode.AddChild(LevelScene.Instantiate());
 	}
 
-    private int count = 0;
+	private int count = 0;
 
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
 	public void SpawnAvatar(string PlayerName)
@@ -71,20 +71,20 @@ public partial class GameState: Node
 		}
 
 		NU.Ok("Requesting Avatar Spawn from client for Player: " + PlayerName);
-        
-        var newPlayer = GameLevel.Get().AvatarScene.Instantiate() as Player;
-        newPlayer.Name = "Player" + Multiplayer.GetRemoteSenderId().ToString();
-        newPlayer.SetOwnerServer(Multiplayer.GetRemoteSenderId());
+		
+		var newPlayer = GameLevel.Get().AvatarScene.Instantiate() as Player;
+		newPlayer.Name = "Player" + Multiplayer.GetRemoteSenderId().ToString();
+		newPlayer.SetOwnerServer(Multiplayer.GetRemoteSenderId());
 
-        GameLevel.Get().GetEntitiesRoot().AddChild(newPlayer);
+		GameLevel.Get().GetEntitiesRoot().AddChild(newPlayer);
 		AvatarSpawnedServer[Multiplayer.GetRemoteSenderId()] = newPlayer;
 	}
 
-    public void RemovePlayer(long Id)
-    {
-        AvatarSpawnedServer[Id].ShutDownNet();
-        AvatarSpawnedServer[Id].QueueFree();
+	public void RemovePlayer(long Id)
+	{
+		AvatarSpawnedServer[Id].ShutDownNet();
+		AvatarSpawnedServer[Id].QueueFree();
 		AvatarSpawnedServer.Remove(Id);
-    }
+	}
 
 }

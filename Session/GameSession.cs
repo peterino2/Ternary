@@ -83,22 +83,22 @@ public partial class GameSession: Node
 		Multiplayer.ConnectedToServer += PeerConnectedClient;
 		Multiplayer.ServerDisconnected += ServerDisconnected;
 		Multiplayer.PeerConnected += PeerConnectedServer;
-        Multiplayer.PeerDisconnected += PeerDisconnectedServer;
+		Multiplayer.PeerDisconnected += PeerDisconnectedServer;
 	}
 
-    public void PeerDisconnectedServer(long Id)
-    {
-        var PlayerToDc = NamesById[Id];
-        NU.Warning("Player Disconnected : " + PlayerToDc + "[" + Id.ToString() + "]");
-        NamesById.Remove(Id);
-        IdsByName.Remove(PlayerToDc);
+	public void PeerDisconnectedServer(long Id)
+	{
+		var PlayerToDc = NamesById[Id];
+		NU.Warning("Player Disconnected : " + PlayerToDc + "[" + Id.ToString() + "]");
+		NamesById.Remove(Id);
+		IdsByName.Remove(PlayerToDc);
 
-        if(PeerId == 1)
-        {
-            UI_ServerAdmin.Get().RemovePlayer(Id);
-            GameState.Get().RemovePlayer(Id);
-        }
-    }
+		if(PeerId == 1)
+		{
+			UI_ServerAdmin.Get().RemovePlayer(Id);
+			GameState.Get().RemovePlayer(Id);
+		}
+	}
 
 	public void PeerConnectedServer(long Id)
 	{
@@ -219,13 +219,13 @@ public partial class GameSession: Node
 		}
 	}
 
-    private void BroadCastPlayerList()
-    {
-        foreach(KeyValuePair<long, string> pair in NamesById)
-        {
-		    Rpc(nameof(RecievePlayerInfoClient), new Variant[]{ pair.Key, pair.Value });
-        }
-    }
+	private void BroadCastPlayerList()
+	{
+		foreach(KeyValuePair<long, string> pair in NamesById)
+		{
+			Rpc(nameof(RecievePlayerInfoClient), new Variant[]{ pair.Key, pair.Value });
+		}
+	}
 
 	// Server validation of the new incomming player.
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
@@ -246,37 +246,37 @@ public partial class GameSession: Node
 
 		UI_ServerAdmin.Get().SetPlayerName(PlayerName, Multiplayer.GetRemoteSenderId());
 		IdsByName[PlayerName] =  Multiplayer.GetRemoteSenderId();
-        NamesById[Multiplayer.GetRemoteSenderId()] = PlayerName;
+		NamesById[Multiplayer.GetRemoteSenderId()] = PlayerName;
 		Verification[Multiplayer.GetRemoteSenderId()] = true;
 
-        BroadCastPlayerList();
+		BroadCastPlayerList();
 
-        var PlayerCountToStart = SessionConfigs.Get().SettingsConfig.AutoStartGamePlayerCount;
-        if(PlayerCountToStart > 0 )
-        {
-            if(IdsByName.Count >= PlayerCountToStart)
-            {
-                UI_ServerAdmin.Get().StartGame();
-            }
-        }
+		var PlayerCountToStart = SessionConfigs.Get().SettingsConfig.AutoStartGamePlayerCount;
+		if(PlayerCountToStart > 0 )
+		{
+			if(IdsByName.Count >= PlayerCountToStart)
+			{
+				UI_ServerAdmin.Get().StartGame();
+			}
+		}
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
 	public void RecievePlayerInfoClient(long ClientId, string PlayerName)
 	{
-        if(ClientId == PeerId)
-        {
-            LoginVerifiedClient = true;
-            LoginScreenUI.Get().UpdateSessionState();
-        }
+		if(ClientId == PeerId)
+		{
+			LoginVerifiedClient = true;
+			LoginScreenUI.Get().UpdateSessionState();
+		}
 
-        if(!NamesById.ContainsKey(ClientId))
-        {
-		    NU.Ok("NewPlayerRecieved: " + PlayerName + $"[{ClientId.ToString()}]");
-        }
+		if(!NamesById.ContainsKey(ClientId))
+		{
+			NU.Ok("NewPlayerRecieved: " + PlayerName + $"[{ClientId.ToString()}]");
+		}
 
 		IdsByName[PlayerName] = ClientId;
-        NamesById[ClientId] = PlayerName;
+		NamesById[ClientId] = PlayerName;
 	}
 
 
@@ -308,11 +308,11 @@ public partial class GameSession: Node
 	{
 		// assert(PeerId == 1);
 		// assert(GameStarted = false);
-        if(GameStarted != false)
-        {
+		if(GameStarted != false)
+		{
 			NU.Warning("Start game signal ignored, game already started");
-            return;
-        }
+			return;
+		}
 		if(LevelNode == null)
 		{
 			NU.Error("Invalid node passed in to StartGame()");
@@ -326,27 +326,27 @@ public partial class GameSession: Node
 		GameState.Get().PrepareGame();
 	}
 
-    public void RequestGameStartFromClient() 
-    {
-        RpcId(1, nameof(RecievedGameStartRequestServer), new Variant[] {});
-    }
+	public void RequestGameStartFromClient() 
+	{
+		RpcId(1, nameof(RecievedGameStartRequestServer), new Variant[] {});
+	}
 
-    [Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-    public void RecievedGameStartRequestServer() 
-    {
-        if(PeerId != 1)
-        {
-            NU.Error("GameSession::RecievedGameStartRequestServer got called on non-server???");
-            return;
-        }
-        // TODO add an admin/Root system.
-        // ALSO TODO: Dont store games session stuff on the UI_ServerAdmin... maybe?
-        UI_ServerAdmin.Get().StartGame();
-    }
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	public void RecievedGameStartRequestServer() 
+	{
+		if(PeerId != 1)
+		{
+			NU.Error("GameSession::RecievedGameStartRequestServer got called on non-server???");
+			return;
+		}
+		// TODO add an admin/Root system.
+		// ALSO TODO: Dont store games session stuff on the UI_ServerAdmin... maybe?
+		UI_ServerAdmin.Get().StartGame();
+	}
 
-    public bool IsServer() 
-    {
-        return PeerId == 1;
-    }
+	public bool IsServer() 
+	{
+		return PeerId == 1;
+	}
 }
 
