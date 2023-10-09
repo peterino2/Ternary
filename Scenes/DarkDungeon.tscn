@@ -33,7 +33,10 @@ mesh = SubResource("PlaneMesh_6nxq5")
 transform = Transform3D(1, 0, 0, 0, 0.267339, 0.963602, 0, -0.963602, 0.267339, 0, 3.44199, 0.665027)
 
 [node name="Wall" parent="." instance=ExtResource("4_6rr58")]
-transform = Transform3D(13.5733, 0, 0, 0, 2.61051, 0, 0, 0, 0.5, -1.75202, 0, -6.11162)
+transform = Transform3D(13.5733, 0, 0, 0, 2.61051, 0, 0, 0, 0.5, -1.75202, 0, -5.0264)
+
+[node name="Wall4" parent="." instance=ExtResource("4_6rr58")]
+transform = Transform3D(13.1825, 0.621898, 0, -3.23355, 2.53535, 0, 0, 0, 1.56043, -1.47466, -0.248121, -3.13453)
 
 [node name="Wall2" parent="." instance=ExtResource("4_6rr58")]
 transform = Transform3D(3.99131, 0, 0, 0, 2.61051, 0, 0, 0, 0.5, -6.31738, 0.215415, 4.35516)

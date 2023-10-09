@@ -1,5 +1,5 @@
 {
-    "AutoStartServer" : false,
-    "AutoStartServerPort" : 7777,
-    "AutoStartGamePlayerCount" : 32
+	"AutoStartServer" : false,
+	"AutoStartServerPort" : 7777,
+	"AutoStartGamePlayerCount" : 32
 }

@@ -4,6 +4,7 @@ using System;
 public partial class CharacterMover: Node
 {
 	public long OwnerId = 0;
+	[Export] public CollisionShape3D Collision;
 	[Export] public float MovementSpeed = 2.5f;
 
 	// === settings ===
@@ -18,6 +19,16 @@ public partial class CharacterMover: Node
 	[Export] public Vector3 PositionSync = new Vector3(0,0,0);
 	[Export] public Vector2 NetMoveSync = new Vector2(0,0);
 
+	public CollisionObject3D BaseAsCollision;
+	public bool BaseIsCollision = false;
+	
+	public CharacterBody3D BaseAsCharacterBody;
+	public bool BaseIsCharacter = false;
+
+    SphereShape3D SphereShape;
+	bool ShapeRidReady = false;
+	Rid ShapeRid;
+
 	public double LastDelta = 0.01f;
 	// Input Vector scaled for this last frame
 	Vector2 LocalInput = new Vector2(0,0);
@@ -31,7 +42,9 @@ public partial class CharacterMover: Node
 	public bool IsLocallyControlled = false;
 	private double NetTickTime  = 0;
 
-	public override void _Ready()
+	float SphereRadius = 0.0f;
+
+	public override void _Ready() 
 	{
 	}
 
@@ -42,6 +55,7 @@ public partial class CharacterMover: Node
 		{
 			NU.Ok("Movement component setup to send.");
 			GameNetEngine.Get().OnNetTick += OnNetTick;
+			IsLocallyControlled = true;
 		}
 
 		if(GameSession.Get().IsServer())
@@ -55,6 +69,30 @@ public partial class CharacterMover: Node
 	{
 		Base = NewBase;
 		PositionSync = Base.Position;
+
+        SphereShape = (SphereShape3D) Collision.Shape;
+		if(SphereShape != null)
+		{
+			ShapeRid = PhysicsServer3D.SphereShapeCreate();
+			PhysicsServer3D.ShapeSetData(ShapeRid, SphereRadius);
+			ShapeRidReady = true;
+		}
+
+		BaseAsCollision = (CollisionObject3D) Base;
+		if(BaseAsCollision != null)
+		{
+			BaseIsCollision = true;
+		}
+
+		BaseAsCharacterBody = (CharacterBody3D) Base;
+		if(BaseAsCharacterBody != null)
+		{
+			BaseIsCharacter = true;
+		}
+		else 
+		{
+			NU.Error("Character is NOT a CharacterBody3D?");
+		}
 	}
 
 	// Called when it's time to broadcast the current state
@@ -111,6 +149,7 @@ public partial class CharacterMover: Node
 	private void TickPrediction(double delta)
 	{
 		var ServerPredictedPosition = SimulateMovedPosition(PositionSync, AccumulatedMovementSinceSync, MovementSpeed);
+		DebugDraw3D.DrawSphere(ServerPredictedPosition, 0.6f, Colors.Yellow, 0.1f);
 		if(UsePredictionSmoothing)
 		{
 			Base.Position = SimulateMovedPosition(Base.Position, LocalInput, MovementSpeed);
@@ -128,6 +167,7 @@ public partial class CharacterMover: Node
 		{
 			Base.Position = ServerPredictedPosition;
 		}
+		DebugDraw3D.DrawSphere(Base.Position, 0.6f, Colors.Green, 0.1f);
 	}
 
 	private void TickInterpolation(double delta)
@@ -139,6 +179,7 @@ public partial class CharacterMover: Node
 		else {
 			Base.Position = Base.Position + (PositionSync - Base.Position).Normalized() * (float) delta * MovementSpeed;
 		}
+		DebugDraw3D.DrawSphere(PositionSync, 0.6f, Colors.Red, 0.1f);
 	}
 
 	// This function is called on all clients when the server broadcasts the
@@ -210,7 +251,10 @@ public partial class CharacterMover: Node
 		AccumulatedMovementSinceSync += MovementInput;
 	}
 
-	// Core movement logic
+	bool first = true;
+
+
+	// Simulated movement logic
 	public virtual Vector3 SimulateMovedPosition(
 			Vector3 StartPosition,
 			Vector2 MovementInput,
@@ -223,13 +267,53 @@ public partial class CharacterMover: Node
 		);
 
 		var MovedPosition = StartPosition + DeltaPosition;
+
+		var motionParameters = new PhysicsTestMotionParameters3D();
+		motionParameters.From = new Transform3D(new Basis(1,0,0,0,1,0,0,0,1), StartPosition);;
+		motionParameters.Motion = DeltaPosition;
+
+		if(BaseIsCharacter)
+		{
+			if(DeltaPosition.Length() > 0.001)
+			{
+				PhysicsTestMotionResult3D Results = new PhysicsTestMotionResult3D();
+				PhysicsServer3D.BodyTestMotion(BaseAsCharacterBody.GetRid(), motionParameters, Results);
+				NU.Ok(Results.GetTravel().ToString());
+                MovedPosition = StartPosition + Results.GetTravel();
+			}
+		}
+
 		// TODO: do collision resolution here.
+		// Logic for resolving collisions, 
+		
+		// MovedPosition is our proposed new Position, 
+		// we need to run a collision sweep from our current
+
+		// var SpaceState = Base.GetWorld3D().DirectSpaceState;
+		// var Parameters = new PhysicsShapeQueryParameters3D();
+		// Parameters.ShapeRid = ShapeRid;
+		// Parameters.Transform.origin = StartPosition;
+		// Parameters.Motion = DeltaPosition;
+
+		// if(BaseIsCollision)
+		// {
+		// 	Parameters.Exclude.Add(BaseAsCollision.GetRid());
+		// }
+
+		// var Result = SpaceState.IntersectShape(Parameters);
+
+		// if(first)
+		// {
+		// 	first = false;
+		// 	NU.Ok(Result.ToString());
+		// }
+
 		return MovedPosition;
 	}
 
 	public void ShutdownNetTickables() 
 	{
-		if(OwnerId == GameSession.Get().PeerId)
+		if(OwnerId == GameSession.Get().PeerId || IsLocallyControlled)
 		{
 			GameNetEngine.Get().OnNetTick -= OnNetTick;
 		}

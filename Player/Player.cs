@@ -1,7 +1,7 @@
 using Godot;
 using System;
 
-public partial class Player : Node3D
+public partial class Player : CharacterBody3D
 {
 	AnimatedGameSprite Sprite;
 
@@ -147,13 +147,18 @@ public partial class Player : Node3D
 			MouseVector = MousePosition - (ViewportSize / 2.0f);
 			MouseVector = MouseVector.Normalized();
 
-			UpdateSpriteVelocityAndFacing(Mover.GetLastMove(), Mover.LastDelta, MouseVector);
+			// UpdateSpriteVelocityAndFacing(Mover.GetLastMove(), Mover.LastDelta, MouseVector);
 		}
+	}
 
+	public override void _ExitTree() 
+	{
+		ShutDownNet();
 	}
 
 	public void ShutDownNet() 
 	{
+		NU.Warning("shutting down net tickables.");
 		Mover.ShutdownNetTickables();
 	}
 }

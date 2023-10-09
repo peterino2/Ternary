@@ -138,6 +138,7 @@ public partial class GameSession: Node
 			Multiplayer.MultiplayerPeer.Close();
 			Multiplayer.MultiplayerPeer = null;
 		}
+        PeerId = 0;
 	}
 
 	private void PeerConnectedClient()
