@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3 uid="uid://c3g7w2d2hl06l"]
+[gd_scene load_steps=7 format=3 uid="uid://c3g7w2d2hl06l"]
 
 [ext_resource type="Script" path="res://Scenes/GameLevel.cs" id="1_2hvep"]
 [ext_resource type="PackedScene" uid="uid://dgx065uvkv0mq" path="res://Player/Camera/PlayerCamera.tscn" id="2_56pto"]
@@ -6,6 +6,9 @@
 [ext_resource type="PackedScene" uid="uid://di5wktkrde5xr" path="res://Scenes/placeholder_wall.tscn" id="4_6rr58"]
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_6nxq5"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_626xp"]
+size = Vector3(137.67, 1, 74.2361)
 
 [node name="DarkDungeon" type="Node3D" node_paths=PackedStringArray("EntitiesNode", "TeamSpawns")]
 script = ExtResource("1_2hvep")
@@ -31,10 +34,10 @@ mesh = SubResource("PlaneMesh_6nxq5")
 transform = Transform3D(1, 0, 0, 0, 0.267339, 0.963602, 0, -0.963602, 0.267339, 0, 3.44199, 0.665027)
 
 [node name="Wall" parent="." instance=ExtResource("4_6rr58")]
-transform = Transform3D(13.5733, 0, 0, 0, 2.61051, 0, 0, 0, 0.5, -1.75202, 0, -5.0264)
+transform = Transform3D(13.5733, 0, 0, 0, 2.61051, 0, 0, 0, 0.5, -1.75202, 0.28255, -5.0264)
 
 [node name="Wall4" parent="." instance=ExtResource("4_6rr58")]
-transform = Transform3D(13.1825, 0.621898, 0, -3.23355, 2.53535, 0, 0, 0, 1.56043, -1.47466, -0.248121, -3.13453)
+transform = Transform3D(13.1825, 0.621898, 0, -3.23355, 2.53535, 0, 0, 0, 1.56043, -1.47466, 0.292069, -9.70285)
 
 [node name="Wall2" parent="." instance=ExtResource("4_6rr58")]
 transform = Transform3D(3.99131, 0, 0, 0, 2.61051, 0, 0, 0, 0.5, -6.31738, 0.215415, 4.35516)
@@ -47,3 +50,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.19552, 0, 0)
 
 [node name="Team2Spawn" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.38721, 0, 0)
+
+[node name="StaticBody3D" type="StaticBody3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.492707, 0)
+shape = SubResource("BoxShape3D_626xp")

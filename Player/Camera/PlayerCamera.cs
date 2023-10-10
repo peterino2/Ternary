@@ -7,11 +7,21 @@ public partial class PlayerCamera : Node3D
 	
 	[Export] bool Snap = false;
 	[Export] bool AutoFindPlayer = true;
+	[Export] public Camera3D Camera;
+
+	static PlayerCamera StaticInstance;
+
 	float RotationAngle = 0;
 	
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
+		StaticInstance = this;
+	}
+
+	public static PlayerCamera Get() 
+	{
+		return StaticInstance;
 	}
 
 	public void SetViewTarget(Node3D NewViewTarget)

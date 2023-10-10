@@ -6,6 +6,7 @@ public partial class Player : CharacterBody3D
 	AnimatedGameSprite Sprite;
 
 	[Export] CharacterMover Mover;
+	[Export] ProjectileSpawner Projectiles;
 
 	[Export] public float WalkingSpeed = 2.5f;
 	[Export] public long OwnerId = 0;
@@ -19,7 +20,7 @@ public partial class Player : CharacterBody3D
 	Vector2 AccumulatedMovement = new Vector2(0,0);
 	Vector2 SyncAccumulatedMovement = new Vector2(0,0);
 	Vector2 LocalInput = new Vector2(0,0);
-	Vector2 MouseVector = new Vector2(0,0);
+	Vector3 MouseVector = new Vector3(0,0,0);
 	Vector3 LastDeltaPosition = new Vector3(0,0,0);
 
 	[Export] bool UsePrediction = true;
@@ -41,6 +42,11 @@ public partial class Player : CharacterBody3D
 		Mover.SetOwner(OwnerId);
 		Mover.SetBase(this);
 		Mover.SetupNetTickables();
+
+
+		Projectiles.SetOwner(OwnerId);
+		Projectiles.SetBase(this);
+		Projectiles.SetupNetTickables();
 	}
 
 	public void SetOwnerServer(long NewOwner)
@@ -67,33 +73,15 @@ public partial class Player : CharacterBody3D
 		LocalPlayerSubsystem.Get().RegisterLocalPlayer(this);
 	}
 
-	private void UpdateSpriteVelocityAndFacing(Vector2 Input, double Delta, Vector2 MouseVector) 
+	private void UpdateSpriteVelocityAndFacing(Vector2 Input, double Delta, Vector3 MouseVector) 
 	{
 		Sprite.SetVelocity(Input.Length() / ((float) Delta) * WalkingSpeed);
 
 		Sprite.ForceFlip = false;
-		float deadzone = 0.2f;
+		// float deadzone = 0.2f;
 
-		if(MouseVector.X > deadzone && MouseVector.Y > deadzone)
-		{
-			Sprite.SetFacingDir(AnimatedGameSprite.FacingDirection.Down);
-		}
-		if(MouseVector.X > -deadzone && MouseVector.Y < -deadzone)
-		{
-			Sprite.SetFacingDir(AnimatedGameSprite.FacingDirection.Up);
-		}
-		if(MouseVector.X < -deadzone && MouseVector.Y < -deadzone)
-		{
-			Sprite.SetFacingDir(AnimatedGameSprite.FacingDirection.Up);
-			Sprite.ForceFlip = true;
-		}
-		if(MouseVector.X < -deadzone && MouseVector.Y > deadzone)
-		{
-			Sprite.SetFacingDir(AnimatedGameSprite.FacingDirection.Left);
-		}
-
-		if(IsLocalPlayer)
-			ArrowBase.Rotation = new Vector3(0, (float)Math.Atan2(-MouseVector.Y, MouseVector.X) + 0.5f * (float) Math.PI, 0);
+		//if(IsLocalPlayer)
+			// ArrowBase.Rotation = new Vector3(0, (float)Math.Atan2(-MouseVector.Y, MouseVector.X) + 0.5f * (float) Math.PI, 0);
 
 		// -- +- 
 		// -+ ++
@@ -128,6 +116,7 @@ public partial class Player : CharacterBody3D
 		
 		return MovedPosition;
 	}
+
 	double NetTickTime = 0;
 
 	public override void _Process(double delta)
@@ -140,14 +129,43 @@ public partial class Player : CharacterBody3D
 
 		Mover.TickUpdates(delta);
 
-		if(!GameSession.Get().IsServer())
+		if(IsLocalPlayer)
 		{
 			var MousePosition = GetViewport().GetMousePosition();
 			var ViewportSize = GetViewport().GetVisibleRect().Size;
-			MouseVector = MousePosition - (ViewportSize / 2.0f);
-			MouseVector = MouseVector.Normalized();
+			var SpaceState = GetWorld3D().DirectSpaceState;
+			var ViewCamera = PlayerCamera.Get().Camera;
+			var From = ViewCamera.ProjectRayOrigin(MousePosition);
+			var To = From + ViewCamera.ProjectRayNormal(MousePosition) * 2000;
 
-			// UpdateSpriteVelocityAndFacing(Mover.GetLastMove(), Mover.LastDelta, MouseVector);
+
+			var Parameters = PhysicsRayQueryParameters3D.Create(From, To);
+			var results = SpaceState.IntersectRay(Parameters);
+
+			if(results.ContainsKey("position"))
+			{
+				MouseVector = results["position"].As<Vector3>() - Position;
+				MouseVector.Y = 0;
+				MouseVector = MouseVector.Normalized();
+				DebugDraw3D.DrawSphere(results["position"].As<Vector3>(), 0.5f, Colors.Green, 0.06f);
+			}
+		}
+	}
+
+	public override void _Input(InputEvent @event)
+	{
+		if (@event is InputEventMouseButton mouseEvent && mouseEvent.Pressed)
+		{
+			switch (mouseEvent.ButtonIndex)
+			{
+				case MouseButton.Left:
+					GD.Print($"Left button was clicked at {mouseEvent.Position}");
+					Projectiles.FireProjectile(Position, MouseVector);
+					break;
+				case MouseButton.WheelUp:
+					GD.Print("Wheel up");
+					break;
+			}
 		}
 	}
 
@@ -160,5 +178,6 @@ public partial class Player : CharacterBody3D
 	{
 		NU.Warning("shutting down net tickables.");
 		Mover.ShutdownNetTickables();
+		Projectiles.ShutdownNetTickables();
 	}
 }

@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://rsjcev5cw42o"]
+[gd_scene load_steps=11 format=3 uid="uid://rsjcev5cw42o"]
 
 [ext_resource type="Script" path="res://Player/Player.cs" id="1_akdl1"]
 [ext_resource type="Script" path="res://Locomotion/CharacterMover.cs" id="2_1ooas"]
@@ -6,6 +6,7 @@
 [ext_resource type="SpriteFrames" uid="uid://dn731ywtgunkt" path="res://Assets/Bankman_Warrior_SF.tres" id="3_tedje"]
 [ext_resource type="Script" path="res://Player/Nameplate.cs" id="4_hg8tv"]
 [ext_resource type="SpriteFrames" uid="uid://b2ccr3788eav5" path="res://Assets/Bankman_Arrow.tres" id="6_s1ife"]
+[ext_resource type="Script" path="res://Player/ProjectileSpawner.cs" id="7_pju1p"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_dku72"]
 radius = 0.6
@@ -19,9 +20,10 @@ properties/0/watch = false
 [sub_resource type="SphereMesh" id="SphereMesh_u7x4k"]
 radius = 0.2
 
-[node name="Player" type="CharacterBody3D" node_paths=PackedStringArray("Mover", "ArrowBase", "Sync")]
+[node name="Player" type="CharacterBody3D" node_paths=PackedStringArray("Mover", "Projectiles", "ArrowBase", "Sync")]
 script = ExtResource("1_akdl1")
 Mover = NodePath("MovementComponent")
+Projectiles = NodePath("ProjectileSpawner")
 ArrowBase = NodePath("ArrowBase")
 Sync = NodePath("MultiplayerSynchronizer")
 
@@ -79,3 +81,7 @@ script = ExtResource("2_1ooas")
 Collision = NodePath("../CollisionShape3D")
 MovementSpeed = 5.0
 Base = NodePath("..")
+
+[node name="ProjectileSpawner" type="Node" parent="."]
+script = ExtResource("7_pju1p")
+ShowDebug = true

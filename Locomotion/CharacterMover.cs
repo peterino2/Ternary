@@ -16,6 +16,8 @@ public partial class CharacterMover: Node
 	[Export] public Node3D Base;
 	[Export] public bool UsePredictionSmoothing = true;
 
+    [Export] public bool DebugMovement = false;
+
 	[Export] public Vector3 PositionSync = new Vector3(0,0,0);
 	[Export] public Vector2 NetMoveSync = new Vector2(0,0);
 
@@ -40,7 +42,7 @@ public partial class CharacterMover: Node
 	Vector2 AccumulatedMovementSinceSync = new Vector2(0,0);
 
 	public bool IsLocallyControlled = false;
-	private double NetTickTime  = 0;
+
 
 	float SphereRadius = 0.0f;
 
@@ -158,7 +160,9 @@ public partial class CharacterMover: Node
 	private void TickPrediction(double delta)
 	{
 		var ServerPredictedPosition = SimulateMovedPosition(PositionSync, AccumulatedMovementSinceSync, MovementSpeed);
-		DebugDraw3D.DrawSphere(ServerPredictedPosition + new Vector3(0,0.6f,0), 0.6f, Colors.Yellow, 0.1f);
+        
+        if(DebugMovement)
+		    DebugDraw3D.DrawSphere(ServerPredictedPosition + new Vector3(0,0.6f,0), 0.6f, Colors.Yellow, 0.1f);
 		if(UsePredictionSmoothing)
 		{
 			Base.Position = SimulateMovedPosition(Base.Position, LocalInput, MovementSpeed);
@@ -176,7 +180,9 @@ public partial class CharacterMover: Node
 		{
 			Base.Position = ServerPredictedPosition;
 		}
-		DebugDraw3D.DrawSphere(Base.Position + new Vector3(0,0.6f,0), 0.6f, Colors.Green, 0.1f);
+
+        if(DebugMovement)
+		    DebugDraw3D.DrawSphere(Base.Position + new Vector3(0, 0.6f, 0), 0.6f, Colors.Green, 0.1f);
 	}
 
 	private void TickInterpolation(double delta)
@@ -188,7 +194,9 @@ public partial class CharacterMover: Node
 		else {
 			Base.Position = Base.Position + (PositionSync - Base.Position).Normalized() * (float) delta * MovementSpeed;
 		}
-		DebugDraw3D.DrawSphere(PositionSync + new Vector3(0,0.6f,0), 0.6f, Colors.Blue, 0.1f);
+
+        if(DebugMovement)
+		    DebugDraw3D.DrawSphere(PositionSync + new Vector3(0,0.6f,0), 0.6f, Colors.Blue, 0.1f);
 	}
 
 	// This function is called on all clients when the server broadcasts the
@@ -299,12 +307,12 @@ public partial class CharacterMover: Node
                 Travel.Y = 0;
                 MovedPosition = StartPosition + Travel;
 
-                // if (Travel.Length() < DeltaPosition.Length()) 
-                // {
-                //     // todo recursively apply this movement
-                //     var Normal = Results.GetCollisionNormal();
-                //     MovedPosition += Normal * ((float) Results.GetCollisionDepth());
-                // }
+                if (Travel.Length() < DeltaPosition.Length()) 
+                {
+                    // todo recursively apply this movement
+                    var Normal = Results.GetCollisionNormal();
+                    MovedPosition += Normal * ((float) Results.GetCollisionDepth());
+                }
 
                 if(Travel.Length() < 0.001)
                 {
@@ -313,25 +321,6 @@ public partial class CharacterMover: Node
                 }
 			}
 		}
-
-        // de-crowding clause
-        // var SpaceState = Base.GetWorld3D().DirectSpaceState;
-        // var Parameters = new PhysicsShapeQueryParameters3D();
-        // Parameters.ShapeRid = ShapeRid;
-        // Parameters.Transform = motionParameters.From;
-        // Parameters.Motion = new Vector3(0,0,0);
-        // Parameters.Exclude.Add(BaseAsCharacterBody.GetRid());
-        // var Result = SpaceState.IntersectShape(Parameters);
-
-        // NU.Ok(Result.ToString());
-
-		// TODO: do collision resolution here.
-		// Logic for resolving collisions, 
-		
-		// MovedPosition is our proposed new Position, 
-		// we need to run a collision sweep from our current
-
-        
 
 		return MovedPosition;
 	}

@@ -1,0 +1,50 @@
+
+E 0:00:21:0469   Godot.NativeInterop.NativeFuncs.generated.cs:345 @ void Godot.NativeInterop.NativeFuncs.godotsharp_method_bind_ptrcall(IntPtr , IntPtr , System.Void** , System.Void* ): Condition "!shape" is true. Returning: 0
+  <C++ Source>   servers/physics_3d/godot_space_3d.cpp:210 @ intersect_shape()
+  <Stack Trace>  Godot.NativeInterop.NativeFuncs.generated.cs:345 @ void Godot.NativeInterop.NativeFuncs.godotsharp_method_bind_ptrcall(IntPtr , IntPtr , System.Void** , System.Void* )
+                 NativeCalls.cs:6610 @ Godot.Collections.Array Godot.NativeCalls.godot_icall_2_730(IntPtr , IntPtr , IntPtr , Int32 )
+                 PhysicsDirectSpaceState3D.cs:72 @ Godot.Collections.Array`1[Godot.Collections.Dictionary] Godot.PhysicsDirectSpaceState3D.IntersectShape(Godot.PhysicsShapeQueryParameters3D , Int32 )
+                 CharacterMover.cs:270 @ Godot.Vector3 CharacterMover.SimulateMovedPosition(Godot.Vector3 , Godot.Vector2 , Single )
+                 CharacterMover.cs:140 @ void CharacterMover.TickPrediction(Double )
+                 CharacterMover.cs:114 @ void CharacterMover.TickUpdates(Double )
+                 Player.cs:141 @ void Player._Process(Double )
+                 Node.cs:2087 @ Boolean Godot.Node.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name& , Godot.NativeInterop.NativeVariantPtrArgs , Godot.NativeInterop.godot_variant& )
+                 Node3D.cs:999 @ Boolean Godot.Node3D.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name& , Godot.NativeInterop.NativeVariantPtrArgs , Godot.NativeInterop.godot_variant& )
+                 Player_ScriptMethods.generated.cs:80 @ Boolean Player.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name& , Godot.NativeInterop.NativeVariantPtrArgs , Godot.NativeInterop.godot_variant& )
+                 CSharpInstanceBridge.cs:24 @ Godot.NativeInterop.godot_bool Godot.Bridge.CSharpInstanceBridge.Call(IntPtr , Godot.NativeInterop.godot_string_name* , Godot.NativeInterop.godot_variant** , Int32 , Godot.NativeInterop.godot_variant_call_error* , Godot.NativeInterop.godot_variant* )
+
+
+test_body_move : 
+
+E 0:00:12:0784   CharacterMover.cs:274 @ Godot.Vector3 CharacterMover.SimulateMovedPosition(Godot.Vector3 , Godot.Vector2 , Single ): System.NullReferenceException: Object reference not set to an instance of an object.
+  <C# Error>     System.NullReferenceException
+  <C# Source>    CharacterMover.cs:274 @ Godot.Vector3 CharacterMover.SimulateMovedPosition(Godot.Vector3 , Godot.Vector2 , Single )
+  <Stack Trace>  CharacterMover.cs:274 @ Godot.Vector3 CharacterMover.SimulateMovedPosition(Godot.Vector3 , Godot.Vector2 , Single )
+                 CharacterMover.cs:145 @ void CharacterMover.TickPrediction(Double )
+                 CharacterMover.cs:123 @ void CharacterMover.TickUpdates(Double )
+                 Player.cs:141 @ void Player._Process(Double )
+                 Node.cs:2087 @ Boolean Godot.Node.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name& , Godot.NativeInterop.NativeVariantPtrArgs , Godot.NativeInterop.godot_variant& )
+                 Node3D.cs:999 @ Boolean Godot.Node3D.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name& , Godot.NativeInterop.NativeVariantPtrArgs , Godot.NativeInterop.godot_variant& )
+                 Player_ScriptMethods.generated.cs:80 @ Boolean Player.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name& , Godot.NativeInterop.NativeVariantPtrArgs , Godot.NativeInterop.godot_variant& )
+                 CSharpInstanceBridge.cs:24 @ Godot.NativeInterop.godot_bool Godot.Bridge.CSharpInstanceBridge.Call(IntPtr , Godot.NativeInterop.godot_string_name* , Godot.NativeInterop.godot_variant** , Int32 , Godot.NativeInterop.godot_variant_call_error* , Godot.NativeInterop.godot_variant* )
+
+
+
+// ========= Crash when handing in bad basis into the test_body_move function
+
+E 0:00:05:0959   Godot.NativeInterop.NativeFuncs.generated.cs:345 @ void Godot.NativeInterop.NativeFuncs.godotsharp_method_bind_ptrcall(IntPtr , IntPtr , System.Void** , System.Void* ): Condition "det == 0" is true.
+  <C++ Source>   core/math/basis.cpp:47 @ invert()
+  <Stack Trace>  Godot.NativeInterop.NativeFuncs.generated.cs:345 @ void Godot.NativeInterop.NativeFuncs.godotsharp_method_bind_ptrcall(IntPtr , IntPtr , System.Void** , System.Void* )
+                 NativeCalls.cs:6802 @ Godot.NativeInterop.godot_bool Godot.NativeCalls.godot_icall_3_752(IntPtr , IntPtr , Godot.Rid , IntPtr , IntPtr )
+                 PhysicsServer3D.cs:1730 @ Boolean Godot.PhysicsServer3D.BodyTestMotion(Godot.Rid , Godot.PhysicsTestMotionParameters3D , Godot.PhysicsTestMotionResult3D )
+                 CharacterMover.cs:282 @ Godot.Vector3 CharacterMover.SimulateMovedPosition(Godot.Vector3 , Godot.Vector2 , Single )
+                 CharacterMover.cs:151 @ void CharacterMover.TickPrediction(Double )
+                 CharacterMover.cs:129 @ void CharacterMover.TickUpdates(Double )
+                 Player.cs:141 @ void Player._Process(Double )
+                 Node.cs:2087 @ Boolean Godot.Node.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name& , Godot.NativeInterop.NativeVariantPtrArgs , Godot.NativeInterop.godot_variant& )
+                 Node3D.cs:999 @ Boolean Godot.Node3D.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name& , Godot.NativeInterop.NativeVariantPtrArgs , Godot.NativeInterop.godot_variant& )
+                 CollisionObject3D.cs:564 @ Boolean Godot.CollisionObject3D.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name& , Godot.NativeInterop.NativeVariantPtrArgs , Godot.NativeInterop.godot_variant& )
+                 PhysicsBody3D.cs:204 @ Boolean Godot.PhysicsBody3D.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name& , Godot.NativeInterop.NativeVariantPtrArgs , Godot.NativeInterop.godot_variant& )
+                 CharacterBody3D.cs:749 @ Boolean Godot.CharacterBody3D.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name& , Godot.NativeInterop.NativeVariantPtrArgs , Godot.NativeInterop.godot_variant& )
+                 Player_ScriptMethods.generated.cs:80 @ Boolean Player.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name& , Godot.NativeInterop.NativeVariantPtrArgs , Godot.NativeInterop.godot_variant& )
+                 CSharpInstanceBridge.cs:24 @ Godot.NativeInterop.godot_bool Godot.Bridge.CSharpInstanceBridge.Call(IntPtr , Godot.NativeInterop.godot_string_name* , Godot.NativeInterop.godot_variant** , Int32 , Godot.NativeInterop.godot_variant_call_error* , Godot.NativeInterop.godot_variant* )
