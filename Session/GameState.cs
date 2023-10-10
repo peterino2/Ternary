@@ -30,6 +30,7 @@ public partial class GameState: Node
 	{
 		NU.Ok("GameState created");
 		StaticInstance = this;
+		LevelNode = GetNode<Node3D>("/root/Session");
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -51,6 +52,7 @@ public partial class GameState: Node
 
 	public void PrepareGame()
 	{
+        NU.Ok("preparing game");
 		LevelNode.AddChild(LevelScene.Instantiate());
 	}
 

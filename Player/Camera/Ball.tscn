@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://38b8ffqj2xru"]
+
+[ext_resource type="Script" path="res://Player/Projectile.cs" id="1_votou"]
+
+[node name="Ball" type="Node3D"]
+script = ExtResource("1_votou")

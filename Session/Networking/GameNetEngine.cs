@@ -14,6 +14,7 @@ public partial class GameNetEngine: Node
     public long CommandFrame = 0;
     public double TickDelta = 0.05;
     public double TimeTilTick = 0.0;
+    Random Rand = new Random();
 
     // ==============================================
     public delegate void NetTickDelegate(long CommandFrame, double Delta);
@@ -81,4 +82,10 @@ public partial class GameNetEngine: Node
 
 	}
 
+    // Prediction keys are single ulong,
+    // value of 0 means invalid
+    public int NewPredictionKey()
+    {
+        return Rand.Next();
+    }
 }

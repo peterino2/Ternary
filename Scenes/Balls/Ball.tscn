@@ -1,14 +1,13 @@
 [gd_scene load_steps=3 format=3 uid="uid://iod314ewkyha"]
 
-[ext_resource type="Script" path="res://Locomotion/CharacterMover.cs" id="1_cginq"]
+[ext_resource type="Script" path="res://Player/Projectile.cs" id="1_ydh2s"]
 
 [sub_resource type="SphereMesh" id="SphereMesh_p52i0"]
+radius = 0.3
+height = 0.6
 
 [node name="Ball" type="Node3D"]
-
-[node name="Node" type="Node" parent="." node_paths=PackedStringArray("Base")]
-script = ExtResource("1_cginq")
-Base = NodePath("..")
+script = ExtResource("1_ydh2s")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 mesh = SubResource("SphereMesh_p52i0")

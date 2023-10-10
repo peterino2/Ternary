@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://rsjcev5cw42o"]
+[gd_scene load_steps=12 format=3 uid="uid://rsjcev5cw42o"]
 
 [ext_resource type="Script" path="res://Player/Player.cs" id="1_akdl1"]
 [ext_resource type="Script" path="res://Locomotion/CharacterMover.cs" id="2_1ooas"]
@@ -7,6 +7,7 @@
 [ext_resource type="Script" path="res://Player/Nameplate.cs" id="4_hg8tv"]
 [ext_resource type="SpriteFrames" uid="uid://b2ccr3788eav5" path="res://Assets/Bankman_Arrow.tres" id="6_s1ife"]
 [ext_resource type="Script" path="res://Player/ProjectileSpawner.cs" id="7_pju1p"]
+[ext_resource type="PackedScene" uid="uid://iod314ewkyha" path="res://Scenes/Balls/Ball.tscn" id="8_wrj7o"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_dku72"]
 radius = 0.6
@@ -85,3 +86,4 @@ Base = NodePath("..")
 [node name="ProjectileSpawner" type="Node" parent="."]
 script = ExtResource("7_pju1p")
 ShowDebug = true
+ProjectilePrefab = ExtResource("8_wrj7o")

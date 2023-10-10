@@ -160,7 +160,7 @@ public partial class Player : CharacterBody3D
 			{
 				case MouseButton.Left:
 					GD.Print($"Left button was clicked at {mouseEvent.Position}");
-					Projectiles.FireProjectile(Position, MouseVector);
+					Projectiles.FireProjectile(Position, MouseVector, GameNetEngine.Get().NewPredictionKey());
 					break;
 				case MouseButton.WheelUp:
 					GD.Print("Wheel up");
