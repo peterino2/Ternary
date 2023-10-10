@@ -1,27 +1,25 @@
-[gd_scene load_steps=7 format=3 uid="uid://c3g7w2d2hl06l"]
+[gd_scene load_steps=6 format=3 uid="uid://c3g7w2d2hl06l"]
 
 [ext_resource type="Script" path="res://Scenes/GameLevel.cs" id="1_2hvep"]
 [ext_resource type="PackedScene" uid="uid://dgx065uvkv0mq" path="res://Player/Camera/PlayerCamera.tscn" id="2_56pto"]
 [ext_resource type="PackedScene" uid="uid://rsjcev5cw42o" path="res://Player/Player.tscn" id="2_vv5tr"]
 [ext_resource type="PackedScene" uid="uid://di5wktkrde5xr" path="res://Scenes/placeholder_wall.tscn" id="4_6rr58"]
-[ext_resource type="PackedScene" uid="uid://iod314ewkyha" path="res://Scenes/Balls/Ball.tscn" id="4_7e234"]
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_6nxq5"]
 
-[node name="DarkDungeon" type="Node3D" node_paths=PackedStringArray("EntitiesNode")]
+[node name="DarkDungeon" type="Node3D" node_paths=PackedStringArray("EntitiesNode", "TeamSpawns")]
 script = ExtResource("1_2hvep")
 EntitiesNode = NodePath("Entities")
 AvatarScene = ExtResource("2_vv5tr")
+TeamSpawns = []
 
 [node name="PlayerCamera" parent="." instance=ExtResource("2_56pto")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0140319, 0.00844002, -0.00397491)
 
 [node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="."]
 _spawnable_scenes = PackedStringArray("res://Player/Player.tscn")
 spawn_path = NodePath("../Entities")
 spawn_limit = 32
-
-[node name="Ball" parent="MultiplayerSpawner" instance=ExtResource("4_7e234")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.988111, 0)
 
 [node name="Entities" type="Node3D" parent="."]
 
@@ -43,3 +41,9 @@ transform = Transform3D(3.99131, 0, 0, 0, 2.61051, 0, 0, 0, 0.5, -6.31738, 0.215
 
 [node name="Wall3" parent="." instance=ExtResource("4_6rr58")]
 transform = Transform3D(3.99131, 0, 0, 0, 2.61051, 0, 0, 0, 0.5, -0.227506, 0.215415, 4.35516)
+
+[node name="Team1Spawn" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.19552, 0, 0)
+
+[node name="Team2Spawn" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.38721, 0, 0)

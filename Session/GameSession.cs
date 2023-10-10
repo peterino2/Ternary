@@ -88,6 +88,11 @@ public partial class GameSession: Node
 
 	public void PeerDisconnectedServer(long Id)
 	{
+        if(!NamesById.ContainsKey(Id))
+        {
+            return;
+        }
+
 		var PlayerToDc = NamesById[Id];
 		NU.Warning("Player Disconnected : " + PlayerToDc + "[" + Id.ToString() + "]");
 		NamesById.Remove(Id);
