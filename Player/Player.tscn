@@ -21,12 +21,13 @@ properties/0/watch = false
 [sub_resource type="SphereMesh" id="SphereMesh_u7x4k"]
 radius = 0.2
 
-[node name="Player" type="CharacterBody3D" node_paths=PackedStringArray("Mover", "Projectiles", "ArrowBase", "Sync")]
+[node name="Player" type="CharacterBody3D" node_paths=PackedStringArray("Mover", "Projectiles", "ArrowBase", "Sync", "Indicator")]
 script = ExtResource("1_akdl1")
 Mover = NodePath("MovementComponent")
 Projectiles = NodePath("ProjectileSpawner")
 ArrowBase = NodePath("ArrowBase")
 Sync = NodePath("MultiplayerSynchronizer")
+Indicator = NodePath("Indicator")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.598901, 0)
@@ -80,13 +81,14 @@ animation = &"IdleDown"
 [node name="MovementComponent" type="Node" parent="." node_paths=PackedStringArray("Collision", "Base")]
 script = ExtResource("2_1ooas")
 Collision = NodePath("../CollisionShape3D")
-MovementSpeed = 2.0
+MovementSpeed = 5.0
 Accelleration = 20.0
-Decelleration = 10.0
-MinVelocity = 0.5
+Decelleration = 30.0
 Base = NodePath("..")
-UseInterpolation = false
 
 [node name="ProjectileSpawner" type="Node" parent="."]
 script = ExtResource("7_pju1p")
 ProjectilePrefab = ExtResource("8_wrj7o")
+
+[node name="Indicator" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.500961, 1.17467, 0)

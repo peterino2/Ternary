@@ -13,15 +13,23 @@ public partial class Player : CharacterBody3D
 	[Export] public Node3D ArrowBase;
 	[Export] public MultiplayerSynchronizer Sync;
 
-	// State variables
-	[Export] public Vector3 PositionSync = new Vector3(0,0,0);
-	[Export] public Vector2 NetMoveSync = new Vector2(0,0);
+	[Export] public Node3D Indicator;
 
 	Vector2 AccumulatedMovement = new Vector2(0,0);
 	Vector2 SyncAccumulatedMovement = new Vector2(0,0);
 	Vector2 LocalInput = new Vector2(0,0);
 	Vector3 MouseVector = new Vector3(0,0,0);
 	Vector3 LastDeltaPosition = new Vector3(0,0,0);
+
+	bool MouseInWindow = false;
+	bool FireButtonDown = false;
+
+	float CachedBaseMoveSpeed = 0.0f;
+	float CachedMinMoveSpeed = 0.0f;
+	float ChargingSlowFactor = 0.5f;
+
+	[Export] double ChargeTimeToThrow = 1.0;
+	double ChargeTime = 0.0;
 
 	[Export] bool UsePrediction = true;
 
@@ -42,11 +50,14 @@ public partial class Player : CharacterBody3D
 		Mover.SetOwner(OwnerId);
 		Mover.SetBase(this);
 		Mover.SetupNetTickables();
-
+		CachedBaseMoveSpeed = Mover.MovementSpeed;
+		CachedMinMoveSpeed = Mover.MinSpeed;
 
 		Projectiles.SetOwner(OwnerId);
 		Projectiles.SetBase(this);
 		Projectiles.SetupNetTickables();
+
+		SetupNetTickables();
 	}
 
 	public void SetOwnerServer(long NewOwner)
@@ -76,34 +87,7 @@ public partial class Player : CharacterBody3D
 	private void UpdateSpriteVelocityAndFacing(Vector2 Input, double Delta, Vector3 MouseVector) 
 	{
 		Sprite.SetVelocity(Input.Length() / ((float) Delta) * WalkingSpeed);
-
 		Sprite.ForceFlip = false;
-		// float deadzone = 0.2f;
-
-		//if(IsLocalPlayer)
-			// ArrowBase.Rotation = new Vector3(0, (float)Math.Atan2(-MouseVector.Y, MouseVector.X) + 0.5f * (float) Math.PI, 0);
-
-		// -- +- 
-		// -+ ++
-
-		/*
-		if(MouseVector.X > 0.0f)
-		{
-			Sprite.SetFacingDir(AnimatedGameSprite.FacingDirection.Right);
-		}
-		if(MouseVector.X < 0.0f)
-		{
-			Sprite.SetFacingDir(AnimatedGameSprite.FacingDirection.Left);
-		}
-		if(MouseVector.Y > 0.0f)
-		{
-			Sprite.SetFacingDir(AnimatedGameSprite.FacingDirection.Down);
-		}
-		if(MouseVector.Y < 0.0f)
-		{
-			Sprite.SetFacingDir(AnimatedGameSprite.FacingDirection.Up);
-		}
-		*/
 	}
 
 	private Vector3 GetMovedPosition(Vector3 StartPosition, Vector2 Input)
@@ -117,7 +101,6 @@ public partial class Player : CharacterBody3D
 		return MovedPosition;
 	}
 
-	double NetTickTime = 0;
 
 	public override void _Process(double delta)
 	{
@@ -125,48 +108,117 @@ public partial class Player : CharacterBody3D
 		{
 			var InputVector = Input.GetVector("MoveLeft", "MoveRight", "MoveUp", "MoveDown").Normalized();
 			Mover.AddMovementInput(InputVector, delta);
+			TickMouseInput(delta);
 		}
 
+		TickCharging(delta);
 		Mover.TickUpdates(delta);
+	}
 
+	void TickMouseInput(double delta) 
+	{
+		var MousePosition = GetViewport().GetMousePosition();
+		var ViewportSize = GetViewport().GetVisibleRect().Size;
+		var SpaceState = GetWorld3D().DirectSpaceState;
+		var ViewCamera = PlayerCamera.Get().Camera;
+		var From = ViewCamera.ProjectRayOrigin(MousePosition);
+		var To = From + ViewCamera.ProjectRayNormal(MousePosition) * 2000;
+
+		var Parameters = PhysicsRayQueryParameters3D.Create(From, To);
+		var results = SpaceState.IntersectRay(Parameters);
+
+		if(results.ContainsKey("position"))
+		{
+			MouseVector = results["position"].As<Vector3>() - Position;
+			MouseVector.Y = 0;
+			MouseVector = MouseVector.Normalized();
+			DebugDraw3D.DrawSphere(results["position"].As<Vector3>(), 0.5f, Colors.Green, 0.00f);
+			MouseInWindow = true;
+		}
+		else 
+		{
+			MouseInWindow = false;
+		}
+	}
+
+	void TickCharging(double delta)
+	{
 		if(IsLocalPlayer)
 		{
-			var MousePosition = GetViewport().GetMousePosition();
-			var ViewportSize = GetViewport().GetVisibleRect().Size;
-			var SpaceState = GetWorld3D().DirectSpaceState;
-			var ViewCamera = PlayerCamera.Get().Camera;
-			var From = ViewCamera.ProjectRayOrigin(MousePosition);
-			var To = From + ViewCamera.ProjectRayNormal(MousePosition) * 2000;
-
-
-			var Parameters = PhysicsRayQueryParameters3D.Create(From, To);
-			var results = SpaceState.IntersectRay(Parameters);
-
-			if(results.ContainsKey("position"))
+			if(FireButtonDown)
 			{
-				MouseVector = results["position"].As<Vector3>() - Position;
-				MouseVector.Y = 0;
-				MouseVector = MouseVector.Normalized();
-				DebugDraw3D.DrawSphere(results["position"].As<Vector3>(), 0.5f, Colors.Green, 0.06f);
+				Mover.MovementSpeed = CachedBaseMoveSpeed * ChargingSlowFactor;
+				Mover.MinSpeed = CachedMinMoveSpeed * ChargingSlowFactor;
+				ChargeTime += delta;
+				ChargeTime = Math.Clamp(ChargeTime, 0.0f, ChargeTimeToThrow);
+			}
+			else 
+			{
+				Mover.MinSpeed = CachedMinMoveSpeed;
+				Mover.MovementSpeed = CachedBaseMoveSpeed;
+				ChargeTime = 0;
+			}
+		}
+
+		if(ChargeTime > 0)
+		{
+			if(ChargeTime > (ChargeTimeToThrow - 0.05))
+			{
+				DebugDraw3D.DrawSphere(Indicator.Position + Position, 0.3f, 
+					Colors.Red.Lerp(Colors.Teal, (float) (ChargeTime / ChargeTimeToThrow)),
+					0.1f
+				);
+			}
+			else
+				DebugDraw3D.DrawSphere(Indicator.Position + Position, 0.2f, 
+					Colors.Red.Lerp(Colors.Green, (float) (ChargeTime / ChargeTimeToThrow)),
+					0.1f
+				);
+		}
+	}
+
+
+	public override void _Input(InputEvent @event)
+	{
+		if (@event is InputEventMouseButton mouseEvent && MouseInWindow)
+		{
+			if( mouseEvent.Pressed)
+			{
+				switch (mouseEvent.ButtonIndex)
+				{
+					case MouseButton.Left:
+						OnFireButtonDown();
+						break;
+				}
+			}
+			else 
+			{
+				switch (mouseEvent.ButtonIndex)
+				{
+					case MouseButton.Left:
+						OnFireButtonUp();
+						break;
+				}
 			}
 		}
 	}
 
-	public override void _Input(InputEvent @event)
+	void OnFireButtonDown()
 	{
-		if (@event is InputEventMouseButton mouseEvent && mouseEvent.Pressed)
+		FireButtonDown = true;
+	}
+
+	void OnFireButtonUp()
+	{
+		FireButtonDown = false;
+
+		if(ChargeTime > ChargeTimeToThrow - 0.05)
 		{
-			switch (mouseEvent.ButtonIndex)
-			{
-				case MouseButton.Left:
-					if(MouseVector.Length() > 0.01)
-					{
-						Projectiles.FireProjectile(Position, MouseVector, GameNetEngine.Get().NewPredictionKey());
-					}
-					break;
-				case MouseButton.WheelUp:
-					break;
-			}
+			Projectiles.FireProjectile(
+				Position,
+				MouseVector,
+				GameNetEngine.Get().NewPredictionKey()
+			);
 		}
 	}
 
@@ -175,10 +227,75 @@ public partial class Player : CharacterBody3D
 		ShutDownNet();
 	}
 
+	public void SetupNetTickables()
+	{
+		if(OwnerId == GameSession.Get().PeerId)
+		{
+			GameNetEngine.Get().OnNetTick += OnNetTick;
+		}
+
+		if(GameSession.Get().IsServer())
+		{
+			GameNetEngine.Get().OnSyncFrame += OnSyncFrame;
+		}
+	}
+
 	public void ShutDownNet() 
 	{
-		NU.Warning("shutting down net tickables.");
 		Mover.ShutdownNetTickables();
 		Projectiles.ShutdownNetTickables();
+
+		if(GameSession.Get().IsServer())
+		{
+			GameNetEngine.Get().OnSyncFrame -= OnSyncFrame;
+		}
+		if(OwnerId == GameSession.Get().PeerId || IsLocalPlayer)
+		{
+			GameNetEngine.Get().OnNetTick -= OnNetTick;
+		}
+
+	}
+
+	public void OnNetTick(long CommandFrame, double Delta)
+	{
+		RpcId(1, nameof(SubmitState), new Variant[] {
+			ChargeTime
+		});
+	}
+
+	public void OnSyncFrame(long CommandFrame, double Delta)
+	{
+		// RPC to clients here
+		Rpc( nameof(RecieveGameStateClient), new Variant[] {
+			ChargeTime
+		});
+	}
+
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Unreliable)]
+	public void SubmitState(
+			float NewChargeTime)
+	{
+		var Sender = Multiplayer.GetRemoteSenderId();
+		if(Sender != OwnerId)
+		{
+			NU.Error(
+				"Client" 
+				+ Sender.ToString()
+				+ " is trying to send state to me but i'm owned by " + OwnerId.ToString()
+			);
+			return;
+		}
+
+		ChargeTime = NewChargeTime;
+	}
+
+	[Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Unreliable)]
+	public void RecieveGameStateClient(
+			float NewChargeTime)
+	{
+		if(OwnerId != GameSession.Get().PeerId)
+		{
+			ChargeTime = NewChargeTime;
+		}
 	}
 }

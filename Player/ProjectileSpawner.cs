@@ -161,5 +161,10 @@ public partial class ProjectileSpawner : Node
 
 		Projectiles.Remove(PredictionKey);
 	}
+
+    public CharacterBody3D GetOwnerBody()
+    {
+        return Base as CharacterBody3D;
+    }
 }
 
