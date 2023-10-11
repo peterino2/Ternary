@@ -36,7 +36,6 @@ public partial class ProjectileSpawner : Node
 	{
 		var LevelNode = GameState.Get().LevelNode;
 		
-		
 		var NewProjectile = ProjectilePrefab.Instantiate() as Projectile;
 		
 		NewProjectile.Speed = BallSpeed;
@@ -53,7 +52,7 @@ public partial class ProjectileSpawner : Node
 	public void FireProjectile(Vector3 FirePoint, Vector3 Direction, int PredictionKey)
 	{
 		DrawDebugDirection(FirePoint, Direction);
-		var TimeStamp = Time.GetTicksUsec();
+		var TimeStamp = GameNetEngine.Get().GetTime();
 
 		// 1. submit the fire input to the server
 		RpcId(1, nameof(SubmitProjectileFireToServer), new Variant[] {
@@ -65,9 +64,31 @@ public partial class ProjectileSpawner : Node
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-	public void InvalidateProjectile(long Pk, bool InvalidateThrow) 
+	public void InvalidateProjectile(int Pk, bool InvalidateThrow) 
 	{
+		// If InvalidateThrow is set, then the throw itself never happened.
+
 		NU.Warning("Server Invalidated our projectile launch." + Pk.ToString());
+
+		if(!Projectiles.ContainsKey(Pk))
+		{
+			NU.Warning("Invalidation issued for PK: " + Pk.ToString() + " But we don't own it");
+		}
+
+		var ProjectileToInvalidate = Projectiles[Pk];
+		ProjectileToInvalidate.QueueFree();
+
+		RemoveProjectile(Pk);
+	}
+
+	[Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Unreliable)]
+	public void BroadCastProjectileSpawn(Vector3 FirePoint, Vector3 Direction, double TimeStamp, int PredictionKey)
+	{
+		double TimeRecieved = GameNetEngine.Get().GetTime();
+		double TimeDelta = (TimeRecieved - TimeStamp);
+
+		var Projectile = SpawnProjectileLocal(FirePoint, Direction, PredictionKey);
+		Projectile.Advance(TimeDelta); 
 	}
 
 	void DrawDebugDirection(Vector3 Start, Vector3 Direction)
@@ -81,22 +102,25 @@ public partial class ProjectileSpawner : Node
 		}
 	}
 
-	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-	public void SubmitProjectileFireToServer(Vector3 FirePoint, Vector3 Direction, ulong TimeStamp, int PredictionKey)
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Unreliable)]
+	public void SubmitProjectileFireToServer(Vector3 FirePoint, Vector3 Direction, double TimeStamp, int PredictionKey)
 	{
 		// used to predict where the object actually is on the client's side
-		var TimeRecieved = Time.GetTicksUsec();
-		double TimeDelta = (TimeRecieved - TimeStamp) * 0.001 * 0.001;
+		var TimeRecieved = GameNetEngine.Get().GetTime();
+		double TimeDelta = (TimeRecieved - TimeStamp);
 
 		// todo: validation
 		// Player's reported position must be within leniency bounds
 		// Player must have a ball in hand
 		
 		var Projectile = SpawnProjectileLocal(FirePoint, Direction, PredictionKey);
-		// Projectile.Advance(TimeDelta); ok... their unix timestamp is absolutely fucked
+		Projectile.Advance(TimeDelta); 
 		
-		NU.Ok("Projectile fire submitted. advance: " + TimeDelta.ToString() + "theirs: " + TimeStamp + " ours: " + TimeRecieved);
+		if(ShowDebug)
+			NU.Ok("Projectile fire submitted. advance: " + TimeDelta.ToString() + " theirs: " + TimeStamp + " ours: " + TimeRecieved);
 		DrawDebugDirection(FirePoint, Direction);
+
+		Rpc(nameof(BroadCastProjectileSpawn), new Variant[] {FirePoint, Direction, TimeStamp, PredictionKey});
 	}
 
 	public void SetBase(Node NewBase)
@@ -127,5 +151,15 @@ public partial class ProjectileSpawner : Node
 	public void ShutdownNetTickables()
 	{
 	}
+	
+	public void RemoveProjectile(int PredictionKey)
+	{
+		if(ShowDebug && Projectiles.ContainsKey(PredictionKey))
+		{
+			NU.Ok("Removing projectile with prediction key" + PredictionKey);
+		}
 
+		Projectiles.Remove(PredictionKey);
+	}
 }
+

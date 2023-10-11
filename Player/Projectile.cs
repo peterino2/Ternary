@@ -45,4 +45,9 @@ public partial class Projectile : Node3D
 		LifeTime -= delta;
 		Position += Direction * (float) delta * Speed;
 	}
+
+    public override void _ExitTree()
+    {
+        SpawnOwner.RemoveProjectile(PredictionKey);
+    }
 }

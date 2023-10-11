@@ -14,6 +14,8 @@ public partial class GameNetEngine: Node
     public long CommandFrame = 0;
     public double TickDelta = 0.05;
     public double TimeTilTick = 0.0;
+    public double GameTime = 0.0;
+
     Random Rand = new Random();
 
     // ==============================================
@@ -33,13 +35,15 @@ public partial class GameNetEngine: Node
 
     public override void _Process(double delta)
     {
+        GameTime  += delta;
+
         TimeTilTick -= delta; // todo... check what happens when the server fps is too high... or low.
         if(TimeTilTick < 0)
         {
             CommandFrame += 1;
             if(GameSession.Get().PeerId == 1)
             {
-                Rpc(nameof(BroadCastCommandFrame), new Variant[] {CommandFrame});
+                Rpc(nameof(BroadCastCommandFrame), new Variant[] {CommandFrame, GameTime});
                 OnSyncFrame?.Invoke(CommandFrame, TickDelta);
             }
             else
@@ -51,9 +55,19 @@ public partial class GameNetEngine: Node
         }
     }
 
+    public double GetTime() 
+    {
+        return GameTime;
+    }
+
 	[Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Unreliable)]
-	public void BroadCastCommandFrame(long NewCommandFrame)
+	public void BroadCastCommandFrame(long NewCommandFrame, double SyncGameTime)
 	{
+        if(Math.Abs(SyncGameTime - GameTime) > 0.05)
+        {
+            GameTime = SyncGameTime;
+        }
+
         if(GameSession.Get().PeerId == 1)
         {
             return;

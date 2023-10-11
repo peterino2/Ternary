@@ -80,10 +80,13 @@ animation = &"IdleDown"
 [node name="MovementComponent" type="Node" parent="." node_paths=PackedStringArray("Collision", "Base")]
 script = ExtResource("2_1ooas")
 Collision = NodePath("../CollisionShape3D")
-MovementSpeed = 5.0
+MovementSpeed = 2.0
+Accelleration = 20.0
+Decelleration = 10.0
+MinVelocity = 0.5
 Base = NodePath("..")
+UseInterpolation = false
 
 [node name="ProjectileSpawner" type="Node" parent="."]
 script = ExtResource("7_pju1p")
-ShowDebug = true
 ProjectilePrefab = ExtResource("8_wrj7o")

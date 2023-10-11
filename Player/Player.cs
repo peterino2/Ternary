@@ -159,11 +159,12 @@ public partial class Player : CharacterBody3D
 			switch (mouseEvent.ButtonIndex)
 			{
 				case MouseButton.Left:
-					GD.Print($"Left button was clicked at {mouseEvent.Position}");
-					Projectiles.FireProjectile(Position, MouseVector, GameNetEngine.Get().NewPredictionKey());
+					if(MouseVector.Length() > 0.01)
+					{
+						Projectiles.FireProjectile(Position, MouseVector, GameNetEngine.Get().NewPredictionKey());
+					}
 					break;
 				case MouseButton.WheelUp:
-					GD.Print("Wheel up");
 					break;
 			}
 		}

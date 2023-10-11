@@ -5,7 +5,10 @@ public partial class CharacterMover: Node
 {
 	public long OwnerId = 0;
 	[Export] public CollisionShape3D Collision;
-	[Export] public float MovementSpeed = 2.5f;
+	[Export] public float MovementSpeed = 2.5f; // Max movement speed
+	[Export] public float Accelleration = 5.5f; // Accelleration
+	[Export] public float Decelleration = 5.5f; // Accelleration
+	[Export] public float MinVelocity   = 2.0f ; // minimum velocity
 
 	// === settings ===
 	[Export] public float ServerMovementLeniency = 0.3f;
@@ -15,11 +18,14 @@ public partial class CharacterMover: Node
 	
 	[Export] public Node3D Base;
 	[Export] public bool UsePredictionSmoothing = true;
+	[Export] public bool UseInterpolation = true;
 
 	[Export] public bool DebugMovement = false;
 
-	[Export] public Vector3 PositionSync = new Vector3(0,0,0);
-	[Export] public Vector2 NetMoveSync = new Vector2(0,0);
+	public Vector3 PositionSync = new Vector3(0,0,0);
+	public Vector2 Velocity = new Vector2(0,0);
+	public Vector2 NetMoveSync = new Vector2(0,0);
+	
 
 	public CollisionObject3D BaseAsCollision;
 	public bool BaseIsCollision = false;
@@ -187,12 +193,19 @@ public partial class CharacterMover: Node
 
 	private void TickInterpolation(double delta)
 	{
-		if((PositionSync - Base.Position).Length() < (float) delta * MovementSpeed)
+		if(UseInterpolation)
+		{
+			if((PositionSync - Base.Position).Length() < (float) delta * MovementSpeed)
+			{
+				Base.Position = PositionSync;
+			}
+			else {
+				Base.Position = Base.Position + (PositionSync - Base.Position).Normalized() * (float) delta * MovementSpeed;
+			}
+		}
+		else 
 		{
 			Base.Position = PositionSync;
-		}
-		else {
-			Base.Position = Base.Position + (PositionSync - Base.Position).Normalized() * (float) delta * MovementSpeed;
 		}
 
 		if(DebugMovement)
@@ -264,8 +277,35 @@ public partial class CharacterMover: Node
 			NU.Error("Client is adding Movement input to a character it doesn't own : " + OwnerId.ToString());
 			return;
 		}
-		AddMovementInputRaw(MovementInput.Normalized() * (float) delta);
+
+		if(MovementInput.Length() > 0.1)
+		{
+			if(Velocity.Length() < MinVelocity)
+			{
+				Velocity = MinVelocity * MovementInput.Normalized();
+			}
+		}
+		else
+		{
+			Velocity -= Velocity.Normalized() * Decelleration * (float) delta;
+
+			if(Velocity.Length() < 0.05f)
+			{
+				Velocity = new Vector2(0, 0);
+			}
+		}
+
+		Velocity += MovementInput.Normalized() * (float) delta * (float) Accelleration;
+
+		if(Velocity.Length() > MovementSpeed)
+		{
+			Velocity = Velocity.Normalized() * MovementSpeed;
+		}
+
+		//AddMovementInputRaw(MovementInput.Normalized() * (float) delta);
+		AddMovementInputRaw(Velocity * (float) delta);
 		LastDelta = delta;
+
 	}
 
 	// Low level adds an accumulated value to the movement input
@@ -302,23 +342,30 @@ public partial class CharacterMover: Node
 			if(DeltaPosition.Length() > 0.001)
 			{
 				PhysicsTestMotionResult3D Results = new PhysicsTestMotionResult3D();
-				PhysicsServer3D.BodyTestMotion(BaseAsCharacterBody.GetRid(), motionParameters, Results);
-				var Travel = Results.GetTravel();
-				Travel.Y = 0;
-				MovedPosition = StartPosition + Travel;
 
-				if (Travel.Length() < DeltaPosition.Length()) 
-				{
-					// todo recursively apply this movement
-					var Normal = Results.GetCollisionNormal();
-					MovedPosition += Normal * ((float) Results.GetCollisionDepth());
-				}
+                if(Results.GetCollisionCount() > 0)
+                {
+                    PhysicsServer3D.BodyTestMotion(BaseAsCharacterBody.GetRid(), motionParameters, Results);
 
-				if(Travel.Length() < 0.001)
-				{
-					// ehh.. why not
-					MovedPosition += DeltaPosition * 0.5f;
-				}
+                    if(Results.)
+
+                    var Travel = Results.GetTravel();
+                    Travel.Y = 0;
+                    MovedPosition = StartPosition + Travel;
+
+                    if (Travel.Length() < DeltaPosition.Length()) 
+                    {
+                        // todo recursively apply this movement
+                        var Normal = Results.GetCollisionNormal();
+                        MovedPosition += Normal * ((float) Results.GetCollisionDepth());
+                    }
+
+                    if(Travel.Length() < 0.001)
+                    {
+                        // ehh.. why not
+                        MovedPosition += DeltaPosition * 0.5f;
+                    }
+                }
 			}
 		}
 
