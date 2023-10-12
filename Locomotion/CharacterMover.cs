@@ -303,10 +303,13 @@ public partial class CharacterMover: Node
 		var HorizontalComponent = (Velocity) - MovementInput.Normalized().Dot(Velocity) * MovementInput.Normalized();
 		Velocity -= HorizontalComponent * 0.5f * (float) delta;
 
-		if(Velocity.Length() > MovementSpeed)
+		if(MovementInput.Length() > 0.3)
 		{
-			Velocity = Velocity.Normalized() * MovementSpeed;
-		}
+            if(Velocity.Length() > MovementSpeed)
+            {
+                Velocity = Velocity.Normalized() * MovementSpeed;
+            }
+        }
 
 		//AddMovementInputRaw(MovementInput.Normalized() * (float) delta);
 		AddMovementInputRaw(Velocity * (float) delta);

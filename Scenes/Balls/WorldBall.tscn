@@ -1,0 +1,29 @@
+[gd_scene load_steps=5 format=3 uid="uid://cx12a03hv51x4"]
+
+[ext_resource type="Script" path="res://Scenes/Balls/WorldBall.cs" id="1_vgruu"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ydjig"]
+albedo_color = Color(1, 0.160784, 0.172549, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_kshyj"]
+material = SubResource("StandardMaterial3D_ydjig")
+radius = 0.2
+height = 0.4
+radial_segments = 12
+rings = 12
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_bqpl1"]
+radius = 0.21
+
+[node name="WorldBall" type="RigidBody3D"]
+collision_layer = 2
+collision_mask = 2
+linear_damp = 1.0
+angular_damp = 1.0
+script = ExtResource("1_vgruu")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("SphereMesh_kshyj")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("SphereShape3D_bqpl1")

@@ -17,6 +17,7 @@ public partial class GameState: Node
 	// ==== /statics ====
 	
 	public Node LevelNode;
+	public Node ReplicatedLevelNode;
 	public PackedScene LevelScene;
 
 	public GameLevel Level;
@@ -31,6 +32,7 @@ public partial class GameState: Node
 		NU.Ok("GameState created");
 		StaticInstance = this;
 		LevelNode = GetNode<Node3D>("/root/Session");
+		ReplicatedLevelNode = GetNode<Node>("/root/Session");
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -58,8 +60,7 @@ public partial class GameState: Node
 
 	private int count = 0;
 
-	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-	public void SpawnAvatar(string PlayerName)
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)] public void SpawnAvatar(string PlayerName)
 	{
 		if(GameSession.Get().PeerId != 1)
 		{

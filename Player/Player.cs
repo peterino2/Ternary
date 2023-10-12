@@ -1,4 +1,5 @@
 using Godot;
+using Godot.Collections;
 using System;
 
 public partial class Player : CharacterBody3D
@@ -12,14 +13,23 @@ public partial class Player : CharacterBody3D
 	[Export] public long OwnerId = 0;
 	[Export] public Node3D ArrowBase;
 	[Export] public MultiplayerSynchronizer Sync;
+	[Export] public PackedScene BallScene;
 
 	[Export] public Node3D Indicator;
+	[Export] public MeshInstance3D HoldingBallMesh;
 
 	Vector2 AccumulatedMovement = new Vector2(0,0);
 	Vector2 SyncAccumulatedMovement = new Vector2(0,0);
 	Vector2 LocalInput = new Vector2(0,0);
 	Vector3 MouseVector = new Vector3(0,0,0);
+	Vector3 MouseWorldPosition;
 	Vector3 LastDeltaPosition = new Vector3(0,0,0);
+
+	static Rid PickupShapeRid;
+	static bool PickupShapeReady = false;
+	[Export] float PickupRadius = 0.6f;
+
+	bool HoldingBall = false;
 
 	bool MouseInWindow = false;
 	bool FireButtonDown = false;
@@ -40,6 +50,13 @@ public partial class Player : CharacterBody3D
 	{
 		Sprite = GetNode<AnimatedGameSprite>("Node3D/Sprite");
 		Sprite.Play("IdleDown");
+
+		if(!PickupShapeReady)
+		{
+			PickupShapeRid = PhysicsServer3D.SphereShapeCreate();
+			PhysicsServer3D.ShapeSetData(PickupShapeRid, PickupRadius);
+			PickupShapeReady = true;
+		}
 
 		if(OwnerId == GameSession.Get().PeerId)
 		{
@@ -129,7 +146,8 @@ public partial class Player : CharacterBody3D
 
 		if(results.ContainsKey("position"))
 		{
-			MouseVector = results["position"].As<Vector3>() - Position;
+			MouseWorldPosition = results["position"].As<Vector3>();
+			MouseVector = MouseWorldPosition - Position;
 			MouseVector.Y = 0;
 			MouseVector = MouseVector.Normalized();
 			DebugDraw3D.DrawSphere(results["position"].As<Vector3>(), 0.5f, Colors.Green, 0.00f);
@@ -182,12 +200,15 @@ public partial class Player : CharacterBody3D
 	{
 		if (@event is InputEventMouseButton mouseEvent && MouseInWindow)
 		{
-			if( mouseEvent.Pressed)
+			if(mouseEvent.Pressed)
 			{
 				switch (mouseEvent.ButtonIndex)
 				{
 					case MouseButton.Left:
 						OnFireButtonDown();
+						break;
+					case MouseButton.Right:
+						OnCatchButtonDown();
 						break;
 				}
 			}
@@ -198,11 +219,32 @@ public partial class Player : CharacterBody3D
 					case MouseButton.Left:
 						OnFireButtonUp();
 						break;
+					case MouseButton.Right:
+						OnCatchButtonUp();
+						break;
 				}
 			}
 		}
 	}
 
+	void OnCatchButtonDown()
+	{
+		if(!IsLocalPlayer)
+			return;
+		// Start the catching process.
+		// do a sphere trace infront of us, check to see if we hit a ball.
+		
+		NU.Ok("OnCatchButtonDown");
+		if(ScanForBall())
+		{
+			HoldingBallMesh.Visible = true;
+		}
+	}
+
+	void OnCatchButtonUp()
+	{
+	}
+	
 	void OnFireButtonDown()
 	{
 		FireButtonDown = true;
@@ -297,5 +339,58 @@ public partial class Player : CharacterBody3D
 		{
 			ChargeTime = NewChargeTime;
 		}
+	}
+
+
+	[Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Unreliable)]
+	public void ClientRecieveAddImpulse(
+			Vector2 Impulse)
+	{
+		if(IsLocalPlayer)
+		{
+			Mover.Velocity += Impulse;
+		}
+	}
+
+	public void ServerAddImpulse(Vector2 Impulse)
+	{
+		Rpc(nameof(ClientRecieveAddImpulse), new Variant[]{
+			Impulse,
+		});
+	}
+
+	public Array<Dictionary> DoShapeTrace(Rid ShapeRid, Vector3 Position)
+	{
+		var SpaceState = GetWorld3D().DirectSpaceState;
+		var Parameters = new PhysicsShapeQueryParameters3D();
+
+		Parameters.ShapeRid = ShapeRid;
+		var StartTransform = new Transform3D(
+			new Basis(1,0,0,0,1,0,0,0,1), Position);
+
+		DebugDraw3D.DrawSphere(Position, PickupRadius, Colors.Magenta, 5.0f);
+
+		Parameters.Transform = StartTransform;
+		Parameters.Exclude.Add(GetRid());
+
+		return SpaceState.IntersectShape(Parameters);
+	}
+
+	public bool ScanForBall() 
+	{
+		var Result = DoShapeTrace(PickupShapeRid, Position + MouseVector * 0.5f);
+		foreach(var R in Result)
+		{
+			var colliderAsWorldBall = R["collider"].Obj as WorldBall;
+			if(colliderAsWorldBall != null)
+			{
+				colliderAsWorldBall.GetPickedUp(this);
+				NU.Ok("Picked up a ball");
+				HoldingBall = true;
+				return true;
+			}
+		}
+
+		return false;
 	}
 }

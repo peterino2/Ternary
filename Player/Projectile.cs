@@ -66,33 +66,55 @@ public partial class Projectile : Node3D
 	{
 		var SpaceState = GetWorld3D().DirectSpaceState;
 		var Parameters = new PhysicsShapeQueryParameters3D();
-		
+
 		Parameters.ShapeRid = ShapeRid;
-		var StartTransform = new Transform3D( new Basis(1,0,0,0,1,0,0,0,1), Position + new Vector3(0, HurtRadius + 0.1f, 0));
+		var StartTransform = new Transform3D(
+				new Basis(1,0,0,0,1,0,0,0,1), Position 
+				+ new Vector3(0, HurtRadius + 0.1f, 0));
+
 		Parameters.Transform = StartTransform;
 		Parameters.Motion = DeltaV;
-        var PlayerBody = SpawnOwner.GetOwnerBody();
+		var PlayerBody = SpawnOwner.GetOwnerBody();
 
-        if(PlayerBody != null)
-        {
-            Parameters.Exclude.Add(PlayerBody.GetRid());
-        }
+		if(PlayerBody != null)
+		{
+			Parameters.Exclude.Add(PlayerBody.GetRid());
+		}
 
-        var Result = SpaceState.IntersectShape(Parameters);
+		var Result = SpaceState.IntersectShape(Parameters);
+
 		foreach(var R in Result)
 		{
-            var colliderAsCharacterBody = R["collider"].Obj as CharacterBody3D;
-            if(colliderAsCharacterBody != null)
-            {
-                if(colliderAsCharacterBody == PlayerBody)
-                {
-                    DebugDraw3D.DrawSphere(Position, HurtRadius, Colors.Magenta, 5.0f);
-                }
-                else 
-                {
-                    DebugDraw3D.DrawSphere(Position, HurtRadius, Colors.Red, 5.0f);
-                }
-            }
+			var colliderAsCharacterBody = R["collider"].Obj as CharacterBody3D;
+			if(colliderAsCharacterBody != null)
+			{
+				if(colliderAsCharacterBody != PlayerBody)
+				{
+					DebugDraw3D.DrawSphere(Position, HurtRadius, Colors.Red, 5.0f);
+					QueueFree();
+
+					if(GameSession.Get().IsServer())
+					{
+						var colliderAsPlayer = colliderAsCharacterBody as Player;
+
+						if(colliderAsPlayer != null)
+						{
+							var dir = (colliderAsPlayer.Position - Position).Normalized();
+
+							colliderAsPlayer.ServerAddImpulse(new Vector2(dir.X, dir.Z) * 6.0f);
+						}
+					}
+				}
+			}
+			else 
+			{
+				var ColliderAsStatic = R["collider"].Obj as StaticBody3D;
+				if(ColliderAsStatic != null)
+				{
+					DebugDraw3D.DrawSphere(Position, HurtRadius, Colors.Red, 5.0f);
+					QueueFree();
+				}
+			}
 		}
 	}
 }

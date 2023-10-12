@@ -1,7 +1,8 @@
-[gd_scene load_steps=12 format=3 uid="uid://rsjcev5cw42o"]
+[gd_scene load_steps=14 format=3 uid="uid://rsjcev5cw42o"]
 
 [ext_resource type="Script" path="res://Player/Player.cs" id="1_akdl1"]
 [ext_resource type="Script" path="res://Locomotion/CharacterMover.cs" id="2_1ooas"]
+[ext_resource type="PackedScene" uid="uid://dkaie6qebfvni" path="res://Scenes/Balls/Bal2l.tscn" id="2_kqkna"]
 [ext_resource type="Script" path="res://Player/AnimatedGameSprite.cs" id="3_02lru"]
 [ext_resource type="SpriteFrames" uid="uid://dn731ywtgunkt" path="res://Assets/Bankman_Warrior_SF.tres" id="3_tedje"]
 [ext_resource type="Script" path="res://Player/Nameplate.cs" id="4_hg8tv"]
@@ -18,16 +19,23 @@ properties/0/spawn = true
 properties/0/sync = true
 properties/0/watch = false
 
-[sub_resource type="SphereMesh" id="SphereMesh_u7x4k"]
-radius = 0.2
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_y4mlc"]
+albedo_color = Color(1, 0.0431373, 0.109804, 1)
 
-[node name="Player" type="CharacterBody3D" node_paths=PackedStringArray("Mover", "Projectiles", "ArrowBase", "Sync", "Indicator")]
+[sub_resource type="SphereMesh" id="SphereMesh_u7x4k"]
+material = SubResource("StandardMaterial3D_y4mlc")
+radius = 0.2
+height = 0.4
+
+[node name="Player" type="CharacterBody3D" node_paths=PackedStringArray("Mover", "Projectiles", "ArrowBase", "Sync", "Indicator", "HoldingBallMesh")]
 script = ExtResource("1_akdl1")
 Mover = NodePath("MovementComponent")
 Projectiles = NodePath("ProjectileSpawner")
 ArrowBase = NodePath("ArrowBase")
 Sync = NodePath("MultiplayerSynchronizer")
+BallScene = ExtResource("2_kqkna")
 Indicator = NodePath("Indicator")
+HoldingBallMesh = NodePath("PickedUpBall")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.598901, 0)
@@ -65,7 +73,8 @@ replication_interval = 0.05
 delta_interval = 0.05
 replication_config = SubResource("SceneReplicationConfig_ejvr1")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+[node name="PickedUpBall" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.717216, 1.42034, 0)
 visible = false
 mesh = SubResource("SphereMesh_u7x4k")
 skeleton = NodePath("")
