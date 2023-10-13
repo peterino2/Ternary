@@ -48,6 +48,9 @@ public partial class Player : CharacterBody3D
 	float CachedMinMoveSpeed = 0.0f;
 	float ChargingSlowFactor = 0.5f;
 
+    [Export] public int TeamId = 0;
+    public bool IsDead = false;
+
 	[Export] double ChargeTimeToThrow = 1.0;
 	double ChargeTime = 0.0;
 
@@ -138,15 +141,19 @@ public partial class Player : CharacterBody3D
 			TickMouseInput(delta);
 
 			var DodgeAction = Input.GetActionStrength("Dodge");
-			if(DodgeAction > 0.5 && CurrentDodgingCooldown <= 0)
+			if(DodgeAction > 0.5 && CurrentDodgingCooldown <= 0 && !IsDead)
 			{
 				NU.Ok("Dodging started");
 				StartDodging(MouseVector);
 			}
+
 		}
 
 		TickCharging(delta);
 		Mover.TickUpdates(delta);
+
+        if(IsDead)
+            return;
 		TickBlocking(delta);
 		TickDodging(delta);
 
@@ -226,27 +233,33 @@ public partial class Player : CharacterBody3D
 		{
 			if(mouseEvent.Pressed)
 			{
-				switch (mouseEvent.ButtonIndex)
-				{
-					case MouseButton.Left:
-						OnFireButtonDown();
-						break;
-					case MouseButton.Right:
-						OnCatchButtonDown();
-						break;
-				}
+                if(!IsDead)
+                {
+                    switch (mouseEvent.ButtonIndex)
+                    {
+                        case MouseButton.Left:
+                            OnFireButtonDown();
+                            break;
+                        case MouseButton.Right:
+                            OnCatchButtonDown();
+                            break;
+                    }
+                }
 			}
 			else 
 			{
+                if(!IsDead)
+                {
 				switch (mouseEvent.ButtonIndex)
-				{
-					case MouseButton.Left:
-						OnFireButtonUp();
-						break;
-					case MouseButton.Right:
-						OnCatchButtonUp();
-						break;
-				}
+                    {
+                        case MouseButton.Left:
+                            OnFireButtonUp();
+                            break;
+                        case MouseButton.Right:
+                            OnCatchButtonUp();
+                            break;
+                    }
+                }
 			}
 		}
 	}
@@ -621,4 +634,52 @@ public partial class Player : CharacterBody3D
         PickedUpBall = BallRef;
         HoldingBallMesh.Visible = true;
     }
+
+    public void ReviveMeLocal()
+    {
+        IsDead = false;
+        Visible = true;
+        CollisionLayer = 0x1;
+        CollisionMask = 0x1;
+        Mover.Ghosting = false;
+    }
+
+    public void KillMeLocal()
+    {
+        IsDead = true;
+        Visible = false;
+        CollisionLayer = 0x8;
+        CollisionMask = 0x8;
+        Mover.Ghosting = true;
+
+        ChargeTime = 0;
+        CurrentDodgingDuration = 0;
+        CurrentBlockingDuration = 0;
+    }
+
+    public void KillMeServer()
+    {
+        KillMeLocal();
+        Rpc(nameof(KillMeMulticast), new Variant[]{});
+    }
+
+	[Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    void KillMeMulticast()
+    {
+        KillMeLocal();
+    }
+
+	[Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    void ReviveMeMulticast()
+    {
+        ReviveMeLocal();
+    }
+
+    public void ReviveMeServer(Vector3 RevivePosition)
+    {
+        ReviveMeLocal();
+        Mover.OverridePosition(RevivePosition);
+        Rpc(nameof(ReviveMeMulticast), new Variant[]{});
+    }
 }
+

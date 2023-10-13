@@ -109,7 +109,6 @@ public partial class Projectile : Node3D
 				if(colliderAsCharacterBody != PlayerBody)
 				{
 					DebugDraw3D.DrawSphere(Position, HurtRadius, Colors.Red, 5.0f);
-					QueueFree();
 
 					if(GameSession.Get().IsServer())
 					{
@@ -119,22 +118,35 @@ public partial class Projectile : Node3D
 						{
 							var dir = (colliderAsPlayer.GlobalPosition - Position).Normalized();
 							colliderAsPlayer.ServerAddImpulse(new Vector2(dir.X, dir.Z) * 6.0f);
-							if(colliderAsPlayer.CheckCatching(Position))
+                            if(colliderAsPlayer.IsDead)
+                            {
+                                // nothing happens, hes a ghost
+                            }
+                            else if(colliderAsPlayer.CheckCatching(Position))
 							{
 								NU.Ok("Player caught the ball");
                                 colliderAsPlayer.PlayerCaughtBallOnServer(WorldBallRef);
+                                GameState.Get().ReviveNextPlayer(colliderAsPlayer.TeamId);
+					            QueueFree();
+                                break;
 							}
 							else if (colliderAsPlayer.CheckBlocking(Position))
 							{
 								SignalBounceBack(Position, -dir);
+					            QueueFree();
+                                break;
 							}
 							else 
 							{
+                                GameState.Get().KillPlayer(colliderAsPlayer);
 								SignalBounceBack(Position, dir);
+					            QueueFree();
+                                break;
 							}
 						}
 					}
 				}
+
 			}
 			else 
 			{
@@ -142,6 +154,7 @@ public partial class Projectile : Node3D
 				if(ColliderAsStatic != null)
 				{
 					DebugDraw3D.DrawSphere(Position, HurtRadius, Colors.Red, 5.0f);
+					QueueFree();
 					if(GameSession.Get().IsServer())
 					{
 						// sigh here we go again...
@@ -157,10 +170,11 @@ public partial class Projectile : Node3D
 							dir = DeltaV - 2 * Projected;
 							dir = dir.Normalized();
 						}
+
+					    // Signal the server to spawn back the world ball.
 						SignalBounceBack(Position, dir);
 					}
-					// Signal the server to spawn back the world ball.
-					QueueFree();
+                    break;
 				}
 			}
 		}

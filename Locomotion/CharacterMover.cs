@@ -30,6 +30,8 @@ public partial class CharacterMover: Node
     public Vector2 DodgeVelocityOverride = new Vector2(0,0);
     public double DodgeVelocityOverrideDuration = 0.0;
 
+    public bool Ghosting = false;
+
 	float InterpolationSpeed = 5.0f;
 
 	public CollisionObject3D BaseAsCollision;
@@ -365,7 +367,7 @@ public partial class CharacterMover: Node
 
 		if(BaseIsCharacter)
 		{
-			if(DeltaPosition.Length() > 0.001)
+			if(DeltaPosition.Length() > 0.001 && !Ghosting)
 			{
 				PhysicsTestMotionResult3D Results = new PhysicsTestMotionResult3D();
 
@@ -417,4 +419,12 @@ public partial class CharacterMover: Node
 			GameNetEngine.Get().OnSyncFrame -= OnSyncFrame;
 		}
 	}
+
+    public void OverridePosition(Vector3 NewPosition)
+    {
+		SyncFrameCount = 2;
+		NetMoveSync = new Vector2(0,0);
+		PositionSync = NewPosition;
+        Base.Position = NewPosition;
+    }
 }

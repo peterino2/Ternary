@@ -25,6 +25,47 @@ public partial class GameState: Node
 	// used by the server for validation
 	public Dictionary<long, Player> AvatarSpawnedServer = new Dictionary<long, Player>();
 
+    private List<Player> Team1PlayersDead = new List<Player>();
+    private List<Player> Team2PlayersDead = new List<Player>();
+
+    public void KillPlayer(Player DeadPlayer)
+    {
+        if(!GameSession.Get().IsServer())
+        {
+            NU.Error("GameState kill function called from somewhere that isnt the server.");
+            return;
+        }
+
+        DeadPlayer.KillMeServer();
+        NU.Error("Player killed adding to deadList for team: "+ DeadPlayer.TeamId.ToString());
+        if(DeadPlayer.TeamId == 0)
+        {
+            Team1PlayersDead.Add(DeadPlayer);
+        }
+        else 
+        {
+            Team2PlayersDead.Add(DeadPlayer);
+        }
+    }
+
+    public void ReviveNextPlayer(int TeamId)
+    {
+        NU.Ok("Team reviving player at: " + TeamId);
+
+        var RevivedPlayer = Team1PlayersDead[0];
+        if(TeamId == 0)
+        {
+            Team1PlayersDead.RemoveAt(0);
+        }
+        else 
+        {
+            RevivedPlayer = Team2PlayersDead[0];
+            Team2PlayersDead.RemoveAt(0);
+        }
+
+        RevivedPlayer.ReviveMeServer(new Vector3(0,0,0));
+    }
+
 	public override void _Ready()
 	{
 		NU.Ok("GameState created");

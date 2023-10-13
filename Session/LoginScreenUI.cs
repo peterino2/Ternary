@@ -36,7 +36,9 @@ public partial class LoginScreenUI : Control
 
     public void OnGameStartClient()
     {
-        SetVisiblityAndProcess(false);
+        HostServerButton.Visible = false;
+        ConnectToServer.Visible = false;
+        RequestGameStartButton.Visible = false;
     }
 
 	public void OnRequestGameStart() 
