@@ -31,7 +31,13 @@ public partial class LoginScreenUI : Control
 		RequestGameStartButton.ButtonDown += OnRequestGameStart;
 
 		ErrorLabel.ButtonDown += OnErrorAck;
+        GameState.Get().OnGameStart += OnGameStartClient;
 	}
+
+    public void OnGameStartClient()
+    {
+        SetVisiblityAndProcess(false);
+    }
 
 	public void OnRequestGameStart() 
 	{

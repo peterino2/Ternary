@@ -1,5 +1,4 @@
 using Godot;
-using System;
 
 public partial class Projectile : Node3D
 {
@@ -122,6 +121,8 @@ public partial class Projectile : Node3D
 							colliderAsPlayer.ServerAddImpulse(new Vector2(dir.X, dir.Z) * 6.0f);
 							if(colliderAsPlayer.CheckCatching(Position))
 							{
+								NU.Ok("Player caught the ball");
+                                colliderAsPlayer.PlayerCaughtBallOnServer(WorldBallRef);
 							}
 							else if (colliderAsPlayer.CheckBlocking(Position))
 							{

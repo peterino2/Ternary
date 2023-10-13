@@ -1,8 +1,6 @@
 using Godot;
-using System;
 using System.Collections.Generic;
 
-using System.Net.NetworkInformation;
 
 // Top level Class for the top level state of the game and the game.
 public partial class GameState: Node
@@ -56,9 +54,20 @@ public partial class GameState: Node
 	{
         NU.Ok("preparing game");
 		LevelNode.AddChild(LevelScene.Instantiate());
+
+        Rpc(nameof(GameStartMulticast), new Variant[]{});
 	}
 
 	private int count = 0;
+
+    public delegate void GameStartDelegate();
+    public event GameStartDelegate OnGameStart;
+
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)] 
+    public void GameStartMulticast()
+    {
+        OnGameStart?.Invoke();
+    }
 
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)] 
     public void SpawnAvatar(string PlayerName)

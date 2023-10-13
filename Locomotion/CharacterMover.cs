@@ -27,6 +27,9 @@ public partial class CharacterMover: Node
 	public Vector2 Velocity = new Vector2(0,0);
 	public Vector2 NetMoveSync = new Vector2(0,0);
 
+    public Vector2 DodgeVelocityOverride = new Vector2(0,0);
+    public double DodgeVelocityOverrideDuration = 0.0;
+
 	float InterpolationSpeed = 5.0f;
 
 	public CollisionObject3D BaseAsCollision;
@@ -189,8 +192,17 @@ public partial class CharacterMover: Node
 			Base.Position = ServerPredictedPosition;
 		}
 
+        DodgeVelocityOverrideDuration -= delta;
+
 		if(DebugMovement)
+        {
 			DebugDraw3D.DrawSphere(Base.Position + new Vector3(0, 0.6f, 0), 0.6f, Colors.Green, 0.1f);
+            if(DodgeVelocityOverrideDuration > 0)
+            {
+			    DebugDraw3D.DrawSphere(Base.Position + new Vector3(0, 0.6f, 0), 0.6f, Colors.Cyan, 0.1f);
+            }
+        }
+
 	}
 
 	private void TickInterpolation(double delta)
@@ -309,6 +321,11 @@ public partial class CharacterMover: Node
             {
                 Velocity = Velocity.Normalized() * MovementSpeed;
             }
+        }
+
+        if(DodgeVelocityOverrideDuration > 0)
+        {
+            Velocity = DodgeVelocityOverride; 
         }
 
 		//AddMovementInputRaw(MovementInput.Normalized() * (float) delta);

@@ -18,6 +18,13 @@ public partial class Player : CharacterBody3D
 	[Export] public Node3D Indicator;
 	[Export] public MeshInstance3D HoldingBallMesh;
 
+	[Export] double BlockingCooldown = 10.0;
+	double CurrentBlockingCooldown = 0.0;
+	[Export] double BlockingDuration = 5.0;
+	[Export] double CatchingDuration = 5.0;
+	double CurrentBlockingDuration = 0.0;
+	Vector3 BlockingDirection;
+
 	public WorldBall PickedUpBall;
 
 	Vector2 AccumulatedMovement = new Vector2(0,0);
@@ -129,11 +136,19 @@ public partial class Player : CharacterBody3D
 			var InputVector = Input.GetVector("MoveLeft", "MoveRight", "MoveUp", "MoveDown").Normalized();
 			Mover.AddMovementInput(InputVector, delta);
 			TickMouseInput(delta);
+
+			var DodgeAction = Input.GetActionStrength("Dodge");
+			if(DodgeAction > 0.5 && CurrentDodgingCooldown <= 0)
+			{
+				NU.Ok("Dodging started");
+				StartDodging(MouseVector);
+			}
 		}
 
 		TickCharging(delta);
 		Mover.TickUpdates(delta);
 		TickBlocking(delta);
+		TickDodging(delta);
 
 		if(HoldingBallMesh.Visible != HoldingBall)
 		{
@@ -247,13 +262,9 @@ public partial class Player : CharacterBody3D
 
 		if(!HoldingBall)
 		{
-			if(ScanForBall())
+			if(!ScanForBall())
 			{
-				HoldingBallMesh.Visible = true;
-			}
-			else 
-			{
-				//StartCatching();
+				StartCatching();
 			}
 		}
 		else 
@@ -361,7 +372,8 @@ public partial class Player : CharacterBody3D
 		Rpc( nameof(RecieveGameStateClient), new Variant[] {
 			ChargeTime,
 			CurrentBlockingDuration,
-			BlockingDirection
+			BlockingDirection,
+            HoldingBall,
 		});
 	}
 
@@ -391,13 +403,19 @@ public partial class Player : CharacterBody3D
 
 	[Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Unreliable)]
 	public void RecieveGameStateClient(
-		float NewChargeTime, double NewBlockingDuration, Vector3 NewBlockingDirection)
+		float NewChargeTime, double NewBlockingDuration, Vector3 NewBlockingDirection, 
+        bool NewHoldingBall)
 	{
 		if(OwnerId != GameSession.Get().PeerId)
 		{
 			ChargeTime = NewChargeTime;
 			BlockingDirection = NewBlockingDirection;
 			CurrentBlockingDuration = NewBlockingDuration;
+            HoldingBall = NewHoldingBall;
+            if(HoldingBall)
+            {
+                HoldingBallMesh.Visible = true;
+            }
 		}
 	}
 
@@ -437,49 +455,81 @@ public partial class Player : CharacterBody3D
 
 	// ============== Dodging ===============
 
+	[Export] double DodgeDuration = 0.2;
+	double CurrentDodgingDuration = 0.0;
+	[Export] double DodgingCooldown = 3.0;
+	double CurrentDodgingCooldown = 0.0;
+
+	[Export] float DodgeImpulse = 15.0f;
+
 	public bool CheckDodging()
 	{
+		if(CurrentDodgingDuration < 0)
+		{
+			return true;
+		}
 		return false;
+	}
+
+	public void StartDodging(Vector3 DodgeDirection)
+	{
+		if(CurrentDodgingCooldown <= 0.0)
+		{
+			CurrentDodgingCooldown = DodgingCooldown;
+			CurrentDodgingDuration = DodgeDuration;
+			Mover.DodgeVelocityOverride = new Vector2(DodgeDirection.X, DodgeDirection.Z) * DodgeImpulse;
+			Mover.DodgeVelocityOverrideDuration = DodgeDuration;
+		}
+	}
+
+	void TickDodging(double delta)
+	{
+		if(CurrentDodgingDuration > 0 )
+		{
+			CurrentDodgingDuration -= delta;
+			if(IsLocalPlayer)
+			{
+				ChargeTime = 0;
+			}
+		}
+		if(CurrentDodgingCooldown > 0)
+		{
+			CurrentDodgingCooldown -= delta;
+		}
 	}
 
 	// ============== Catching ===============
 	public bool CheckCatching(Vector3 BallPosition)
 	{
-        if(!HoldingBall)
-        {
-            if(CurrentBlockingDuration > 0)
-            {
-                var Dir = (BallPosition - Position).Normalized();
-                if(Dir.Dot(BlockingDirection) > 0.5)
-                {
-                    return true;
-                }
-            }
-        }
+		if(!HoldingBall)
+		{
+			if(CurrentBlockingDuration > 0)
+			{
+				var Dir = (BallPosition - Position).Normalized();
+				if(Dir.Dot(BlockingDirection) > 0.5)
+				{
+					return true;
+				}
+			}
+		}
 		return false;
 	}
 
 	// ============== Blocking ===============
-	[Export] double BlockingCooldown = 10.0;
-	double CurrentBlockingCooldown = 0.0;
-	[Export] double BlockingDuration = 5.0;
-	[Export] double CatchingDuration = 5.0;
-	double CurrentBlockingDUration = 0.0;
-	Vector3 BlockingDirection;
 
 	public bool CheckBlocking(Vector3 BallPosition)
 	{
-        if(HoldingBall)
-        {
-            if(CurrentBlockingDuration > 0)
-            {
-                var Dir = (BallPosition - Position).Normalized();
-                if(Dir.Dot(BlockingDirection) > 0.5)
-                {
-                    return true;
-                }
-            }
-        }
+		if(HoldingBall)
+		{
+			if(CurrentBlockingDuration > 0)
+			{
+				var Dir = (BallPosition - Position).Normalized();
+				if(Dir.Dot(BlockingDirection) > 0.5)
+				{
+					return true;
+				}
+			}
+		}
 		return false;
 	}
 
@@ -495,17 +545,18 @@ public partial class Player : CharacterBody3D
 			DebugDraw3D.DrawSphere(HoldingBallMesh.GlobalPosition, 0.3f, Colors.Red.Lerp(Colors.Green, ((float)CurrentBlockingCooldown) / ((float)BlockingCooldown)), 0.00f);
 			CurrentBlockingCooldown -= delta;
 		}
+
 	}
 
-    void StartCatching()
-    {
+	void StartCatching()
+	{
 		if(CurrentBlockingCooldown <= 0)
 		{
 			CurrentBlockingDuration = CatchingDuration;
 			CurrentBlockingCooldown = BlockingCooldown;
 			BlockingDirection = MouseVector;
 		}
-    }
+	}
 
 	void StartBlocking() 
 	{
@@ -517,7 +568,6 @@ public partial class Player : CharacterBody3D
 		}
 	}
 
-	// =======
 	public void PlayerKnockedOut()
 	{
 		// Gets added the server's GameLevelState of players who have been knocked the fuck out.
@@ -541,10 +591,34 @@ public partial class Player : CharacterBody3D
 				PickedUpBall = colliderAsWorldBall;
 				NU.Ok("Picked up a ball");
 				HoldingBall = true;
+				HoldingBallMesh.Visible = true;
 				return true;
 			}
 		}
 
 		return false;
 	}
+
+    // catching functions
+    
+	[Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    void RecievedBallCaughtEvent(String BallPath)
+    {
+        var BallRef = GetNode<WorldBall>(BallPath);
+        HoldingBall = true;
+        PickedUpBall = BallRef;
+        HoldingBallMesh.Visible = true;
+    }
+    
+    // called on the server when the ball is caught by this player
+    public void PlayerCaughtBallOnServer(WorldBall BallRef)
+    {
+        RpcId(OwnerId, nameof(RecievedBallCaughtEvent), new Variant[] {
+            BallRef.GetPath()
+        });
+
+        HoldingBall = true;
+        PickedUpBall = BallRef;
+        HoldingBallMesh.Visible = true;
+    }
 }
