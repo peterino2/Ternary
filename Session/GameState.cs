@@ -60,7 +60,8 @@ public partial class GameState: Node
 
 	private int count = 0;
 
-	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)] public void SpawnAvatar(string PlayerName)
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)] 
+    public void SpawnAvatar(string PlayerName)
 	{
 		if(GameSession.Get().PeerId != 1)
 		{
@@ -78,6 +79,7 @@ public partial class GameState: Node
 		var newPlayer = GameLevel.Get().AvatarScene.Instantiate() as Player;
 		newPlayer.Name = "Player" + Multiplayer.GetRemoteSenderId().ToString();
 		newPlayer.SetOwnerServer(Multiplayer.GetRemoteSenderId());
+        newPlayer.DebugName = PlayerName;
 
 		GameLevel.Get().GetEntitiesRoot().AddChild(newPlayer);
 		AvatarSpawnedServer[Multiplayer.GetRemoteSenderId()] = newPlayer;

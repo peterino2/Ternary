@@ -7,6 +7,7 @@ public partial class ProjectileSpawner : Node
 	
 	public bool IsLocallyControlled = false;
 	public Node Base;
+    public Player PlayerRef;
 
 	[Export] public float BallRadius = 0.4f;
 	[Export] public float BallSpeed = 12.0f;
@@ -35,7 +36,6 @@ public partial class ProjectileSpawner : Node
 	public Projectile SpawnProjectileLocal(Vector3 FirePoint, Vector3 Direction, int Pk) 
 	{
 		var LevelNode = GameState.Get().LevelNode;
-		
 		var NewProjectile = ProjectilePrefab.Instantiate() as Projectile;
 		
 		NewProjectile.Speed = BallSpeed;
@@ -43,9 +43,11 @@ public partial class ProjectileSpawner : Node
 		NewProjectile.Position = FirePoint;
 		NewProjectile.Init(this, Pk, Direction);
 		Projectiles[Pk] = NewProjectile;
-	
+
+
 
 		LevelNode.AddChild(NewProjectile);
+
 		return Projectiles[Pk];
 	}
 
@@ -89,6 +91,7 @@ public partial class ProjectileSpawner : Node
 
 		var Projectile = SpawnProjectileLocal(FirePoint, Direction, PredictionKey);
 		Projectile.Advance(TimeDelta); 
+
 	}
 
 	void DrawDebugDirection(Vector3 Start, Vector3 Direction)
@@ -121,11 +124,17 @@ public partial class ProjectileSpawner : Node
 		DrawDebugDirection(FirePoint, Direction);
 
 		Rpc(nameof(BroadCastProjectileSpawn), new Variant[] {FirePoint, Direction, TimeStamp, PredictionKey});
+
+        if(GameSession.Get().IsServer())
+        {
+            Projectile.WorldBallRef =  PlayerRef.PickedUpBall;
+        }
 	}
 
 	public void SetBase(Node NewBase)
 	{
 		Base = NewBase;
+        PlayerRef = NewBase as Player;
 	}
 
 	public void SetupNetTickables()

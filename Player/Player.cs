@@ -18,6 +18,8 @@ public partial class Player : CharacterBody3D
 	[Export] public Node3D Indicator;
 	[Export] public MeshInstance3D HoldingBallMesh;
 
+	public WorldBall PickedUpBall;
+
 	Vector2 AccumulatedMovement = new Vector2(0,0);
 	Vector2 SyncAccumulatedMovement = new Vector2(0,0);
 	Vector2 LocalInput = new Vector2(0,0);
@@ -30,6 +32,7 @@ public partial class Player : CharacterBody3D
 	[Export] float PickupRadius = 0.6f;
 
 	bool HoldingBall = false;
+	public string DebugName = "Unnamed";
 
 	bool MouseInWindow = false;
 	bool FireButtonDown = false;
@@ -264,6 +267,7 @@ public partial class Player : CharacterBody3D
 				MouseVector,
 				GameNetEngine.Get().NewPredictionKey()
 			);
+
 			HoldingBall = false;
 			HoldingBallMesh.Visible = false;
 		}
@@ -325,11 +329,9 @@ public partial class Player : CharacterBody3D
 		var Sender = Multiplayer.GetRemoteSenderId();
 		if(Sender != OwnerId)
 		{
-			NU.Error(
-				"Client" 
+			NU.Error("Client" 
 				+ Sender.ToString()
-				+ " is trying to send state to me but i'm owned by " + OwnerId.ToString()
-			);
+				+ " is trying to send state to me but i'm owned by " + OwnerId.ToString() );
 			return;
 		}
 
@@ -370,8 +372,7 @@ public partial class Player : CharacterBody3D
 		var Parameters = new PhysicsShapeQueryParameters3D();
 
 		Parameters.ShapeRid = ShapeRid;
-		var StartTransform = new Transform3D(
-			new Basis(1,0,0,0,1,0,0,0,1), Position);
+		var StartTransform = new Transform3D(new Basis(1,0,0,0,1,0,0,0,1), Position);
 
 		DebugDraw3D.DrawSphere(Position, PickupRadius, Colors.Magenta, 5.0f);
 
@@ -390,6 +391,7 @@ public partial class Player : CharacterBody3D
 			if(colliderAsWorldBall != null)
 			{
 				colliderAsWorldBall.GetPickedUp(this);
+				PickedUpBall = colliderAsWorldBall;
 				NU.Ok("Picked up a ball");
 				HoldingBall = true;
 				return true;

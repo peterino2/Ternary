@@ -14,7 +14,7 @@ public partial class Projectile : Node3D
 	public float HurtRadius = 0.4f;
 	public double LifeTime = 2.0f;
 
-	public Vector3 Direction = new Vector3(0,0,0);
+	public Vector3 Direction = new Vector3(0, 0, 0);
 
 	static Rid ShapeRid;
 	static bool ShapeRidReady = false;
@@ -66,7 +66,17 @@ public partial class Projectile : Node3D
 
     void SignalBounceBack(Vector3 ImpactPoint, Vector3 ImpactNormal)
     {
-        
+        if(WorldBallRef != null)
+        {
+            DebugDraw3D.DrawRay(ImpactPoint, ImpactNormal, 5.0f, Colors.Red, 5.0f);
+            WorldBallRef.ReEnableAt(ImpactPoint);
+            WorldBallRef.LinearVelocity = new Vector3(0,0,0);
+            WorldBallRef.ApplyCentralImpulse(ImpactNormal * 10.0f);
+        }
+        else 
+        {
+            NU.Error("Bounce back signaled but no ball referenced?");
+        }
     }
 
 	void CheckCollisions(Vector3 DeltaV) 
@@ -92,6 +102,7 @@ public partial class Projectile : Node3D
 
 		foreach(var R in Result)
 		{
+            // NU.Ok("R: " + R.ToString());
 			var colliderAsCharacterBody = R["collider"].Obj as CharacterBody3D;
 			if(colliderAsCharacterBody != null)
 			{
@@ -107,8 +118,9 @@ public partial class Projectile : Node3D
 						if(colliderAsPlayer != null)
 						{
 							var dir = (colliderAsPlayer.Position - Position).Normalized();
-
 							colliderAsPlayer.ServerAddImpulse(new Vector2(dir.X, dir.Z) * 6.0f);
+
+                            SignalBounceBack(Position, dir);
 						}
 					}
 				}
@@ -119,6 +131,11 @@ public partial class Projectile : Node3D
 				if(ColliderAsStatic != null)
 				{
 					DebugDraw3D.DrawSphere(Position, HurtRadius, Colors.Red, 5.0f);
+                    if(GameSession.Get().IsServer())
+                    {
+                        var dir = (ColliderAsStatic.Position - Position).Normalized();
+                        SignalBounceBack(Position, dir);
+                    }
                     // Signal the server to spawn back the world ball.
 					QueueFree();
 				}
