@@ -22,11 +22,29 @@ public partial class GameState: Node
 	public bool LevelReady = false; // called when GameLevel sets itself to be true
 	public bool AvatarSpawned = false; // used by client to determine if we have issued a spawn request yet
 
+    public Vector3 Team1SpawnArea;
+    public Vector3 Team2SpawnArea;
+
 	// used by the server for validation
 	public Dictionary<long, Player> AvatarSpawnedServer = new Dictionary<long, Player>();
 
     private List<Player> Team1PlayersDead = new List<Player>();
     private List<Player> Team2PlayersDead = new List<Player>();
+
+    private List<Player> Team1Players = new List<Player>();
+    private List<Player> Team2Players = new List<Player>();
+
+    public void RegisterSpawnArea(int TeamId, Vector3 SpawnArea)
+    {
+        if(TeamId == 0)
+        {
+            Team1SpawnArea = SpawnArea;
+        }
+        else 
+        {
+            Team2SpawnArea = SpawnArea;
+        }
+    }
 
     public void KillPlayer(Player DeadPlayer)
     {
@@ -41,10 +59,18 @@ public partial class GameState: Node
         if(DeadPlayer.TeamId == 0)
         {
             Team1PlayersDead.Add(DeadPlayer);
+            if(Team1PlayersDead.Count == Team1Players.Count)
+            {
+                WinGame(1); // team 2 wins!
+            }
         }
         else 
         {
             Team2PlayersDead.Add(DeadPlayer);
+            if(Team2PlayersDead.Count == Team2Players.Count)
+            {
+                WinGame(0); // team 2 wins!
+            }
         }
     }
 
@@ -129,6 +155,7 @@ public partial class GameState: Node
 		var newPlayer = GameLevel.Get().AvatarScene.Instantiate() as Player;
 		newPlayer.Name = "Player" + Multiplayer.GetRemoteSenderId().ToString();
 		newPlayer.SetOwnerServer(Multiplayer.GetRemoteSenderId());
+        newPlayer.SetTeam(GameSession.Get().TeamIds[Multiplayer.GetRemoteSenderId()]);
         newPlayer.DebugName = PlayerName;
 
 		GameLevel.Get().GetEntitiesRoot().AddChild(newPlayer);
@@ -141,5 +168,10 @@ public partial class GameState: Node
 		AvatarSpawnedServer[Id].QueueFree();
 		AvatarSpawnedServer.Remove(Id);
 	}
+
+    public void WinGame(int Team)
+    {
+        NU.Ok("Team: " + (Team + 1).ToString() + " Won!");
+    }
 
 }

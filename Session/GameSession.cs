@@ -20,6 +20,8 @@ public partial class GameSession: Node
 	// We do not support listen server, dedicated only
 	[Export] private int MaxPeers = 32 + 1;
 
+    public Godot.Collections.Dictionary<long, int>TeamIds = new Godot.Collections.Dictionary<long, int>();
+
 	// Client/Server session information
 	public long PeerId = 0; // 0 for disconnected, 1 for server, Other positive numbers are clients
 	public string HostName = ""; // loopback host name.
@@ -225,7 +227,7 @@ public partial class GameSession: Node
 	{
 		foreach(KeyValuePair<long, string> pair in NamesById)
 		{
-			Rpc(nameof(RecievePlayerInfoClient), new Variant[]{ pair.Key, pair.Value });
+			Rpc(nameof(RecievePlayerInfoClient), new Variant[]{ pair.Key, pair.Value, TeamIds[pair.Key] });
 		}
 	}
 
@@ -250,6 +252,7 @@ public partial class GameSession: Node
 		IdsByName[PlayerName] =  Multiplayer.GetRemoteSenderId();
 		NamesById[Multiplayer.GetRemoteSenderId()] = PlayerName;
 		Verification[Multiplayer.GetRemoteSenderId()] = true;
+        TeamIds[Multiplayer.GetRemoteSenderId()] = 0;
 
 		BroadCastPlayerList();
 
@@ -264,7 +267,7 @@ public partial class GameSession: Node
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-	public void RecievePlayerInfoClient(long ClientId, string PlayerName)
+	public void RecievePlayerInfoClient(long ClientId, string PlayerName, int Team)
 	{
 		if(ClientId == PeerId)
 		{

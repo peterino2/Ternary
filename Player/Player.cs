@@ -681,5 +681,10 @@ public partial class Player : CharacterBody3D
         Mover.OverridePosition(RevivePosition);
         Rpc(nameof(ReviveMeMulticast), new Variant[]{});
     }
+
+    public void SetTeam(int NewTeamId)
+    {
+        TeamId = NewTeamId;
+    }
 }
 
