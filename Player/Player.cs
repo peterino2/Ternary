@@ -247,7 +247,10 @@ public partial class Player : CharacterBody3D
 	
 	void OnFireButtonDown()
 	{
-		FireButtonDown = true;
+		if(HoldingBall)
+		{
+			FireButtonDown = true;
+		}
 	}
 
 	void OnFireButtonUp()
@@ -261,6 +264,8 @@ public partial class Player : CharacterBody3D
 				MouseVector,
 				GameNetEngine.Get().NewPredictionKey()
 			);
+			HoldingBall = false;
+			HoldingBallMesh.Visible = false;
 		}
 	}
 

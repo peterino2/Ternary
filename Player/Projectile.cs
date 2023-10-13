@@ -8,6 +8,8 @@ public partial class Projectile : Node3D
 	public bool IsLocallyControlled = false;
 	public int PredictionKey = 0;
 
+    public WorldBall WorldBallRef = null;
+
 	public float Speed = 12.0f;
 	public float HurtRadius = 0.4f;
 	public double LifeTime = 2.0f;
@@ -62,6 +64,11 @@ public partial class Projectile : Node3D
 		SpawnOwner.RemoveProjectile(PredictionKey);
 	}
 
+    void SignalBounceBack(Vector3 ImpactPoint, Vector3 ImpactNormal)
+    {
+        
+    }
+
 	void CheckCollisions(Vector3 DeltaV) 
 	{
 		var SpaceState = GetWorld3D().DirectSpaceState;
@@ -112,6 +119,7 @@ public partial class Projectile : Node3D
 				if(ColliderAsStatic != null)
 				{
 					DebugDraw3D.DrawSphere(Position, HurtRadius, Colors.Red, 5.0f);
+                    // Signal the server to spawn back the world ball.
 					QueueFree();
 				}
 			}
