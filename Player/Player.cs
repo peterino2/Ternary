@@ -133,11 +133,12 @@ public partial class Player : CharacterBody3D
 
 		TickCharging(delta);
 		Mover.TickUpdates(delta);
+		TickBlocking(delta);
 
-        if(HoldingBallMesh.Visible != HoldingBall)
-        {
-		    HoldingBallMesh.Visible = HoldingBall;
-        }
+		if(HoldingBallMesh.Visible != HoldingBall)
+		{
+			HoldingBallMesh.Visible = HoldingBall;
+		}
 	}
 
 	void TickMouseInput(double delta) 
@@ -243,9 +244,21 @@ public partial class Player : CharacterBody3D
 		// do a sphere trace infront of us, check to see if we hit a ball.
 		
 		NU.Ok("OnCatchButtonDown");
-		if(ScanForBall())
+
+		if(!HoldingBall)
 		{
-			HoldingBallMesh.Visible = true;
+			if(ScanForBall())
+			{
+				HoldingBallMesh.Visible = true;
+			}
+			else 
+			{
+				//StartCatching();
+			}
+		}
+		else 
+		{
+			StartBlocking();
 		}
 	}
 
@@ -263,10 +276,10 @@ public partial class Player : CharacterBody3D
 
 	void OnFireButtonUp()
 	{
-        if(!IsLocalPlayer)
-        {
-            return;
-        }
+		if(!IsLocalPlayer)
+		{
+			return;
+		}
 
 		FireButtonDown = false;
 
@@ -278,7 +291,7 @@ public partial class Player : CharacterBody3D
 				GameNetEngine.Get().NewPredictionKey()
 			);
 
-            RpcId(1, nameof(ServerBallThrown), new Variant[]{});
+			RpcId(1, nameof(ServerBallThrown), new Variant[]{});
 
 			HoldingBall = false;
 			HoldingBallMesh.Visible = false;
@@ -286,17 +299,17 @@ public partial class Player : CharacterBody3D
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-    void ServerBallThrown()
-    {
-        HoldingBall = false;
-        Rpc(nameof(ServerBallThrownMulticast));
-    }
+	void ServerBallThrown()
+	{
+		HoldingBall = false;
+		Rpc(nameof(ServerBallThrownMulticast));
+	}
 
 	[Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-    void ServerBallThrownMulticast()
-    {
-        HoldingBall = false;
-    }
+	void ServerBallThrownMulticast()
+	{
+		HoldingBall = false;
+	}
 
 
 	public override void _ExitTree() 
@@ -336,7 +349,9 @@ public partial class Player : CharacterBody3D
 	public void OnNetTick(long CommandFrame, double Delta)
 	{
 		RpcId(1, nameof(SubmitState), new Variant[] {
-			ChargeTime
+			ChargeTime,
+			CurrentBlockingDuration,
+			BlockingDirection
 		});
 	}
 
@@ -344,13 +359,16 @@ public partial class Player : CharacterBody3D
 	{
 		// RPC to clients here
 		Rpc( nameof(RecieveGameStateClient), new Variant[] {
-			ChargeTime
+			ChargeTime,
+			CurrentBlockingDuration,
+			BlockingDirection
 		});
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Unreliable)]
 	public void SubmitState(
-			float NewChargeTime)
+		float NewChargeTime, double NewBlockingDuration, Vector3 NewBlockingDirection
+	)
 	{
 		var Sender = Multiplayer.GetRemoteSenderId();
 		if(Sender != OwnerId)
@@ -361,16 +379,25 @@ public partial class Player : CharacterBody3D
 			return;
 		}
 
+		if(NewBlockingDuration > 0 && CurrentBlockingDuration <= 0 && CurrentBlockingCooldown < 0.5)
+		{
+			CurrentBlockingDuration = NewBlockingDuration;
+			BlockingDirection = NewBlockingDirection;
+			CurrentBlockingCooldown = BlockingCooldown;
+		}
+
 		ChargeTime = NewChargeTime;
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Unreliable)]
 	public void RecieveGameStateClient(
-			float NewChargeTime)
+		float NewChargeTime, double NewBlockingDuration, Vector3 NewBlockingDirection)
 	{
 		if(OwnerId != GameSession.Get().PeerId)
 		{
 			ChargeTime = NewChargeTime;
+			BlockingDirection = NewBlockingDirection;
+			CurrentBlockingDuration = NewBlockingDuration;
 		}
 	}
 
@@ -406,6 +433,100 @@ public partial class Player : CharacterBody3D
 		Parameters.Exclude.Add(GetRid());
 
 		return SpaceState.IntersectShape(Parameters);
+	}
+
+	// ============== Dodging ===============
+
+	public bool CheckDodging()
+	{
+		return false;
+	}
+
+	// ============== Catching ===============
+	public bool CheckCatching(Vector3 BallPosition)
+	{
+        if(!HoldingBall)
+        {
+            if(CurrentBlockingDuration > 0)
+            {
+                var Dir = (BallPosition - Position).Normalized();
+                if(Dir.Dot(BlockingDirection) > 0.5)
+                {
+                    return true;
+                }
+            }
+        }
+		return false;
+	}
+
+	// ============== Blocking ===============
+	[Export] double BlockingCooldown = 10.0;
+	double CurrentBlockingCooldown = 0.0;
+	[Export] double BlockingDuration = 5.0;
+	[Export] double CatchingDuration = 5.0;
+	double CurrentBlockingDUration = 0.0;
+	Vector3 BlockingDirection;
+
+	public bool CheckBlocking(Vector3 BallPosition)
+	{
+        if(HoldingBall)
+        {
+            if(CurrentBlockingDuration > 0)
+            {
+                var Dir = (BallPosition - Position).Normalized();
+                if(Dir.Dot(BlockingDirection) > 0.5)
+                {
+                    return true;
+                }
+            }
+        }
+		return false;
+	}
+
+	void TickBlocking(double delta)
+	{
+		if(CurrentBlockingDuration > 0)
+		{
+			CurrentBlockingDuration -= delta;
+			DebugDraw3D.DrawSphere(Position + BlockingDirection * 0.5f, 0.5f, Colors.Blue, 0.00f);
+		}
+		else if(CurrentBlockingCooldown > 0)
+		{
+			DebugDraw3D.DrawSphere(HoldingBallMesh.GlobalPosition, 0.3f, Colors.Red.Lerp(Colors.Green, ((float)CurrentBlockingCooldown) / ((float)BlockingCooldown)), 0.00f);
+			CurrentBlockingCooldown -= delta;
+		}
+	}
+
+    void StartCatching()
+    {
+		if(CurrentBlockingCooldown <= 0)
+		{
+			CurrentBlockingDuration = CatchingDuration;
+			CurrentBlockingCooldown = BlockingCooldown;
+			BlockingDirection = MouseVector;
+		}
+    }
+
+	void StartBlocking() 
+	{
+		if(CurrentBlockingCooldown <= 0)
+		{
+			CurrentBlockingDuration = BlockingDuration;
+			CurrentBlockingCooldown = BlockingCooldown;
+			BlockingDirection = MouseVector;
+		}
+	}
+
+	// =======
+	public void PlayerKnockedOut()
+	{
+		// Gets added the server's GameLevelState of players who have been knocked the fuck out.
+		// Player is invisble, can still move around but is functionally a ghost
+	}
+
+	public void PlayerRespawn(Vector3 RespawnPosition)
+	{
+		// Called by server's GameState, respawns the player on one side of the court.
 	}
 
 	public bool ScanForBall() 

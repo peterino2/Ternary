@@ -8,7 +8,7 @@ public partial class Projectile : Node3D
 	public bool IsLocallyControlled = false;
 	public int PredictionKey = 0;
 
-    public WorldBall WorldBallRef = null;
+	public WorldBall WorldBallRef = null;
 
 	public float Speed = 12.0f;
 	public float HurtRadius = 0.4f;
@@ -64,21 +64,21 @@ public partial class Projectile : Node3D
 		SpawnOwner.RemoveProjectile(PredictionKey);
 	}
 
-    void SignalBounceBack(Vector3 ImpactPoint, Vector3 ImpactNormal)
-    {
-        NU.Ok("signaled length: " + ImpactNormal.Length());
-        if(WorldBallRef != null)
-        {
-            DebugDraw3D.DrawRay(ImpactPoint, ImpactNormal, 5.0f, Colors.Red, 5.0f);
-            WorldBallRef.ReEnableAt(ImpactPoint);
-            WorldBallRef.LinearVelocity = new Vector3(0,0,0);
-            WorldBallRef.ApplyCentralImpulse(ImpactNormal * 5.0f);
-        }
-        else 
-        {
-            NU.Error("Bounce back signaled but no ball referenced?");
-        }
-    }
+	void SignalBounceBack(Vector3 ImpactPoint, Vector3 ImpactNormal)
+	{
+		NU.Ok("signaled length: " + ImpactNormal.Length());
+		if(WorldBallRef != null)
+		{
+			DebugDraw3D.DrawRay(ImpactPoint, ImpactNormal, 5.0f, Colors.Red, 5.0f);
+			WorldBallRef.ReEnableAt(ImpactPoint);
+			WorldBallRef.LinearVelocity = new Vector3(0,0,0);
+			WorldBallRef.ApplyCentralImpulse(ImpactNormal * 5.0f);
+		}
+		else 
+		{
+			NU.Error("Bounce back signaled but no ball referenced?");
+		}
+	}
 
 	void CheckCollisions(Vector3 DeltaV) 
 	{
@@ -103,7 +103,7 @@ public partial class Projectile : Node3D
 
 		foreach(var R in Result)
 		{
-            // NU.Ok("R: " + R.ToString());
+			// NU.Ok("R: " + R.ToString());
 			var colliderAsCharacterBody = R["collider"].Obj as CharacterBody3D;
 			if(colliderAsCharacterBody != null)
 			{
@@ -120,8 +120,17 @@ public partial class Projectile : Node3D
 						{
 							var dir = (colliderAsPlayer.GlobalPosition - Position).Normalized();
 							colliderAsPlayer.ServerAddImpulse(new Vector2(dir.X, dir.Z) * 6.0f);
-
-                            SignalBounceBack(Position, dir);
+							if(colliderAsPlayer.CheckCatching(Position))
+							{
+							}
+							else if (colliderAsPlayer.CheckBlocking(Position))
+							{
+								SignalBounceBack(Position, -dir);
+							}
+							else 
+							{
+								SignalBounceBack(Position, dir);
+							}
 						}
 					}
 				}
@@ -132,25 +141,24 @@ public partial class Projectile : Node3D
 				if(ColliderAsStatic != null)
 				{
 					DebugDraw3D.DrawSphere(Position, HurtRadius, Colors.Red, 5.0f);
-                    if(GameSession.Get().IsServer())
-                    {
-                        // sigh here we go again...
-		                var RayParams = PhysicsRayQueryParameters3D.Create(Position, Position + DeltaV.Normalized() * 5.0f);
-		                var RayResults = SpaceState.IntersectRay(RayParams);
+					if(GameSession.Get().IsServer())
+					{
+						// sigh here we go again...
+						var RayParams = PhysicsRayQueryParameters3D.Create(Position, Position + DeltaV.Normalized() * 5.0f);
+						var RayResults = SpaceState.IntersectRay(RayParams);
 
-                        var Normal = (ColliderAsStatic.GlobalPosition - Position).Normalized();
-                        var dir  = new Vector3(0,1,0);
-                        if(RayResults.ContainsKey("normal"))
-                        {
-                            Normal = RayResults["normal"].As<Vector3>();
-                            var Projected = DeltaV.Project(Normal);
-                            dir = DeltaV - 2 * Projected;
-                            dir = dir.Normalized();
-                        }
-                        SignalBounceBack(Position, dir);
-
-                    }
-                    // Signal the server to spawn back the world ball.
+						var Normal = (ColliderAsStatic.GlobalPosition - Position).Normalized();
+						var dir  = new Vector3(0,1,0);
+						if(RayResults.ContainsKey("normal"))
+						{
+							Normal = RayResults["normal"].As<Vector3>();
+							var Projected = DeltaV.Project(Normal);
+							dir = DeltaV - 2 * Projected;
+							dir = dir.Normalized();
+						}
+						SignalBounceBack(Position, dir);
+					}
+					// Signal the server to spawn back the world ball.
 					QueueFree();
 				}
 			}

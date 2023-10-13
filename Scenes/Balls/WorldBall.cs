@@ -110,7 +110,6 @@ public partial class WorldBall : RigidBody3D
         {
             NU.Ok("Recieved Pickup mesage from: " + PlayerRef.DebugName);
             PlayerRef.PickedUpBall = this;
-            PlayerRef.HoldingBall = true;
         }
 
         Visible = false;
