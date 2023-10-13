@@ -31,7 +31,7 @@ public partial class Player : CharacterBody3D
 	static bool PickupShapeReady = false;
 	[Export] float PickupRadius = 0.6f;
 
-	bool HoldingBall = false;
+	public bool HoldingBall = false;
 	public string DebugName = "Unnamed";
 
 	bool MouseInWindow = false;
@@ -133,6 +133,11 @@ public partial class Player : CharacterBody3D
 
 		TickCharging(delta);
 		Mover.TickUpdates(delta);
+
+        if(HoldingBallMesh.Visible != HoldingBall)
+        {
+		    HoldingBallMesh.Visible = HoldingBall;
+        }
 	}
 
 	void TickMouseInput(double delta) 
@@ -258,6 +263,11 @@ public partial class Player : CharacterBody3D
 
 	void OnFireButtonUp()
 	{
+        if(!IsLocalPlayer)
+        {
+            return;
+        }
+
 		FireButtonDown = false;
 
 		if(ChargeTime > ChargeTimeToThrow - 0.05)
@@ -268,10 +278,26 @@ public partial class Player : CharacterBody3D
 				GameNetEngine.Get().NewPredictionKey()
 			);
 
+            RpcId(1, nameof(ServerBallThrown), new Variant[]{});
+
 			HoldingBall = false;
 			HoldingBallMesh.Visible = false;
 		}
 	}
+
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    void ServerBallThrown()
+    {
+        HoldingBall = false;
+        Rpc(nameof(ServerBallThrownMulticast));
+    }
+
+	[Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    void ServerBallThrownMulticast()
+    {
+        HoldingBall = false;
+    }
+
 
 	public override void _ExitTree() 
 	{

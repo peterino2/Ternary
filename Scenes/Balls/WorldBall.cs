@@ -35,7 +35,7 @@ public partial class WorldBall : RigidBody3D
         VelocitySync = LinearVelocity;
         AngularVelocitySync = AngularVelocity;
 
-        if(!LastTransformSync.IsEqualApprox(TransformSync) || Freeze)
+        if(!LastTransformSync.IsEqualApprox(TransformSync) || Freeze || !Visible)
         {
             Rpc(nameof(RecieveGameStateClient), new Variant[] {
                 TransformSync, 
@@ -73,20 +73,20 @@ public partial class WorldBall : RigidBody3D
         });
     }
 
-	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Unreliable)]
-	public void GetPickedUpServer(string PlayerPath)
+	[Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	public void GetPickedUpServerMulticast(string PlayerPath)
     {
-        var Sender = Multiplayer.GetRemoteSenderId();
-        if (Sender == 1)
+        if(GameSession.Get().IsServer())
         {
             return;
         }
 
         var PlayerRef = GetNode<Player>(PlayerPath);
+
         if (PlayerRef != null)
         {
-            NU.Ok("Recieved Pickup mesage from: " + PlayerRef.DebugName);
             PlayerRef.PickedUpBall = this;
+            PlayerRef.HoldingBall = true;
         }
 
         Visible = false;
@@ -94,6 +94,34 @@ public partial class WorldBall : RigidBody3D
         CollisionMask = 0;
         Position = new Vector3(0, -30.0f, 0);
         Freeze = true;
+    }
+
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	public void GetPickedUpServer(string PlayerPath)
+    {
+        if(!GameSession.Get().IsServer())
+        {
+            return;
+        }
+
+        var PlayerRef = GetNode<Player>(PlayerPath);
+
+        if (PlayerRef != null)
+        {
+            NU.Ok("Recieved Pickup mesage from: " + PlayerRef.DebugName);
+            PlayerRef.PickedUpBall = this;
+            PlayerRef.HoldingBall = true;
+        }
+
+        Visible = false;
+        CollisionLayer = 0;
+        CollisionMask = 0;
+        Position = new Vector3(0, -30.0f, 0);
+        Freeze = true;
+
+        Rpc(nameof(GetPickedUpServerMulticast), new Variant[]{
+            PlayerPath
+        });
     }
 
     public void ReEnableAt(Vector3 ImpactPoint)
@@ -108,6 +136,7 @@ public partial class WorldBall : RigidBody3D
             ImpactPoint,
         });
     }
+
 
 	[Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
     public void ReEnableAtMulticast(Vector3 ImpactPoint)

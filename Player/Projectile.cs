@@ -66,12 +66,13 @@ public partial class Projectile : Node3D
 
     void SignalBounceBack(Vector3 ImpactPoint, Vector3 ImpactNormal)
     {
+        NU.Ok("signaled length: " + ImpactNormal.Length());
         if(WorldBallRef != null)
         {
             DebugDraw3D.DrawRay(ImpactPoint, ImpactNormal, 5.0f, Colors.Red, 5.0f);
             WorldBallRef.ReEnableAt(ImpactPoint);
             WorldBallRef.LinearVelocity = new Vector3(0,0,0);
-            WorldBallRef.ApplyCentralImpulse(ImpactNormal * 50.0f);
+            WorldBallRef.ApplyCentralImpulse(ImpactNormal * 5.0f);
         }
         else 
         {
@@ -144,7 +145,7 @@ public partial class Projectile : Node3D
                             Normal = RayResults["normal"].As<Vector3>();
                             var Projected = DeltaV.Project(Normal);
                             dir = DeltaV - 2 * Projected;
-                            dir.Normalized();
+                            dir = dir.Normalized();
                         }
                         SignalBounceBack(Position, dir);
 
