@@ -71,7 +71,7 @@ public partial class Projectile : Node3D
             DebugDraw3D.DrawRay(ImpactPoint, ImpactNormal, 5.0f, Colors.Red, 5.0f);
             WorldBallRef.ReEnableAt(ImpactPoint);
             WorldBallRef.LinearVelocity = new Vector3(0,0,0);
-            WorldBallRef.ApplyCentralImpulse(ImpactNormal * 10.0f);
+            WorldBallRef.ApplyCentralImpulse(ImpactNormal * 50.0f);
         }
         else 
         {
@@ -117,7 +117,7 @@ public partial class Projectile : Node3D
 
 						if(colliderAsPlayer != null)
 						{
-							var dir = (colliderAsPlayer.Position - Position).Normalized();
+							var dir = (colliderAsPlayer.GlobalPosition - Position).Normalized();
 							colliderAsPlayer.ServerAddImpulse(new Vector2(dir.X, dir.Z) * 6.0f);
 
                             SignalBounceBack(Position, dir);
@@ -133,8 +133,21 @@ public partial class Projectile : Node3D
 					DebugDraw3D.DrawSphere(Position, HurtRadius, Colors.Red, 5.0f);
                     if(GameSession.Get().IsServer())
                     {
-                        var dir = (ColliderAsStatic.Position - Position).Normalized();
+                        // sigh here we go again...
+		                var RayParams = PhysicsRayQueryParameters3D.Create(Position, Position + DeltaV.Normalized() * 5.0f);
+		                var RayResults = SpaceState.IntersectRay(RayParams);
+
+                        var Normal = (ColliderAsStatic.GlobalPosition - Position).Normalized();
+                        var dir  = new Vector3(0,1,0);
+                        if(RayResults.ContainsKey("normal"))
+                        {
+                            Normal = RayResults["normal"].As<Vector3>();
+                            var Projected = DeltaV.Project(Normal);
+                            dir = DeltaV - 2 * Projected;
+                            dir.Normalized();
+                        }
                         SignalBounceBack(Position, dir);
+
                     }
                     // Signal the server to spawn back the world ball.
 					QueueFree();
