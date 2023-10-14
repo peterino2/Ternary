@@ -108,7 +108,7 @@ public partial class GameState: Node
             Team2PlayersDead.RemoveAt(0);
         }
 
-        RevivedPlayer.ReviveMeServer(new Vector3(0,0,0));
+        RevivedPlayer.ReviveMeServer(FindPlayerSpawn(TeamId));
     }
 
 	public override void _Ready()
