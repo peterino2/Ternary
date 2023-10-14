@@ -18,6 +18,7 @@ public partial class Player : CharacterBody3D
 	[Export] public Node3D Indicator;
 	[Export] public MeshInstance3D HoldingBallMesh;
 	[Export] public Node3D DogeMeshBase;
+	[Export] public PackedScene DeathVFX;
 
 	public bool Emoting = false;
 
@@ -801,6 +802,9 @@ public partial class Player : CharacterBody3D
 		ChargeTime = 0;
 		CurrentDodgingDuration = 0;
 		CurrentBlockingDuration = 0;
+		var vfx = DeathVFX.Instantiate() as Node3D;
+		vfx.Position = GlobalPosition;
+		GameState.Get().LevelNode.AddChild(vfx);
 	}
 
 	public void KillMeServer()

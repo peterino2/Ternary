@@ -1,9 +1,10 @@
-[gd_scene load_steps=34 format=3 uid="uid://rsjcev5cw42o"]
+[gd_scene load_steps=35 format=3 uid="uid://rsjcev5cw42o"]
 
 [ext_resource type="Script" path="res://Player/Player.cs" id="1_akdl1"]
 [ext_resource type="Script" path="res://Locomotion/CharacterMover.cs" id="2_1ooas"]
 [ext_resource type="PackedScene" uid="uid://dkaie6qebfvni" path="res://Scenes/Balls/Bal2l.tscn" id="2_kqkna"]
 [ext_resource type="Script" path="res://Player/AnimatedGameSprite.cs" id="3_02lru"]
+[ext_resource type="PackedScene" uid="uid://c43dpnsbkd4ho" path="res://Scenes/VFX/Prefabs/vfx_death.tscn" id="3_od8nm"]
 [ext_resource type="SpriteFrames" uid="uid://dn731ywtgunkt" path="res://Assets/Bankman_Warrior_SF.tres" id="3_tedje"]
 [ext_resource type="Script" path="res://Player/Nameplate.cs" id="4_hg8tv"]
 [ext_resource type="SpriteFrames" uid="uid://b2ccr3788eav5" path="res://Assets/Bankman_Arrow.tres" id="6_s1ife"]
@@ -840,6 +841,7 @@ BallScene = ExtResource("2_kqkna")
 Indicator = NodePath("Indicator")
 HoldingBallMesh = NodePath("DogeAnimations/RootNode/Armature/Skeleton3D/BoneAttachment3D/PickedUpBall")
 DogeMeshBase = NodePath("DogeAnimations")
+DeathVFX = ExtResource("3_od8nm")
 Team1Hat = NodePath("DogeAnimations/RootNode/Armature/Skeleton3D/HatAttachment/bluehat")
 Team2Hat = NodePath("DogeAnimations/RootNode/Armature/Skeleton3D/HatAttachment/redhat")
 BlockingDuration = 1.0

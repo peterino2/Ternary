@@ -1,6 +1,7 @@
-[gd_scene load_steps=5 format=3 uid="uid://bf8nlw7p7v0u3"]
+[gd_scene load_steps=6 format=3 uid="uid://c43dpnsbkd4ho"]
 
-[ext_resource type="Texture2D" uid="uid://rqta6lorc425" path="res://Textures/Flame02.png" id="1_xnayg"]
+[ext_resource type="Script" path="res://Scenes/VFX/Prefabs/VfxDeath.cs" id="1_8k28v"]
+[ext_resource type="Texture2D" uid="uid://rqta6lorc425" path="res://Scenes/VFX/Textures/Flame02.png" id="1_xnayg"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wsw41"]
 blend_mode = 1
@@ -31,9 +32,11 @@ turbulence_noise_speed = Vector3(0, -10, 0)
 [sub_resource type="QuadMesh" id="QuadMesh_0kmjk"]
 
 [node name="vfx_death" type="Node3D"]
+script = ExtResource("1_8k28v")
 
 [node name="dust" type="GPUParticles3D" parent="."]
 material_override = SubResource("StandardMaterial3D_wsw41")
 amount = 6
+one_shot = true
 process_material = SubResource("ParticleProcessMaterial_p0ug7")
 draw_pass_1 = SubResource("QuadMesh_0kmjk")
