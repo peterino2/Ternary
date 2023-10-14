@@ -36,6 +36,7 @@ script = ExtResource("1_8k28v")
 
 [node name="dust" type="GPUParticles3D" parent="."]
 material_override = SubResource("StandardMaterial3D_wsw41")
+emitting = false
 amount = 6
 one_shot = true
 process_material = SubResource("ParticleProcessMaterial_p0ug7")

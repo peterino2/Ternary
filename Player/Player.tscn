@@ -1320,7 +1320,7 @@ mesh = SubResource("ArrayMesh_0uxo4")
 skin = SubResource("Skin_n6r2p")
 
 [node name="BoneAttachment3D" type="BoneAttachment3D" parent="DogeAnimations/RootNode/Armature/Skeleton3D"]
-transform = Transform3D(0.546948, 0.428345, 0.719283, -0.490488, -0.532314, 0.689973, 0.678432, -0.730179, -0.0810506, -3.10154e-05, -0.0175293, 0.0228745)
+transform = Transform3D(0.546949, 0.428344, 0.719283, -0.490489, -0.532314, 0.689973, 0.67843, -0.73018, -0.081051, -3.10265e-05, -0.0175293, 0.0228745)
 bone_name = "Hand.R"
 bone_idx = 23
 
@@ -1331,7 +1331,7 @@ mesh = SubResource("SphereMesh_u7x4k")
 skeleton = NodePath("")
 
 [node name="HatAttachment" type="BoneAttachment3D" parent="DogeAnimations/RootNode/Armature/Skeleton3D"]
-transform = Transform3D(0.928532, 0.137277, 0.344939, 0.356161, -0.067174, -0.932007, -0.104772, 0.988252, -0.111266, 0.00322709, -0.00232229, 0.0321381)
+transform = Transform3D(0.928532, 0.137277, 0.344939, 0.356161, -0.0671739, -0.932007, -0.104773, 0.988252, -0.111266, 0.00322709, -0.00232229, 0.0321381)
 bone_name = "Head"
 bone_idx = 4
 

@@ -28,7 +28,7 @@ public partial class GameState: Node
     Random SpawnRandom = new Random();
 
     // Time for the game session (in seconds)
-    public double GameTime = 180.0;
+    public double GameTime = 0.0;
     public double GameResetTime = 180.0;
 
     public Vector3 Team1SpawnArea;
@@ -138,7 +138,7 @@ public partial class GameState: Node
                 StartResetCountdown();
             }
         }
-        else if(ResetCountdown > 0 )
+        else if(ResetCountdown > 0 && GameSession.Get().IsServer())
         {
             ResetCountdown -= delta;
             if(ResetCountdown < 0 && GameSession.Get().IsServer())
@@ -186,6 +186,7 @@ public partial class GameState: Node
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)] 
     public void GameStartMulticast()
     {
+        GameTime = GameResetTime;
         OnGameStart?.Invoke();
     }
 
