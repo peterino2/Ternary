@@ -1,6 +1,7 @@
-[gd_scene load_steps=21 format=3 uid="uid://i6xagikq2eoy"]
+[gd_scene load_steps=22 format=3 uid="uid://i6xagikq2eoy"]
 
 [ext_resource type="Shader" uid="uid://d0rew86wceaa6" path="res://Scenes/VFX/Shaders/FireShader.tres" id="1_mxwux"]
+[ext_resource type="Script" path="res://Scenes/VFX/Prefabs/VfxFire.cs" id="1_xblxb"]
 [ext_resource type="Texture2D" uid="uid://ormv0j34fdmb" path="res://Scenes/VFX/Textures/Voronoi01.png" id="2_0ihqa"]
 [ext_resource type="Texture2D" uid="uid://bm86fbprm77as" path="res://Scenes/VFX/Textures/Flame01.png" id="2_wss24"]
 [ext_resource type="Texture2D" uid="uid://rqta6lorc425" path="res://Scenes/VFX/Textures/Flame02.png" id="4_f5gje"]
@@ -95,7 +96,12 @@ turbulence_influence_max = 0.3
 
 [sub_resource type="QuadMesh" id="QuadMesh_5y74k"]
 
-[node name="vfx_fire" type="Node3D"]
+[node name="vfx_fire" type="Node3D" node_paths=PackedStringArray("Particle1", "Particle2", "Particle3", "Particle4")]
+script = ExtResource("1_xblxb")
+Particle1 = NodePath("StaticFlame")
+Particle2 = NodePath("Flames")
+Particle3 = NodePath("Smoke")
+Particle4 = NodePath("ParticlesFloating")
 
 [node name="StaticFlame" type="GPUParticles3D" parent="."]
 material_override = SubResource("ShaderMaterial_qujk3")

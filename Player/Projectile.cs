@@ -2,6 +2,8 @@ using Godot;
 
 public partial class Projectile : Node3D
 {
+	[Export] MeshInstance3D Mesh;
+	[Export] VfxFire Fire;
 	public long OwnerId = 0;
 	public ProjectileSpawner SpawnOwner;
 	public bool IsLocallyControlled = false;
@@ -12,6 +14,7 @@ public partial class Projectile : Node3D
 	public float Speed = 12.0f;
 	public float HurtRadius = 0.4f;
 	public double LifeTime = 2.0f;
+	bool IsDead = false;
 
 	public Vector3 Direction = new Vector3(0, 0, 0);
 
@@ -50,10 +53,24 @@ public partial class Projectile : Node3D
 		}
 	}
 
+	public void FreezeAndKill()
+	{
+		Fire.StopFlames();
+		Mesh.Visible = false;
+		IsDead = true;
+		LifeTime = 1.0;
+		Speed = 0.0f;
+	}
+
 	// override me for more complex physics
 	public virtual void Advance(double delta)
 	{
 		LifeTime -= delta;
+		if(IsDead)
+		{
+			return;
+		}
+
 		Position += Direction * (float) delta * Speed;
 		CheckCollisions(Direction * (float) delta * Speed);
 	}
@@ -117,33 +134,39 @@ public partial class Projectile : Node3D
 						if(colliderAsPlayer != null)
 						{
 							var dir = (colliderAsPlayer.GlobalPosition - Position).Normalized();
-							colliderAsPlayer.ServerAddImpulse(new Vector2(dir.X, dir.Z) * 6.0f);
-                            if(colliderAsPlayer.IsDead)
-                            {
-                                // nothing happens, hes a ghost
-                            }
-                            else if(colliderAsPlayer.CheckCatching(Position))
+							if(colliderAsPlayer.IsDead)
+							{
+								// nothing happens, hes a ghost
+							}
+							else if(colliderAsPlayer.CheckCatching(Position))
 							{
 								NU.Ok("Player caught the ball");
-                                colliderAsPlayer.PlayerCaughtBallOnServer(WorldBallRef);
-                                GameState.Get().ReviveNextPlayer(colliderAsPlayer.TeamId);
-					            QueueFree();
-                                break;
+								colliderAsPlayer.PlayerCaughtBallOnServer(WorldBallRef);
+								GameState.Get().ReviveNextPlayer(colliderAsPlayer.TeamId);
+								colliderAsPlayer.ServerAddImpulse(new Vector2(dir.X, dir.Z) * 6.0f);
+								FreezeAndKill();
+								break;
 							}
 							else if (colliderAsPlayer.CheckBlocking(Position))
 							{
 								SignalBounceBack(Position, -dir);
-					            QueueFree();
-                                break;
+								colliderAsPlayer.ServerAddImpulse(new Vector2(dir.X, dir.Z) * 6.0f);
+								FreezeAndKill();
+								break;
 							}
 							else 
 							{
-                                GameState.Get().KillPlayer(colliderAsPlayer);
+								GameState.Get().KillPlayer(colliderAsPlayer);
+								colliderAsPlayer.ServerAddImpulse(new Vector2(dir.X, dir.Z) * 6.0f);
 								SignalBounceBack(Position, dir);
-					            QueueFree();
-                                break;
+								FreezeAndKill();
+								break;
 							}
 						}
+					}
+					else 
+					{
+						FreezeAndKill();
 					}
 				}
 
@@ -154,7 +177,7 @@ public partial class Projectile : Node3D
 				if(ColliderAsStatic != null)
 				{
 					DebugDraw3D.DrawSphere(Position, HurtRadius, Colors.Red, 5.0f);
-					QueueFree();
+					FreezeAndKill();
 					if(GameSession.Get().IsServer())
 					{
 						// sigh here we go again...
@@ -171,10 +194,10 @@ public partial class Projectile : Node3D
 							dir = dir.Normalized();
 						}
 
-					    // Signal the server to spawn back the world ball.
+						// Signal the server to spawn back the world ball.
 						SignalBounceBack(Position, dir);
 					}
-                    break;
+					break;
 				}
 			}
 		}

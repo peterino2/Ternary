@@ -48,8 +48,8 @@ public partial class Player : CharacterBody3D
 	float CachedMinMoveSpeed = 0.0f;
 	float ChargingSlowFactor = 0.5f;
 
-    [Export] public int TeamId = 0;
-    public bool IsDead = false;
+	[Export] public int TeamId = 0;
+	public bool IsDead = false;
 
 	[Export] double ChargeTimeToThrow = 1.0;
 	double ChargeTime = 0.0;
@@ -152,10 +152,20 @@ public partial class Player : CharacterBody3D
 		TickCharging(delta);
 		Mover.TickUpdates(delta);
 
-        if(IsDead)
-            return;
+		if(IsDead)
+			return;
 		TickBlocking(delta);
 		TickDodging(delta);
+
+		if(TeamId == 0)
+		{
+			DebugDraw3D.DrawSphere(GlobalPosition, 0.5f, Colors.Blue, 0.00f);
+		}
+
+		if(TeamId == 1)
+		{
+			DebugDraw3D.DrawSphere(GlobalPosition, 0.5f, Colors.Red, 0.00f);
+		}
 
 		if(HoldingBallMesh.Visible != HoldingBall)
 		{
@@ -233,33 +243,33 @@ public partial class Player : CharacterBody3D
 		{
 			if(mouseEvent.Pressed)
 			{
-                if(!IsDead)
-                {
-                    switch (mouseEvent.ButtonIndex)
-                    {
-                        case MouseButton.Left:
-                            OnFireButtonDown();
-                            break;
-                        case MouseButton.Right:
-                            OnCatchButtonDown();
-                            break;
-                    }
-                }
+				if(!IsDead)
+				{
+					switch (mouseEvent.ButtonIndex)
+					{
+						case MouseButton.Left:
+							OnFireButtonDown();
+							break;
+						case MouseButton.Right:
+							OnCatchButtonDown();
+							break;
+					}
+				}
 			}
 			else 
 			{
-                if(!IsDead)
-                {
+				if(!IsDead)
+				{
 				switch (mouseEvent.ButtonIndex)
-                    {
-                        case MouseButton.Left:
-                            OnFireButtonUp();
-                            break;
-                        case MouseButton.Right:
-                            OnCatchButtonUp();
-                            break;
-                    }
-                }
+					{
+						case MouseButton.Left:
+							OnFireButtonUp();
+							break;
+						case MouseButton.Right:
+							OnCatchButtonUp();
+							break;
+					}
+				}
 			}
 		}
 	}
@@ -386,7 +396,7 @@ public partial class Player : CharacterBody3D
 			ChargeTime,
 			CurrentBlockingDuration,
 			BlockingDirection,
-            HoldingBall,
+			HoldingBall,
 		});
 	}
 
@@ -417,18 +427,18 @@ public partial class Player : CharacterBody3D
 	[Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Unreliable)]
 	public void RecieveGameStateClient(
 		float NewChargeTime, double NewBlockingDuration, Vector3 NewBlockingDirection, 
-        bool NewHoldingBall)
+		bool NewHoldingBall)
 	{
 		if(OwnerId != GameSession.Get().PeerId)
 		{
 			ChargeTime = NewChargeTime;
 			BlockingDirection = NewBlockingDirection;
 			CurrentBlockingDuration = NewBlockingDuration;
-            HoldingBall = NewHoldingBall;
-            if(HoldingBall)
-            {
-                HoldingBallMesh.Visible = true;
-            }
+			HoldingBall = NewHoldingBall;
+			if(HoldingBall)
+			{
+				HoldingBallMesh.Visible = true;
+			}
 		}
 	}
 
@@ -612,79 +622,79 @@ public partial class Player : CharacterBody3D
 		return false;
 	}
 
-    // catching functions
-    
+	// catching functions
+	
 	[Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-    void RecievedBallCaughtEvent(String BallPath)
-    {
-        var BallRef = GetNode<WorldBall>(BallPath);
-        HoldingBall = true;
-        PickedUpBall = BallRef;
-        HoldingBallMesh.Visible = true;
-    }
-    
-    // called on the server when the ball is caught by this player
-    public void PlayerCaughtBallOnServer(WorldBall BallRef)
-    {
-        RpcId(OwnerId, nameof(RecievedBallCaughtEvent), new Variant[] {
-            BallRef.GetPath()
-        });
+	void RecievedBallCaughtEvent(String BallPath)
+	{
+		var BallRef = GetNode<WorldBall>(BallPath);
+		HoldingBall = true;
+		PickedUpBall = BallRef;
+		HoldingBallMesh.Visible = true;
+	}
+	
+	// called on the server when the ball is caught by this player
+	public void PlayerCaughtBallOnServer(WorldBall BallRef)
+	{
+		RpcId(OwnerId, nameof(RecievedBallCaughtEvent), new Variant[] {
+			BallRef.GetPath()
+		});
 
-        HoldingBall = true;
-        PickedUpBall = BallRef;
-        HoldingBallMesh.Visible = true;
-    }
+		HoldingBall = true;
+		PickedUpBall = BallRef;
+		HoldingBallMesh.Visible = true;
+	}
 
-    public void ReviveMeLocal()
-    {
-        IsDead = false;
-        Visible = true;
-        CollisionLayer = 0x1;
-        CollisionMask = 0x1;
-        Mover.Ghosting = false;
-    }
+	public void ReviveMeLocal()
+	{
+		IsDead = false;
+		Visible = true;
+		CollisionLayer = 0x1;
+		CollisionMask = 0x1;
+		Mover.Ghosting = false;
+	}
 
-    public void KillMeLocal()
-    {
-        IsDead = true;
-        Visible = false;
-        CollisionLayer = 0x8;
-        CollisionMask = 0x8;
-        Mover.Ghosting = true;
+	public void KillMeLocal()
+	{
+		IsDead = true;
+		Visible = false;
+		CollisionLayer = 0x8;
+		CollisionMask = 0x8;
+		Mover.Ghosting = true;
 
-        ChargeTime = 0;
-        CurrentDodgingDuration = 0;
-        CurrentBlockingDuration = 0;
-    }
+		ChargeTime = 0;
+		CurrentDodgingDuration = 0;
+		CurrentBlockingDuration = 0;
+	}
 
-    public void KillMeServer()
-    {
-        KillMeLocal();
-        Rpc(nameof(KillMeMulticast), new Variant[]{});
-    }
-
-	[Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-    void KillMeMulticast()
-    {
-        KillMeLocal();
-    }
+	public void KillMeServer()
+	{
+		KillMeLocal();
+		Rpc(nameof(KillMeMulticast), new Variant[]{});
+	}
 
 	[Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-    void ReviveMeMulticast()
-    {
-        ReviveMeLocal();
-    }
+	void KillMeMulticast()
+	{
+		KillMeLocal();
+	}
 
-    public void ReviveMeServer(Vector3 RevivePosition)
-    {
-        ReviveMeLocal();
-        Mover.OverridePosition(RevivePosition);
-        Rpc(nameof(ReviveMeMulticast), new Variant[]{});
-    }
+	[Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	void ReviveMeMulticast()
+	{
+		ReviveMeLocal();
+	}
 
-    public void SetTeam(int NewTeamId)
-    {
-        TeamId = NewTeamId;
-    }
+	public void ReviveMeServer(Vector3 RevivePosition)
+	{
+		ReviveMeLocal();
+		Mover.OverridePosition(RevivePosition);
+		Rpc(nameof(ReviveMeMulticast), new Variant[]{});
+	}
+
+	public void SetTeam(int NewTeamId)
+	{
+		TeamId = NewTeamId;
+	}
 }
 

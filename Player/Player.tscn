@@ -18,6 +18,10 @@ properties/0/path = NodePath(".:OwnerId")
 properties/0/spawn = true
 properties/0/sync = true
 properties/0/watch = false
+properties/1/path = NodePath(".:TeamId")
+properties/1/spawn = true
+properties/1/sync = true
+properties/1/watch = false
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_y4mlc"]
 albedo_color = Color(1, 0.0431373, 0.109804, 1)

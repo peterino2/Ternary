@@ -14,6 +14,7 @@ public partial class LoginScreenUI : Control
 	//
 	[Export] private Button ConnectToServer;
 	[Export] private Button HostServerButton;
+	[Export] private Button SwitchTeamsButton;
 	
 	[Export] private TextEdit IPAddressTextEdit;
 	[Export] private TextEdit PortTextEdit;
@@ -31,15 +32,16 @@ public partial class LoginScreenUI : Control
 		RequestGameStartButton.ButtonDown += OnRequestGameStart;
 
 		ErrorLabel.ButtonDown += OnErrorAck;
-        GameState.Get().OnGameStart += OnGameStartClient;
+		GameState.Get().OnGameStart += OnGameStartClient;
+		SwitchTeamsButton.ButtonDown += SwitchTeams;
 	}
 
-    public void OnGameStartClient()
-    {
-        HostServerButton.Visible = false;
-        ConnectToServer.Visible = false;
-        RequestGameStartButton.Visible = false;
-    }
+	public void OnGameStartClient()
+	{
+		HostServerButton.Visible = false;
+		ConnectToServer.Visible = false;
+		RequestGameStartButton.Visible = false;
+	}
 
 	public void OnRequestGameStart() 
 	{
@@ -87,5 +89,10 @@ public partial class LoginScreenUI : Control
 			PlayerName.Editable = false;
 			RequestGameStartButton.Visible = true;
 		}
+	}
+
+	public void SwitchTeams()
+	{
+		GameSession.Get().SwitchTeams();
 	}
 }

@@ -282,6 +282,7 @@ public partial class GameSession: Node
 
 		IdsByName[PlayerName] = ClientId;
 		NamesById[ClientId] = PlayerName;
+        TeamIds[ClientId] = Team;
 	}
 
 
@@ -353,5 +354,33 @@ public partial class GameSession: Node
 	{
 		return PeerId == 1;
 	}
+
+    public int GetTeam()
+    {
+        return TeamIds[PeerId];
+    }
+
+    public void SwitchTeams()
+    {
+        RpcId(1, nameof(SwitchTeamsServer), new Variant[]{});
+    }
+
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    public void SwitchTeamsServer()
+    {
+        var Sender = Multiplayer.GetRemoteSenderId();
+        if(TeamIds[Sender] == 0)
+        {
+            TeamIds[Sender] = 1;
+        }
+        else 
+        {
+            TeamIds[Sender] = 0;
+        }
+
+        BroadCastPlayerList();
+    }
+
 }
+
 

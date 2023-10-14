@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://cj1bupy3yk8hh"]
+[gd_scene load_steps=4 format=3 uid="uid://cj1bupy3yk8hh"]
 
 [ext_resource type="PackedScene" uid="uid://qrtdwhrqmacy" path="res://Scenes/UI_ServerAdmin.tscn" id="2_mik0y"]
 [ext_resource type="PackedScene" uid="uid://d1h16g1vrg2o4" path="res://Session/LoginScreen.tscn" id="3_4b4fp"]
+[ext_resource type="Script" path="res://Scenes/TeamText.cs" id="3_ar5bk"]
 
 [node name="Session" type="Node3D"]
 
@@ -17,3 +18,24 @@ visible = false
 [node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="."]
 _spawnable_scenes = PackedStringArray("res://Scenes/DarkDungeon.tscn")
 spawn_path = NodePath("..")
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -117.0
+offset_top = -51.0
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="RichTextLabel" type="RichTextLabel" parent="Control"]
+layout_mode = 0
+offset_left = -194.0
+offset_right = -13.0
+offset_bottom = 40.0
+text = "Team: "
+fit_content = true
+script = ExtResource("3_ar5bk")

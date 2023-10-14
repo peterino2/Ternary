@@ -1,6 +1,7 @@
-[gd_scene load_steps=4 format=3 uid="uid://iod314ewkyha"]
+[gd_scene load_steps=5 format=3 uid="uid://iod314ewkyha"]
 
 [ext_resource type="Script" path="res://Player/Projectile.cs" id="1_ydh2s"]
+[ext_resource type="PackedScene" uid="uid://i6xagikq2eoy" path="res://Scenes/VFX/Prefabs/vfx_fire.tscn" id="2_puvkn"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5q3kf"]
 albedo_color = Color(1, 0.227451, 0, 1)
@@ -12,8 +13,12 @@ height = 0.4
 radial_segments = 12
 rings = 12
 
-[node name="Ball" type="Node3D"]
+[node name="Ball" type="Node3D" node_paths=PackedStringArray("Mesh", "Fire")]
 script = ExtResource("1_ydh2s")
+Mesh = NodePath("MeshInstance3D")
+Fire = NodePath("vfx_fire")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 mesh = SubResource("SphereMesh_p52i0")
+
+[node name="vfx_fire" parent="." instance=ExtResource("2_puvkn")]

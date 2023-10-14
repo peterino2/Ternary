@@ -1,21 +1,43 @@
 using Godot;
-using System;
-using System.Collections.Generic;
 
 public partial class UI_PlayerListEntry: Control 
 {
+	[Export] private RichTextLabel TeamLabel;
 	[Export] private RichTextLabel PlayerNameLabel;
 	[Export] private RichTextLabel PlayerIdLabel;
 	[Export] private RichTextLabel PingLabel;
 	[Export] private Button KickButton;
 
 	public long Id = 0;
+	public long TeamId = -1;
+
 	public string PlayerName = "<Unknown>";
 
 
 	public override void _Ready()
 	{
 		KickButton.ButtonDown += KickPlayer;
+	}
+
+	public override void _Process(double delta)
+	{
+		if(!GameSession.Get().TeamIds.ContainsKey(Id))
+		{
+			return;
+		}
+
+		var NewTeamId = GameSession.Get().TeamIds[Id];
+		if(TeamId != NewTeamId)
+		{
+			TeamId = NewTeamId;
+			string colorcode = "#aaaaff";
+			if(TeamId == 1)
+			{
+				colorcode = "#ff4444";
+			}
+			TeamLabel.Clear();
+			TeamLabel.AppendText("[color=" + colorcode +"]Team: " + (TeamId + 1).ToString() + "[/color]");
+		}
 	}
 
 	public void KickPlayer()
@@ -32,6 +54,7 @@ public partial class UI_PlayerListEntry: Control
 	{
 		Id = NewId;
 		PlayerIdLabel.Text = NewId.ToString();
+
 	}
 
 	public void UpdatePing()
