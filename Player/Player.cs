@@ -25,6 +25,7 @@ public partial class Player : CharacterBody3D
 	[Export] double CatchingDuration = 5.0;
 	double CurrentBlockingDuration = 0.0;
 	Vector3 BlockingDirection;
+	[Export] AnimationPlayer DogeMeshAnimplayer;
 
 	public WorldBall PickedUpBall;
 
@@ -64,6 +65,7 @@ public partial class Player : CharacterBody3D
 	{
 		Sprite = GetNode<AnimatedGameSprite>("Node3D/Sprite");
 		Sprite.Play("IdleDown");
+		DogeMeshAnimplayer.Play("Armature|Idle");
 
 		if(!PickupShapeReady)
 		{
@@ -120,11 +122,17 @@ public partial class Player : CharacterBody3D
 		var velocity = Mover.Velocity;
 		if(velocity.Length() > 0.4)
 		{
+
+			DogeMeshAnimplayer.Play("Armature|Run");
 			Transform3D transform = DogeMeshBase.Transform;
 			transform.Basis = Basis.Identity;
 			transform = transform.Scaled(new Vector3(0.5f, 0.5f, 0.5f));
 			transform = transform.Rotated(Vector3.Up, (float) Math.Atan2( velocity.X, velocity.Y )); // first rotate about Y
 			DogeMeshBase.Transform = transform;
+		}
+		else 
+		{
+			DogeMeshAnimplayer.Play("Armature|Idle");
 		}
 	}
 

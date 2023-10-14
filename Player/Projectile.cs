@@ -11,7 +11,7 @@ public partial class Projectile : Node3D
 
 	public WorldBall WorldBallRef = null;
 
-	public float Speed = 18.0f;
+	public float Speed = 25.0f;
 	public float HurtRadius = 0.4f;
 	public double LifeTime = 10.0f;
 	bool IsDead = false;
