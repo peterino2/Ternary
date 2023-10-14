@@ -172,7 +172,7 @@ public partial class GameState: Node
 	{
         NU.Ok("preparing game");
 		LevelNode.AddChild(LevelScene.Instantiate());
-
+        GameTime = GameResetTime;
         Rpc(nameof(GameStartMulticast), new Variant[]{});
 	}
 
@@ -246,7 +246,7 @@ public partial class GameState: Node
     {
         NU.Ok("Team: " + (Team + 1).ToString() + " Won!");
         GameTime = 2.0;
-        Rpc(nameof( GameWinBroadcast), new Variant[]{Team});
+        Rpc(nameof(GameWinBroadcast), new Variant[]{Team});
     }
 
 	[Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)] 

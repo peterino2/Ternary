@@ -160,7 +160,7 @@ public partial class Projectile : Node3D
 							}
 							else 
 							{
-								if(colliderAsPlayer.TeamId != TeamId)
+								if(colliderAsPlayer.TeamId != SpawnOwner.PlayerRef.TeamId)
 								{
 									GameState.Get().KillPlayer(colliderAsPlayer);
                                     GameState.Get().ServerBroadcastKill(OwnerId, colliderAsPlayer.OwnerId);

@@ -192,11 +192,14 @@ public partial class Player : CharacterBody3D
 	}
 
 
+	Vector3 MovementVector;
+
 	public override void _Process(double delta)
 	{
 		if(IsLocalPlayer)
 		{
 			var InputVector = Input.GetVector("MoveLeft", "MoveRight", "MoveUp", "MoveDown").Normalized();
+			MovementVector = new Vector3(InputVector.X, 0, InputVector.Y);
 			Mover.AddMovementInput(InputVector, delta);
 			TickMouseInput(delta);
 
@@ -204,7 +207,14 @@ public partial class Player : CharacterBody3D
 			if(DodgeAction > 0.5 && CurrentDodgingCooldown <= 0 && !IsDead)
 			{
 				NU.Ok("Dodging started");
-				StartDodging(MouseVector);
+                if(MovementVector.Length() > 0.1)
+                {
+				    StartDodging(MovementVector);
+                }
+                else
+                {
+				    StartDodging(MouseVector);
+                }
 			}
 
 			var EmoteAction = Input.GetActionStrength("Emote");
@@ -805,21 +815,32 @@ public partial class Player : CharacterBody3D
 		HoldingBall = false;
 		HoldingBallMesh.Visible = false;
 		PickedUpBall = null;
+		ChargeTime = 0;
+		CurrentDodgingDuration = 0;
+		CurrentBlockingDuration = 0;
+        ThrowQueued = false;
+        ThrowTime = 0;
 	}
 
 	public void KillMeLocal()
 	{
 		IsDead = true;
 		Visible = false;
-		CollisionLayer = 0x8;
-		CollisionMask = 0x8;
+		CollisionLayer = 0x0;
+		CollisionMask = 0x0;
 		Mover.Ghosting = true;
 
 		ChargeTime = 0;
 		CurrentDodgingDuration = 0;
 		CurrentBlockingDuration = 0;
+        HoldingBall = false;
+        PickedUpBall = null;
+        ThrowQueued = false;
+        ThrowTime = 0;
+
 		var vfx = DeathVFX.Instantiate() as Node3D;
 		vfx.Position = GlobalPosition;
+
 		GameState.Get().LevelNode.AddChild(vfx);
 	}
 
