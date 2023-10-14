@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://hdb1wxf5pkp0"
-path="res://.godot/imported/doggonormals.png-bf62dbdb3d6a29a4fab949013a5eb46b.ctex"
+uid="uid://bm8islyt4kleb"
+path="res://.godot/imported/dogenormalsY.png-e606a1311d7e5a86755c160d20230dd9.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://doggonormals.png"
-dest_files=["res://.godot/imported/doggonormals.png-bf62dbdb3d6a29a4fab949013a5eb46b.ctex"]
+source_file="res://dogenormalsY.png"
+dest_files=["res://.godot/imported/dogenormalsY.png-e606a1311d7e5a86755c160d20230dd9.ctex"]
 
 [params]
 
@@ -19,7 +19,7 @@ compress/mode=0
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/hdr_compression=1
-compress/normal_map=0
+compress/normal_map=1
 compress/channel_pack=0
 mipmaps/generate=false
 mipmaps/limit=-1
