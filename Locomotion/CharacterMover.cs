@@ -238,6 +238,9 @@ public partial class CharacterMover: Node
 		PositionSync = NewPositionSync;
 		NetMoveSync = NewNetMoveSync;
 		AccumulatedMovementSinceSync = new Vector2(0, 0);
+
+        if(!IsLocallyControlled)
+            Velocity = NetMoveSync.Normalized();
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Unreliable)]

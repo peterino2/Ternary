@@ -11,9 +11,9 @@ public partial class Projectile : Node3D
 
 	public WorldBall WorldBallRef = null;
 
-	public float Speed = 12.0f;
+	public float Speed = 18.0f;
 	public float HurtRadius = 0.4f;
-	public double LifeTime = 2.0f;
+	public double LifeTime = 10.0f;
 	bool IsDead = false;
 
 	public Vector3 Direction = new Vector3(0, 0, 0);
@@ -164,9 +164,20 @@ public partial class Projectile : Node3D
 							}
 						}
 					}
-					else 
+					else
 					{
-						FreezeAndKill();
+						var colliderAsPlayer = colliderAsCharacterBody as Player;
+						if(colliderAsPlayer != null)
+						{
+							if(!colliderAsPlayer.IsDead)
+							{
+								FreezeAndKill();
+							}
+						}
+						else 
+						{
+							FreezeAndKill();
+						}
 					}
 				}
 

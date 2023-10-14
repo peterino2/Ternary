@@ -17,6 +17,7 @@ public partial class Player : CharacterBody3D
 
 	[Export] public Node3D Indicator;
 	[Export] public MeshInstance3D HoldingBallMesh;
+	[Export] public Node3D DogeMeshBase;
 
 	[Export] double BlockingCooldown = 10.0;
 	double CurrentBlockingCooldown = 0.0;
@@ -114,10 +115,17 @@ public partial class Player : CharacterBody3D
 		LocalPlayerSubsystem.Get().RegisterLocalPlayer(this);
 	}
 
-	private void UpdateSpriteVelocityAndFacing(Vector2 Input, double Delta, Vector3 MouseVector) 
+	private void UpdateVelocityAndFacing(double delta) 
 	{
-		Sprite.SetVelocity(Input.Length() / ((float) Delta) * WalkingSpeed);
-		Sprite.ForceFlip = false;
+		var velocity = Mover.Velocity;
+		if(velocity.Length() > 0.4)
+		{
+			Transform3D transform = DogeMeshBase.Transform;
+			transform.Basis = Basis.Identity;
+			transform = transform.Scaled(new Vector3(0.5f, 0.5f, 0.5f));
+			transform = transform.Rotated(Vector3.Up, (float) Math.Atan2( velocity.X, velocity.Y )); // first rotate about Y
+			DogeMeshBase.Transform = transform;
+		}
 	}
 
 	private Vector3 GetMovedPosition(Vector3 StartPosition, Vector2 Input)
@@ -151,6 +159,7 @@ public partial class Player : CharacterBody3D
 
 		TickCharging(delta);
 		Mover.TickUpdates(delta);
+		UpdateVelocityAndFacing(delta);
 
 		if(IsDead)
 			return;
@@ -329,6 +338,7 @@ public partial class Player : CharacterBody3D
 
 			HoldingBall = false;
 			HoldingBallMesh.Visible = false;
+			VelocityOverride(MouseVector, 5.0f, 0.2);
 		}
 	}
 
@@ -492,6 +502,12 @@ public partial class Player : CharacterBody3D
 			return true;
 		}
 		return false;
+	}
+
+	public void VelocityOverride(Vector3 Direction, float strength, double Duration)
+	{
+		Mover.DodgeVelocityOverride = new Vector2(Direction.X, Direction.Z) * strength;
+		Mover.DodgeVelocityOverrideDuration = Duration;
 	}
 
 	public void StartDodging(Vector3 DodgeDirection)

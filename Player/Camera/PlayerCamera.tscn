@@ -7,4 +7,4 @@ script = ExtResource("1_bqrp0")
 Camera = NodePath("Camera3D")
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.419436, 0.907785, 0, -0.907785, 0.419436, 0, 5.83578, 2.30328)
+transform = Transform3D(1, 0, 0, 0, 0.419436, 0.907785, 0, -0.907785, 0.419436, 4.29153e-06, 11.161, 5.89451)

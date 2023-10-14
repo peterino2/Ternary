@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://cb55ypflsx3k3"
-path="res://.godot/imported/Doge.fbx-92b191e83f011e21381882d94b7de28a.scn"
+uid="uid://cj2wm1satwrdg"
+path="res://.godot/imported/doge.fbx-2ad83e49e51182917150fcbf5a342e13.scn"
 
 [deps]
 
-source_file="res://Doge.fbx"
-dest_files=["res://.godot/imported/Doge.fbx-92b191e83f011e21381882d94b7de28a.scn"]
+source_file="res://doge.fbx"
+dest_files=["res://.godot/imported/doge.fbx-2ad83e49e51182917150fcbf5a342e13.scn"]
 
 [params]
 

@@ -1,15 +1,21 @@
-[gd_scene load_steps=8 format=3 uid="uid://c3g7w2d2hl06l"]
+[gd_scene load_steps=10 format=3 uid="uid://c3g7w2d2hl06l"]
 
 [ext_resource type="Script" path="res://Scenes/GameLevel.cs" id="1_2hvep"]
 [ext_resource type="PackedScene" uid="uid://dgx065uvkv0mq" path="res://Player/Camera/PlayerCamera.tscn" id="2_56pto"]
 [ext_resource type="PackedScene" uid="uid://rsjcev5cw42o" path="res://Player/Player.tscn" id="2_vv5tr"]
 [ext_resource type="PackedScene" uid="uid://di5wktkrde5xr" path="res://Scenes/placeholder_wall.tscn" id="4_6rr58"]
 [ext_resource type="PackedScene" uid="uid://cx12a03hv51x4" path="res://Scenes/Balls/WorldBall.tscn" id="5_5dp3c"]
-
-[sub_resource type="PlaneMesh" id="PlaneMesh_6nxq5"]
+[ext_resource type="PackedScene" uid="uid://b2jmrfdbxlw52" path="res://arenaExport.glb" id="6_wi6bn"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_626xp"]
 size = Vector3(137.67, 1, 74.2361)
+
+[sub_resource type="Environment" id="Environment_b5sg5"]
+ambient_light_color = Color(0.309804, 0.270588, 0.156863, 1)
+ssao_enabled = true
+glow_enabled = true
+
+[sub_resource type="CameraAttributesPractical" id="CameraAttributesPractical_xf4ee"]
 
 [node name="DarkDungeon" type="Node3D" node_paths=PackedStringArray("EntitiesNode", "TeamSpawns")]
 script = ExtResource("1_2hvep")
@@ -27,24 +33,17 @@ spawn_limit = 32
 
 [node name="Entities" type="Node3D" parent="."]
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 0, 0, 0)
-mesh = SubResource("PlaneMesh_6nxq5")
-
-[node name="SpotLight3D" type="SpotLight3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.267339, 0.963602, 0, -0.963602, 0.267339, 0, 3.44199, 0.665027)
-
-[node name="Wall" parent="." instance=ExtResource("4_6rr58")]
-transform = Transform3D(13.5733, 0, 0, 0, 2.61051, 0, 0, 0, 0.5, -1.75202, 0.28255, -5.0264)
+[node name="Wall3" parent="." instance=ExtResource("4_6rr58")]
+transform = Transform3D(60.2902, 0, 0, 0, 2.61051, 0, 0, 0, 0.5, -0.244834, 0.0492735, 8.29531)
 
 [node name="Wall4" parent="." instance=ExtResource("4_6rr58")]
-transform = Transform3D(13.1825, 0.621898, 0, -3.23355, 2.53535, 0, 0, 0, 1.56043, -1.47466, 0.292069, -9.70285)
+transform = Transform3D(60.2902, 0, 0, 0, 2.61051, 0, 0, 0, 0.5, -0.244834, 0.0492735, -15.2144)
 
-[node name="Wall2" parent="." instance=ExtResource("4_6rr58")]
-transform = Transform3D(3.99131, 0, 0, 0, 2.61051, 0, 0, 0, 0.5, -6.31738, 0.215415, 4.35516)
+[node name="Wall5" parent="." instance=ExtResource("4_6rr58")]
+transform = Transform3D(-2.63537e-06, 0, 0.5, 0, 2.61051, 0, -60.2902, 0, -2.18557e-08, -17.7288, 0.0492735, -0.946705)
 
-[node name="Wall3" parent="." instance=ExtResource("4_6rr58")]
-transform = Transform3D(3.99131, 0, 0, 0, 2.61051, 0, 0, 0, 0.5, -0.227506, 0.215415, 4.35516)
+[node name="Wall6" parent="." instance=ExtResource("4_6rr58")]
+transform = Transform3D(-2.63537e-06, 0, 0.5, 0, 2.61051, 0, -60.2902, 0, -2.18557e-08, 17.6611, 0.501718, -0.821194)
 
 [node name="Team1Spawn" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.19552, 0, 0)
@@ -139,3 +138,14 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.82918, 1.15164, -1.47289)
 
 [node name="WorldBall27" parent="." instance=ExtResource("5_5dp3c")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.82918, 1.15164, -1.47289)
+
+[node name="arenaExport" parent="." instance=ExtResource("6_wi6bn")]
+transform = Transform3D(-1.31134e-07, 0, 3, 0, 3, 0, -3, 0, -1.31134e-07, 18.0263, -1.90735e-06, 8.43428)
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_b5sg5")
+camera_attributes = SubResource("CameraAttributesPractical_xf4ee")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="WorldEnvironment"]
+transform = Transform3D(1, 0, 0, 0, 0.640378, 0.76806, 0, -0.76806, 0.640378, 0, 16.437, 0)
+shadow_enabled = true

@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://rsjcev5cw42o"]
+[gd_scene load_steps=15 format=3 uid="uid://rsjcev5cw42o"]
 
 [ext_resource type="Script" path="res://Player/Player.cs" id="1_akdl1"]
 [ext_resource type="Script" path="res://Locomotion/CharacterMover.cs" id="2_1ooas"]
@@ -9,6 +9,7 @@
 [ext_resource type="SpriteFrames" uid="uid://b2ccr3788eav5" path="res://Assets/Bankman_Arrow.tres" id="6_s1ife"]
 [ext_resource type="Script" path="res://Player/ProjectileSpawner.cs" id="7_pju1p"]
 [ext_resource type="PackedScene" uid="uid://iod314ewkyha" path="res://Scenes/Balls/Ball.tscn" id="8_wrj7o"]
+[ext_resource type="PackedScene" uid="uid://cj2wm1satwrdg" path="res://Doge.fbx" id="10_8ddv2"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_dku72"]
 radius = 0.6
@@ -31,7 +32,7 @@ material = SubResource("StandardMaterial3D_y4mlc")
 radius = 0.2
 height = 0.4
 
-[node name="Player" type="CharacterBody3D" node_paths=PackedStringArray("Mover", "Projectiles", "ArrowBase", "Sync", "Indicator", "HoldingBallMesh")]
+[node name="Player" type="CharacterBody3D" node_paths=PackedStringArray("Mover", "Projectiles", "ArrowBase", "Sync", "Indicator", "HoldingBallMesh", "DogeMeshBase")]
 script = ExtResource("1_akdl1")
 Mover = NodePath("MovementComponent")
 Projectiles = NodePath("ProjectileSpawner")
@@ -40,6 +41,7 @@ Sync = NodePath("MultiplayerSynchronizer")
 BallScene = ExtResource("2_kqkna")
 Indicator = NodePath("Indicator")
 HoldingBallMesh = NodePath("PickedUpBall")
+DogeMeshBase = NodePath("Doge")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.598901, 0)
@@ -47,6 +49,7 @@ shape = SubResource("SphereShape3D_dku72")
 
 [node name="Node3D" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.652932, 0.757417, 0, -0.757417, 0.652932, 0, 0, 0)
+visible = false
 
 [node name="Sprite" type="AnimatedSprite3D" parent="Node3D"]
 transform = Transform3D(1, 0, 0, 0, 1, -2.98023e-08, 0, 2.98023e-08, 1, 0, 0.845446, 0.348727)
@@ -105,3 +108,6 @@ ProjectilePrefab = ExtResource("8_wrj7o")
 
 [node name="Indicator" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.500961, 1.17467, 0)
+
+[node name="Doge" parent="." instance=ExtResource("10_8ddv2")]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0)
