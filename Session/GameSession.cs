@@ -357,7 +357,10 @@ public partial class GameSession: Node
 
     public int GetTeam()
     {
-        return TeamIds[PeerId];
+        if(TeamIds.ContainsKey(PeerId))
+            return TeamIds[PeerId];
+
+        return 0;
     }
 
     public void SwitchTeams()

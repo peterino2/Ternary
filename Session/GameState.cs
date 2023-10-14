@@ -55,7 +55,6 @@ public partial class GameState: Node
         }
 
         DeadPlayer.KillMeServer();
-        NU.Error("Player killed adding to deadList for team: "+ DeadPlayer.TeamId.ToString());
         if(DeadPlayer.TeamId == 0)
         {
             Team1PlayersDead.Add(DeadPlayer);
@@ -160,6 +159,17 @@ public partial class GameState: Node
 
 		GameLevel.Get().GetEntitiesRoot().AddChild(newPlayer);
 		AvatarSpawnedServer[Multiplayer.GetRemoteSenderId()] = newPlayer;
+
+        var Team = newPlayer.TeamId;
+        if(Team == 0)
+        {
+            Team1Players.Add(newPlayer);
+        }
+        else 
+        {
+            Team2Players.Add(newPlayer);
+        }
+
 	}
 
 	public void RemovePlayer(long Id)
