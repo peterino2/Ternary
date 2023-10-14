@@ -1,8 +1,6 @@
 using Godot;
 using System;
 
-using System.Net.NetworkInformation;
-
 public partial class GameNetEngine: Node 
 {
     public static GameNetEngine StaticInstance;

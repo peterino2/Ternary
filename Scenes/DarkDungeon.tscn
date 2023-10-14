@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://c3g7w2d2hl06l"]
+[gd_scene load_steps=12 format=3 uid="uid://c3g7w2d2hl06l"]
 
 [ext_resource type="Script" path="res://Scenes/GameLevel.cs" id="1_2hvep"]
 [ext_resource type="PackedScene" uid="uid://dgx065uvkv0mq" path="res://Player/Camera/PlayerCamera.tscn" id="2_56pto"]
@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://di5wktkrde5xr" path="res://Scenes/placeholder_wall.tscn" id="4_6rr58"]
 [ext_resource type="PackedScene" uid="uid://cx12a03hv51x4" path="res://Scenes/Balls/WorldBall.tscn" id="5_5dp3c"]
 [ext_resource type="PackedScene" uid="uid://b2jmrfdbxlw52" path="res://arenaExport.glb" id="6_wi6bn"]
+[ext_resource type="Script" path="res://Scenes/MiddleSplit.cs" id="7_eke3n"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_626xp"]
 size = Vector3(137.67, 1, 74.2361)
@@ -16,6 +17,9 @@ ssao_enabled = true
 glow_enabled = true
 
 [sub_resource type="CameraAttributesPractical" id="CameraAttributesPractical_xf4ee"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ec3qb"]
+size = Vector3(1, 4.1359, 26.5285)
 
 [node name="DarkDungeon" type="Node3D" node_paths=PackedStringArray("EntitiesNode", "TeamSpawns")]
 script = ExtResource("1_2hvep")
@@ -46,10 +50,10 @@ transform = Transform3D(-2.63537e-06, 0, 0.5, 0, 2.61051, 0, -60.2902, 0, -2.185
 transform = Transform3D(-2.63537e-06, 0, 0.5, 0, 2.61051, 0, -60.2902, 0, -2.18557e-08, 17.6611, 0.501718, -0.821194)
 
 [node name="Team1Spawn" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.19552, 0, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.19552, 0, -4.0668)
 
 [node name="Team2Spawn" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.38721, 0, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.76702, 0, -3.63107)
 
 [node name="StaticBody3D" type="StaticBody3D" parent="."]
 collision_layer = 7
@@ -59,85 +63,85 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.492707, 0)
 shape = SubResource("BoxShape3D_626xp")
 
 [node name="WorldBall2" parent="." instance=ExtResource("5_5dp3c")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.6584, 2.30328, -2.94578)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.106287, 2.30328, -6.59635)
 
 [node name="WorldBall" parent="." instance=ExtResource("5_5dp3c")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.82918, 1.15164, -1.47289)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.140958, 1.52413, -3.39274)
 
 [node name="WorldBall3" parent="." instance=ExtResource("5_5dp3c")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.82918, 1.15164, -1.47289)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.140958, 1.26601, -4.41652)
 
 [node name="WorldBall4" parent="." instance=ExtResource("5_5dp3c")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.82918, 1.15164, -1.47289)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.140958, 1.3637, -6.14251)
 
 [node name="WorldBall5" parent="." instance=ExtResource("5_5dp3c")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.82918, 1.15164, -1.47289)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.140958, 1.15164, -5.06313)
 
 [node name="WorldBall6" parent="." instance=ExtResource("5_5dp3c")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.82918, 1.15164, -1.47289)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.140958, 1.15164, -5.06313)
 
 [node name="WorldBall7" parent="." instance=ExtResource("5_5dp3c")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.82918, 1.15164, -1.47289)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.140958, 1.9284, -7.99207)
 
 [node name="WorldBall8" parent="." instance=ExtResource("5_5dp3c")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.82918, 1.15164, -1.47289)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.140958, 1.59474, -2.41845)
 
 [node name="WorldBall9" parent="." instance=ExtResource("5_5dp3c")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.82918, 1.15164, -1.47289)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.140958, 1.15164, -5.06313)
 
 [node name="WorldBall10" parent="." instance=ExtResource("5_5dp3c")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.82918, 1.15164, -1.47289)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.140958, 1.61239, -5.57421)
 
 [node name="WorldBall11" parent="." instance=ExtResource("5_5dp3c")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.82918, 1.15164, -1.47289)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.140958, 1.15164, -5.06313)
 
 [node name="WorldBall12" parent="." instance=ExtResource("5_5dp3c")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.82918, 1.15164, -1.47289)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.140957, 2.07259, 1.84194)
 
 [node name="WorldBall13" parent="." instance=ExtResource("5_5dp3c")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.82918, 1.15164, -1.47289)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.140958, 1.15164, -5.06313)
 
 [node name="WorldBall14" parent="." instance=ExtResource("5_5dp3c")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.82918, 1.15164, -1.47289)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.140958, 1.15164, -5.06313)
 
 [node name="WorldBall15" parent="." instance=ExtResource("5_5dp3c")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.82918, 1.15164, -1.47289)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.140958, 2.1998, 0.584574)
 
 [node name="WorldBall16" parent="." instance=ExtResource("5_5dp3c")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.82918, 1.15164, -1.47289)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.140958, 1.15164, -5.06313)
 
 [node name="WorldBall17" parent="." instance=ExtResource("5_5dp3c")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.82918, 1.15164, -1.47289)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.140958, 1.15164, -5.06313)
 
 [node name="WorldBall18" parent="." instance=ExtResource("5_5dp3c")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.82918, 1.15164, -1.47289)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.140958, 1.15164, -5.06313)
 
 [node name="WorldBall19" parent="." instance=ExtResource("5_5dp3c")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.82918, 1.15164, -1.47289)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.140958, 2.15005, -1.06938)
 
 [node name="WorldBall20" parent="." instance=ExtResource("5_5dp3c")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.82918, 1.15164, -1.47289)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.140958, 2.13134, 3.88791)
 
 [node name="WorldBall21" parent="." instance=ExtResource("5_5dp3c")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.82918, 1.15164, -1.47289)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.140958, 1.15164, -5.06313)
 
 [node name="WorldBall22" parent="." instance=ExtResource("5_5dp3c")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.82918, 1.15164, -1.47289)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.140958, 1.82976, -4.79261)
 
 [node name="WorldBall23" parent="." instance=ExtResource("5_5dp3c")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.82918, 1.15164, -1.47289)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.140958, 1.70534, -9.4023)
 
 [node name="WorldBall24" parent="." instance=ExtResource("5_5dp3c")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.82918, 1.15164, -1.47289)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.140958, 2.57215, -9.69109)
 
 [node name="WorldBall25" parent="." instance=ExtResource("5_5dp3c")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.82918, 1.15164, -1.47289)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.140958, 2.42024, -3.09341)
 
 [node name="WorldBall26" parent="." instance=ExtResource("5_5dp3c")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.82918, 1.15164, -1.47289)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.140958, 2.82576, -8.54782)
 
 [node name="WorldBall27" parent="." instance=ExtResource("5_5dp3c")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.82918, 1.15164, -1.47289)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.140958, 3.44522, -3.84298)
 
 [node name="arenaExport" parent="." instance=ExtResource("6_wi6bn")]
 transform = Transform3D(-1.31134e-07, 0, 3, 0, 3, 0, -3, 0, -1.31134e-07, 18.0263, -1.90735e-06, 8.43428)
@@ -149,3 +153,13 @@ camera_attributes = SubResource("CameraAttributesPractical_xf4ee")
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="WorldEnvironment"]
 transform = Transform3D(1, 0, 0, 0, 0.640378, 0.76806, 0, -0.76806, 0.640378, 0, 16.437, 0)
 shadow_enabled = true
+
+[node name="MiddleSplit" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0140319, 0.00844002, -0.00397491)
+collision_layer = 8
+collision_mask = 8
+script = ExtResource("7_eke3n")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MiddleSplit"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -3.64864)
+shape = SubResource("BoxShape3D_ec3qb")

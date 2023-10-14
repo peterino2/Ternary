@@ -1,4 +1,5 @@
 using Godot;
+using System;
 using System.Collections.Generic;
 
 
@@ -22,6 +23,10 @@ public partial class GameState: Node
 	public bool LevelReady = false; // called when GameLevel sets itself to be true
 	public bool AvatarSpawned = false; // used by client to determine if we have issued a spawn request yet
 
+    public float SpawnRadius = 1.0f;
+
+    Random SpawnRandom = new Random();
+
     public Vector3 Team1SpawnArea;
     public Vector3 Team2SpawnArea;
 
@@ -38,11 +43,26 @@ public partial class GameState: Node
     {
         if(TeamId == 0)
         {
+            NU.Ok("Team 1 Spawn Area registered at " + SpawnArea.ToString());
             Team1SpawnArea = SpawnArea;
         }
         else 
         {
+            NU.Ok("Team 2 Spawn Area registered at " + SpawnArea.ToString());
             Team2SpawnArea = SpawnArea;
+        }
+    }
+
+    public Vector3 FindPlayerSpawn(int Team)
+    {
+        var offset = new Vector3(SpawnRandom.NextSingle() * 6f,0, SpawnRandom.NextSingle() * 3.0f);
+        if(Team == 0)
+        {
+            return Team1SpawnArea + offset;
+        }
+        else 
+        {
+            return Team2SpawnArea + offset;
         }
     }
 
@@ -158,6 +178,7 @@ public partial class GameState: Node
         newPlayer.DebugName = PlayerName;
 
 		GameLevel.Get().GetEntitiesRoot().AddChild(newPlayer);
+
 		AvatarSpawnedServer[Multiplayer.GetRemoteSenderId()] = newPlayer;
 
         var Team = newPlayer.TeamId;
@@ -169,6 +190,9 @@ public partial class GameState: Node
         {
             Team2Players.Add(newPlayer);
         }
+
+        newPlayer.Position = FindPlayerSpawn(newPlayer.TeamId);
+        newPlayer.Mover.OverridePosition(newPlayer.Position);
 
 	}
 

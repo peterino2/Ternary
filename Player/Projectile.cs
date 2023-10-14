@@ -6,6 +6,7 @@ public partial class Projectile : Node3D
 	[Export] VfxFire Fire;
 	public long OwnerId = 0;
 	public ProjectileSpawner SpawnOwner;
+	public int TeamId = 0;
 	public bool IsLocallyControlled = false;
 	public int PredictionKey = 0;
 
@@ -25,6 +26,8 @@ public partial class Projectile : Node3D
 	{
 		OwnerId = Spawner.OwnerId;
 		SpawnOwner = Spawner;
+		TeamId = (SpawnOwner.GetOwnerBody() as Player).TeamId;
+
 		if(OwnerId == GameSession.Get().PeerId)
 		{
 			IsLocallyControlled = true;
@@ -156,11 +159,14 @@ public partial class Projectile : Node3D
 							}
 							else 
 							{
-								GameState.Get().KillPlayer(colliderAsPlayer);
-								colliderAsPlayer.ServerAddImpulse(new Vector2(dir.X, dir.Z) * 6.0f);
-								SignalBounceBack(Position, dir);
-								FreezeAndKill();
-								break;
+								if(colliderAsPlayer.TeamId != TeamId)
+								{
+									GameState.Get().KillPlayer(colliderAsPlayer);
+									colliderAsPlayer.ServerAddImpulse(new Vector2(dir.X, dir.Z) * 6.0f);
+									SignalBounceBack(Position, dir);
+									FreezeAndKill();
+									break;
+								}
 							}
 						}
 					}
@@ -169,7 +175,7 @@ public partial class Projectile : Node3D
 						var colliderAsPlayer = colliderAsCharacterBody as Player;
 						if(colliderAsPlayer != null)
 						{
-							if(!colliderAsPlayer.IsDead)
+							if(!colliderAsPlayer.IsDead && (colliderAsPlayer.TeamId != TeamId))
 							{
 								FreezeAndKill();
 							}
@@ -184,31 +190,37 @@ public partial class Projectile : Node3D
 			}
 			else 
 			{
-				var ColliderAsStatic = R["collider"].Obj as StaticBody3D;
-				if(ColliderAsStatic != null)
+				if(R["collider"].Obj as MiddleSplit != null)
 				{
-					DebugDraw3D.DrawSphere(Position, HurtRadius, Colors.Red, 5.0f);
-					FreezeAndKill();
-					if(GameSession.Get().IsServer())
+				}
+				else 
+				{
+					var ColliderAsStatic = R["collider"].Obj as StaticBody3D;
+					if(ColliderAsStatic != null)
 					{
-						// sigh here we go again...
-						var RayParams = PhysicsRayQueryParameters3D.Create(Position, Position + DeltaV.Normalized() * 5.0f);
-						var RayResults = SpaceState.IntersectRay(RayParams);
-
-						var Normal = (ColliderAsStatic.GlobalPosition - Position).Normalized();
-						var dir  = new Vector3(0,1,0);
-						if(RayResults.ContainsKey("normal"))
+						DebugDraw3D.DrawSphere(Position, HurtRadius, Colors.Red, 5.0f);
+						FreezeAndKill();
+						if(GameSession.Get().IsServer())
 						{
-							Normal = RayResults["normal"].As<Vector3>();
-							var Projected = DeltaV.Project(Normal);
-							dir = DeltaV - 2 * Projected;
-							dir = dir.Normalized();
-						}
+							// sigh here we go again...
+							var RayParams = PhysicsRayQueryParameters3D.Create(Position, Position + DeltaV.Normalized() * 5.0f);
+							var RayResults = SpaceState.IntersectRay(RayParams);
 
-						// Signal the server to spawn back the world ball.
-						SignalBounceBack(Position, dir);
+							var Normal = (ColliderAsStatic.GlobalPosition - Position).Normalized();
+							var dir  = new Vector3(0,1,0);
+							if(RayResults.ContainsKey("normal"))
+							{
+								Normal = RayResults["normal"].As<Vector3>();
+								var Projected = DeltaV.Project(Normal);
+								dir = DeltaV - 2 * Projected;
+								dir = dir.Normalized();
+							}
+
+							// Signal the server to spawn back the world ball.
+							SignalBounceBack(Position, dir);
+						}
+						break;
 					}
-					break;
 				}
 			}
 		}

@@ -6,7 +6,7 @@ public partial class Player : CharacterBody3D
 {
 	AnimatedGameSprite Sprite;
 
-	[Export] CharacterMover Mover;
+	[Export] public CharacterMover Mover;
 	[Export] ProjectileSpawner Projectiles;
 
 	[Export] public float WalkingSpeed = 2.5f;
@@ -673,8 +673,8 @@ public partial class Player : CharacterBody3D
 	{
 		IsDead = false;
 		Visible = true;
-		CollisionLayer = 0x1;
-		CollisionMask = 0x1;
+		CollisionLayer = 0x1 & 0x1 << 4;
+		CollisionMask = 0x1 & 0x1 << 4;
 		Mover.Ghosting = false;
 	}
 

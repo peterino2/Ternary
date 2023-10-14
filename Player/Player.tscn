@@ -751,6 +751,8 @@ _data = {
 }
 
 [node name="Player" type="CharacterBody3D" node_paths=PackedStringArray("Mover", "Projectiles", "ArrowBase", "Sync", "Indicator", "HoldingBallMesh", "DogeMeshBase", "DogeMeshAnimplayer")]
+collision_layer = 9
+collision_mask = 9
 script = ExtResource("1_akdl1")
 Mover = NodePath("MovementComponent")
 Projectiles = NodePath("ProjectileSpawner")
