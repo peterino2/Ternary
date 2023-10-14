@@ -193,7 +193,6 @@ public partial class GameState: Node
 
         newPlayer.Position = FindPlayerSpawn(newPlayer.TeamId);
         newPlayer.Mover.OverridePosition(newPlayer.Position);
-
 	}
 
 	public void RemovePlayer(long Id)

@@ -285,7 +285,7 @@ public partial class CharacterMover: Node
 			DebugDraw3D.DrawSphere(ProposedPosition + new Vector3(0,0.6f,0), 0.6f, Colors.Red, 0.1f);
 		}
 
-		SyncFrameCount = 2;
+		SyncFrameCount = Math.Max(2, SyncFrameCount);
 		NetMoveSync = AccumulatedMovement;
 		PositionSync = Base.Position;
 	}
@@ -427,7 +427,7 @@ public partial class CharacterMover: Node
 
     public void OverridePosition(Vector3 NewPosition)
     {
-		SyncFrameCount = 2;
+		SyncFrameCount = 20;
 		NetMoveSync = new Vector2(0,0);
 		PositionSync = NewPosition;
         Base.Position = NewPosition;

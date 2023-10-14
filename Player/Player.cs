@@ -19,6 +19,10 @@ public partial class Player : CharacterBody3D
 	[Export] public MeshInstance3D HoldingBallMesh;
 	[Export] public Node3D DogeMeshBase;
 
+
+	[Export] public Node3D Team1Hat;
+	[Export] public Node3D Team2Hat;
+
 	[Export] double BlockingCooldown = 10.0;
 	double CurrentBlockingCooldown = 0.0;
 	[Export] double BlockingDuration = 5.0;
@@ -35,6 +39,7 @@ public partial class Player : CharacterBody3D
 	Vector3 MouseVector = new Vector3(0,0,0);
 	Vector3 MouseWorldPosition;
 	Vector3 LastDeltaPosition = new Vector3(0,0,0);
+	Vector3 ThrowQueuedVector;
 
 	static Rid PickupShapeRid;
 	static bool PickupShapeReady = false;
@@ -59,6 +64,8 @@ public partial class Player : CharacterBody3D
 	[Export] bool UsePrediction = true;
 
 	public bool IsLocalPlayer = false;
+	public double ThrowTime = 0.0;
+	public bool ThrowQueued = false;
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
@@ -120,20 +127,35 @@ public partial class Player : CharacterBody3D
 	private void UpdateVelocityAndFacing(double delta) 
 	{
 		var velocity = Mover.Velocity;
+		var Anim = "Armature|Idle";
 		if(velocity.Length() > 0.4)
 		{
 
-			DogeMeshAnimplayer.Play("Armature|Run");
+			Anim = "Armature|Run";
+			DogeMeshAnimplayer.SpeedScale = 1.0f;
 			Transform3D transform = DogeMeshBase.Transform;
 			transform.Basis = Basis.Identity;
 			transform = transform.Scaled(new Vector3(0.5f, 0.5f, 0.5f));
 			transform = transform.Rotated(Vector3.Up, (float) Math.Atan2( velocity.X, velocity.Y )); // first rotate about Y
 			DogeMeshBase.Transform = transform;
 		}
-		else 
+		if(ThrowTime > 0)
 		{
-			DogeMeshAnimplayer.Play("Armature|Idle");
+			Anim = "Armature|Throw";
+			ThrowTime -= delta;
+			DogeMeshAnimplayer.SpeedScale = 1.0f;
 		}
+		if(CurrentDodgingDuration > 0)
+		{
+			Anim = "Armature|Dodge";
+			DogeMeshAnimplayer.SpeedScale = 1.5f;
+		}
+		if(CurrentBlockingDuration > 0)
+		{
+			Anim = "Armature|Throw";
+			DogeMeshAnimplayer.SpeedScale = 1.0f;
+		}
+		DogeMeshAnimplayer.Play(Anim);
 	}
 
 	private Vector3 GetMovedPosition(Vector3 StartPosition, Vector2 Input)
@@ -251,6 +273,19 @@ public partial class Player : CharacterBody3D
 					0.1f
 				);
 		}
+
+		if(IsLocalPlayer && ThrowQueued)
+		{
+			if(ThrowTime < 0.8)
+			{
+				ThrowQueued = false;
+				Projectiles.FireProjectile(
+					Position,
+					ThrowQueuedVector,
+					GameNetEngine.Get().NewPredictionKey()
+				);
+			}
+		}
 	}
 
 
@@ -302,12 +337,12 @@ public partial class Player : CharacterBody3D
 
 		if(!HoldingBall)
 		{
-			if(!ScanForBall())
+			if(!ScanForBall() && !(CurrentDodgingDuration > 0))
 			{
 				StartCatching();
 			}
 		}
-		else 
+		else if(!(CurrentDodgingDuration > 0))
 		{
 			StartBlocking();
 		}
@@ -336,11 +371,10 @@ public partial class Player : CharacterBody3D
 
 		if(ChargeTime > ChargeTimeToThrow - 0.05)
 		{
-			Projectiles.FireProjectile(
-				Position,
-				MouseVector,
-				GameNetEngine.Get().NewPredictionKey()
-			);
+
+			ThrowQueuedVector = MouseVector;
+			ThrowQueued = true;
+			ThrowTime = 1.20;
 
 			RpcId(1, nameof(ServerBallThrown), new Variant[]{});
 
@@ -354,12 +388,14 @@ public partial class Player : CharacterBody3D
 	void ServerBallThrown()
 	{
 		HoldingBall = false;
+		ThrowTime = 1.20;
 		Rpc(nameof(ServerBallThrownMulticast));
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
 	void ServerBallThrownMulticast()
 	{
+		ThrowTime = 1.20;
 		HoldingBall = false;
 	}
 
@@ -380,6 +416,18 @@ public partial class Player : CharacterBody3D
 		{
 			GameNetEngine.Get().OnSyncFrame += OnSyncFrame;
 		}
+
+		if(TeamId == 0)
+		{
+			Team1Hat.Visible = true;
+			Team2Hat.Visible = false;
+		}
+		else 
+		{
+			Team1Hat.Visible = false;
+			Team2Hat.Visible = true;
+		}
+
 	}
 
 	public void ShutDownNet() 
@@ -719,6 +767,7 @@ public partial class Player : CharacterBody3D
 	public void SetTeam(int NewTeamId)
 	{
 		TeamId = NewTeamId;
+
 	}
 }
 

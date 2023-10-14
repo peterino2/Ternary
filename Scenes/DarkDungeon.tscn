@@ -1,10 +1,11 @@
-[gd_scene load_steps=12 format=3 uid="uid://c3g7w2d2hl06l"]
+[gd_scene load_steps=13 format=3 uid="uid://c3g7w2d2hl06l"]
 
 [ext_resource type="Script" path="res://Scenes/GameLevel.cs" id="1_2hvep"]
 [ext_resource type="PackedScene" uid="uid://dgx065uvkv0mq" path="res://Player/Camera/PlayerCamera.tscn" id="2_56pto"]
 [ext_resource type="PackedScene" uid="uid://rsjcev5cw42o" path="res://Player/Player.tscn" id="2_vv5tr"]
 [ext_resource type="PackedScene" uid="uid://di5wktkrde5xr" path="res://Scenes/placeholder_wall.tscn" id="4_6rr58"]
 [ext_resource type="PackedScene" uid="uid://cx12a03hv51x4" path="res://Scenes/Balls/WorldBall.tscn" id="5_5dp3c"]
+[ext_resource type="Script" path="res://Scenes/TeamSpawnArea.cs" id="5_g30ou"]
 [ext_resource type="PackedScene" uid="uid://b2jmrfdbxlw52" path="res://arenaExport.glb" id="6_wi6bn"]
 [ext_resource type="Script" path="res://Scenes/MiddleSplit.cs" id="7_eke3n"]
 
@@ -51,9 +52,12 @@ transform = Transform3D(-2.63537e-06, 0, 0.5, 0, 2.61051, 0, -60.2902, 0, -2.185
 
 [node name="Team1Spawn" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.19552, 0, -4.0668)
+script = ExtResource("5_g30ou")
 
 [node name="Team2Spawn" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.76702, 0, -3.63107)
+script = ExtResource("5_g30ou")
+TeamId = 1
 
 [node name="StaticBody3D" type="StaticBody3D" parent="."]
 collision_layer = 7
