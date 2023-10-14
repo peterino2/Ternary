@@ -1,5 +1,4 @@
 using Godot;
-using System;
 using System.IO;
 using System.Text.Json;
 
@@ -23,7 +22,7 @@ public partial class SessionConfigs: Node
         public Configs() 
         {
             AutoStartServer = false;
-            AutoStartGamePlayerCount = 2;
+            AutoStartGamePlayerCount = 32;
             AutoStartServerPort = 7777;
         }
     }

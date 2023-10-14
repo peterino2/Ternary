@@ -1,4 +1,4 @@
-[gd_scene load_steps=31 format=3 uid="uid://rsjcev5cw42o"]
+[gd_scene load_steps=34 format=3 uid="uid://rsjcev5cw42o"]
 
 [ext_resource type="Script" path="res://Player/Player.cs" id="1_akdl1"]
 [ext_resource type="Script" path="res://Locomotion/CharacterMover.cs" id="2_1ooas"]
@@ -9,8 +9,10 @@
 [ext_resource type="SpriteFrames" uid="uid://b2ccr3788eav5" path="res://Assets/Bankman_Arrow.tres" id="6_s1ife"]
 [ext_resource type="Script" path="res://Player/ProjectileSpawner.cs" id="7_pju1p"]
 [ext_resource type="PackedScene" uid="uid://iod314ewkyha" path="res://Scenes/Balls/Ball.tscn" id="8_wrj7o"]
+[ext_resource type="Texture2D" uid="uid://dhpyxiwqn57gb" path="res://doggotexture.png" id="10_5sxob"]
 [ext_resource type="Animation" uid="uid://cenuuc0dhtttl" path="res://Animations/IdleAnimation.res" id="10_u34ie"]
 [ext_resource type="Material" path="res://RedHat.tres" id="10_xwc7h"]
+[ext_resource type="Texture2D" uid="uid://bm8islyt4kleb" path="res://dogenormalsY.png" id="11_r3vms"]
 [ext_resource type="Material" path="res://Bluehat.tres" id="11_vtns7"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_dku72"]
@@ -25,6 +27,10 @@ properties/1/path = NodePath(".:TeamId")
 properties/1/spawn = true
 properties/1/sync = true
 properties/1/watch = false
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bhdja"]
+albedo_texture = ExtResource("10_5sxob")
+normal_texture = ExtResource("11_r3vms")
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_38ohe"]
 resource_name = "Material.001"
@@ -836,13 +842,22 @@ HoldingBallMesh = NodePath("DogeAnimations/RootNode/Armature/Skeleton3D/BoneAtta
 DogeMeshBase = NodePath("DogeAnimations")
 Team1Hat = NodePath("DogeAnimations/RootNode/Armature/Skeleton3D/HatAttachment/bluehat")
 Team2Hat = NodePath("DogeAnimations/RootNode/Armature/Skeleton3D/HatAttachment/redhat")
-BlockingCooldown = 5.0
-BlockingDuration = 0.3
-CatchingDuration = 0.3
+BlockingDuration = 1.0
+CatchingDuration = 1.0
 DogeMeshAnimplayer = NodePath("DogeAnimations/AnimationPlayer")
 PickupRadius = 0.8
 DodgeDuration = 0.5
 DodgeImpulse = 10.0
+
+[node name="Nameplate" type="Label3D" parent="." node_paths=PackedStringArray("Player")]
+transform = Transform3D(1, 0, 0, 0, 0.652932, 0.757417, 0, -0.757417, 0.652932, 0, 2.3863, 0.0348291)
+pixel_size = 0.0007
+double_sided = false
+no_depth_test = true
+fixed_size = true
+text = "xx WutangLegend420 xxx"
+script = ExtResource("4_hg8tv")
+Player = NodePath("..")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.598901, 0)
@@ -866,16 +881,6 @@ WalkUp = "IdleUp"
 WalkDown = "IdleDown"
 WalkRight = "IdleDown"
 
-[node name="Nameplate" type="Label3D" parent="Node3D" node_paths=PackedStringArray("Player")]
-transform = Transform3D(1, 0, 0, 0, 1, 5.96046e-08, 0, 2.98023e-08, 1, 0, 2.17348, 0.895923)
-pixel_size = 0.0007
-double_sided = false
-no_depth_test = true
-fixed_size = true
-text = "xx WutangLegend420 xxx"
-script = ExtResource("4_hg8tv")
-Player = NodePath("../..")
-
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_interval = 0.05
 delta_interval = 0.05
@@ -883,7 +888,6 @@ replication_config = SubResource("SceneReplicationConfig_ejvr1")
 
 [node name="ArrowBase" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0.00242555)
-visible = false
 
 [node name="Sprite3D" type="AnimatedSprite3D" parent="ArrowBase"]
 transform = Transform3D(0.2, 0, 0, 0, -8.74228e-09, -0.2, 0, 0.2, -8.74228e-09, 0, 0, 0.667819)
@@ -1309,6 +1313,7 @@ bones/55/rotation = Quaternion(6.93889e-18, -1.38778e-17, -2.77556e-17, 1)
 bones/55/scale = Vector3(1, 1, 1)
 
 [node name="doge" type="MeshInstance3D" parent="DogeAnimations/RootNode/Armature/Skeleton3D"]
+material_override = SubResource("StandardMaterial3D_bhdja")
 mesh = SubResource("ArrayMesh_0uxo4")
 skin = SubResource("Skin_n6r2p")
 

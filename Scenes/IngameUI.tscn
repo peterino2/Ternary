@@ -1,0 +1,85 @@
+[gd_scene load_steps=4 format=3 uid="uid://dhvpcnfrou3we"]
+
+[ext_resource type="Script" path="res://Scenes/IngameUI.cs" id="1_u85pd"]
+[ext_resource type="Texture2D" uid="uid://irti6e5e5b2" path="res://Scenes/youwin.png" id="2_pbm8s"]
+[ext_resource type="Texture2D" uid="uid://310jng5locgc" path="res://Scenes/Youlose.png" id="3_aavgy"]
+
+[node name="IngameUI" type="Control" node_paths=PackedStringArray("ChargeBar", "Time", "PlayerCount", "YouWin", "YouLose")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_u85pd")
+ChargeBar = NodePath("ProgressBar")
+Time = NodePath("Time")
+PlayerCount = NodePath("PlayerCount")
+YouWin = NodePath("YouWin")
+YouLose = NodePath("YouLose")
+
+[node name="Time" type="RichTextLabel" parent="."]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -117.0
+offset_top = 40.0
+offset_right = 114.0
+offset_bottom = 71.0
+grow_horizontal = 2
+bbcode_enabled = true
+text = "[center]1:30[/center]"
+
+[node name="PlayerCount" type="RichTextLabel" parent="."]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -118.0
+offset_top = 3.0
+offset_right = 118.0
+offset_bottom = 43.0
+grow_horizontal = 2
+theme_override_font_sizes/normal_font_size = 24
+bbcode_enabled = true
+text = "[center][color=#aaaaff]0[/color] vs [color=#ff4444]0[/color][/center]"
+
+[node name="ProgressBar" type="ProgressBar" parent="."]
+layout_mode = 0
+offset_left = 280.0
+offset_top = 340.0
+offset_right = 376.0
+offset_bottom = 367.0
+
+[node name="YouWin" type="TextureRect" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -152.0
+offset_top = -44.0
+offset_right = 152.0
+offset_bottom = 44.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_pbm8s")
+
+[node name="YouLose" type="TextureRect" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -174.5
+offset_top = -45.0
+offset_right = 174.5
+offset_bottom = 45.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("3_aavgy")

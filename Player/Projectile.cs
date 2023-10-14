@@ -43,6 +43,7 @@ public partial class Projectile : Node3D
 			PhysicsServer3D.ShapeSetData(ShapeRid, Spawner.BallRadius);
 			ShapeRidReady = true;
 		}
+
 	}
 
 	public override void _Process(double delta)
@@ -137,7 +138,7 @@ public partial class Projectile : Node3D
 						if(colliderAsPlayer != null)
 						{
 							var dir = (colliderAsPlayer.GlobalPosition - Position).Normalized();
-							if(colliderAsPlayer.IsDead)
+							if(colliderAsPlayer.IsDead || colliderAsPlayer.IsDodging())
 							{
 								// nothing happens, hes a ghost
 							}
@@ -175,7 +176,7 @@ public partial class Projectile : Node3D
 						var colliderAsPlayer = colliderAsCharacterBody as Player;
 						if(colliderAsPlayer != null)
 						{
-							if(!colliderAsPlayer.IsDead && (colliderAsPlayer.TeamId != TeamId))
+							if(!colliderAsPlayer.IsDead && (colliderAsPlayer.TeamId != TeamId) && !colliderAsPlayer.IsDodging())
 							{
 								FreezeAndKill();
 							}

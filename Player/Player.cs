@@ -19,6 +19,7 @@ public partial class Player : CharacterBody3D
 	[Export] public MeshInstance3D HoldingBallMesh;
 	[Export] public Node3D DogeMeshBase;
 
+	public bool Emoting = false;
 
 	[Export] public Node3D Team1Hat;
 	[Export] public Node3D Team2Hat;
@@ -58,8 +59,8 @@ public partial class Player : CharacterBody3D
 	[Export] public int TeamId = 0;
 	public bool IsDead = false;
 
-	[Export] double ChargeTimeToThrow = 1.0;
-	double ChargeTime = 0.0;
+	[Export] public double ChargeTimeToThrow = 1.0;
+	public double ChargeTime = 0.0;
 
 	[Export] bool UsePrediction = true;
 
@@ -128,10 +129,16 @@ public partial class Player : CharacterBody3D
 	{
 		var velocity = Mover.Velocity;
 		var Anim = "Armature|Idle";
+
+		if(Emoting)
+		{
+			Anim = "Armature|Emote";
+		}
+
 		if(velocity.Length() > 0.4)
 		{
-
 			Anim = "Armature|Run";
+			Emoting = false;
 			DogeMeshAnimplayer.SpeedScale = 1.0f;
 			Transform3D transform = DogeMeshBase.Transform;
 			transform.Basis = Basis.Identity;
@@ -142,18 +149,31 @@ public partial class Player : CharacterBody3D
 		if(ThrowTime > 0)
 		{
 			Anim = "Armature|Throw";
+			Emoting = false;
 			ThrowTime -= delta;
 			DogeMeshAnimplayer.SpeedScale = 1.0f;
 		}
 		if(CurrentDodgingDuration > 0)
 		{
 			Anim = "Armature|Dodge";
+			Emoting = false;
 			DogeMeshAnimplayer.SpeedScale = 1.5f;
 		}
 		if(CurrentBlockingDuration > 0)
 		{
 			Anim = "Armature|Throw";
+			Emoting = false;
 			DogeMeshAnimplayer.SpeedScale = 1.0f;
+			ArrowBase.Visible = true;
+
+			Transform3D transform = ArrowBase.Transform;
+			transform.Basis = Basis.Identity;
+			transform = transform.Rotated(Vector3.Up, (float) Math.Atan2( MouseVector.X, MouseVector.Z )); // first rotate about Y
+			ArrowBase.Transform = transform;
+		}
+		else 
+		{
+			ArrowBase.Visible = false;
 		}
 		DogeMeshAnimplayer.Play(Anim);
 	}
@@ -185,6 +205,21 @@ public partial class Player : CharacterBody3D
 				StartDodging(MouseVector);
 			}
 
+			var EmoteAction = Input.GetActionStrength("Emote");
+			if(EmoteAction > 0.2 && !IsDead)
+			{
+				StartEmote();
+			}
+
+			var OpenScore = Input.GetActionStrength("OpenScore");
+			if(OpenScore > 0.2 && !ScoreOpen)
+			{
+				OnOpenScore();
+			}
+			else if(ScoreOpen &&  OpenScore < 0.1)
+			{
+				OnCloseScore();
+			}
 		}
 
 		TickCharging(delta);
@@ -239,6 +274,19 @@ public partial class Player : CharacterBody3D
 		}
 	}
 
+
+	bool ScoreOpen = false;
+	void OnOpenScore()
+	{
+		ScoreOpen = true;
+	}
+
+	void OnCloseScore()
+	{
+		ScoreOpen = false;
+	}
+
+	
 	void TickCharging(double delta)
 	{
 		if(IsLocalPlayer)
@@ -337,7 +385,7 @@ public partial class Player : CharacterBody3D
 
 		if(!HoldingBall)
 		{
-			if(!ScanForBall() && !(CurrentDodgingDuration > 0))
+			if(!(CurrentDodgingDuration > 0))
 			{
 				StartCatching();
 			}
@@ -357,6 +405,10 @@ public partial class Player : CharacterBody3D
 		if(HoldingBall)
 		{
 			FireButtonDown = true;
+		}
+		else 
+		{
+			ScanForBall();
 		}
 	}
 
@@ -428,6 +480,10 @@ public partial class Player : CharacterBody3D
 			Team2Hat.Visible = true;
 		}
 
+		if(IsLocalPlayer)
+		{
+			IngameUI.Get().SetupPlayer(this);
+		}
 	}
 
 	public void ShutDownNet() 
@@ -451,7 +507,8 @@ public partial class Player : CharacterBody3D
 		RpcId(1, nameof(SubmitState), new Variant[] {
 			ChargeTime,
 			CurrentBlockingDuration,
-			BlockingDirection
+			BlockingDirection,
+			CurrentDodgingDuration
 		});
 	}
 
@@ -463,12 +520,13 @@ public partial class Player : CharacterBody3D
 			CurrentBlockingDuration,
 			BlockingDirection,
 			HoldingBall,
+			CurrentDodgingDuration,
 		});
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Unreliable)]
 	public void SubmitState(
-		float NewChargeTime, double NewBlockingDuration, Vector3 NewBlockingDirection
+		float NewChargeTime, double NewBlockingDuration, Vector3 NewBlockingDirection, double NewDodgeDuration
 	)
 	{
 		var Sender = Multiplayer.GetRemoteSenderId();
@@ -487,18 +545,20 @@ public partial class Player : CharacterBody3D
 			CurrentBlockingCooldown = BlockingCooldown;
 		}
 
+		CurrentDodgingDuration = NewDodgeDuration;
 		ChargeTime = NewChargeTime;
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Unreliable)]
 	public void RecieveGameStateClient(
 		float NewChargeTime, double NewBlockingDuration, Vector3 NewBlockingDirection, 
-		bool NewHoldingBall)
+		bool NewHoldingBall, double NewDodgingDuration)
 	{
 		if(OwnerId != GameSession.Get().PeerId)
 		{
 			ChargeTime = NewChargeTime;
 			BlockingDirection = NewBlockingDirection;
+			CurrentDodgingDuration = NewDodgingDuration;
 			CurrentBlockingDuration = NewBlockingDuration;
 			HoldingBall = NewHoldingBall;
 			if(HoldingBall)
@@ -721,9 +781,13 @@ public partial class Player : CharacterBody3D
 	{
 		IsDead = false;
 		Visible = true;
-		CollisionLayer = 0x1 & 0x1 << 4;
-		CollisionMask = 0x1 & 0x1 << 4;
+		CollisionLayer = 0x1 | (0x1 << 4) | (1 << 3);
+		CollisionMask = 0x1 | (0x1 << 4) | (1 << 3);
+
 		Mover.Ghosting = false;
+		HoldingBall = false;
+		HoldingBallMesh.Visible = false;
+		PickedUpBall = null;
 	}
 
 	public void KillMeLocal()
@@ -767,7 +831,40 @@ public partial class Player : CharacterBody3D
 	public void SetTeam(int NewTeamId)
 	{
 		TeamId = NewTeamId;
+	}
 
+	public bool IsDodging()
+	{
+		return CurrentDodgingDuration > 0;
+	}
+
+	void StartEmote()
+	{
+		NU.Ok("Emoting!!!");
+		if(IsLocalPlayer)
+		{
+			Emoting = true;
+			RpcId(1, nameof(StartEmoteServer), new Variant[]{});
+		}
+	}
+
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	void StartEmoteServer()
+	{
+		Emoting = true;
+		Rpc(nameof(StartEmoteMulticast), new Variant[]{});
+	}
+
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	void StartEmoteMulticast()
+	{
+		if(!IsLocalPlayer)
+		{
+			Emoting = true;
+		}
 	}
 }
+
+
+
 

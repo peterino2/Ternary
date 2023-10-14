@@ -1,5 +1,4 @@
 using Godot;
-using System;
 
 public partial class WorldBall : RigidBody3D
 {
@@ -19,6 +18,7 @@ public partial class WorldBall : RigidBody3D
 	public override void _Ready()
 	{
 		GameNetEngine.Get().OnSyncFrame += OnSyncFrame; 
+		GameState.Get().WorldBalls.Add(this);
 	}
 
 	public override void _ExitTree() 
