@@ -207,14 +207,14 @@ public partial class Player : CharacterBody3D
 			if(DodgeAction > 0.5 && CurrentDodgingCooldown <= 0 && !IsDead)
 			{
 				NU.Ok("Dodging started");
-                if(MovementVector.Length() > 0.1)
-                {
-				    StartDodging(MovementVector);
-                }
-                else
-                {
-				    StartDodging(MouseVector);
-                }
+				if(MovementVector.Length() > 0.1)
+				{
+					StartDodging(MovementVector);
+				}
+				else
+				{
+					StartDodging(MouseVector);
+				}
 			}
 
 			var EmoteAction = Input.GetActionStrength("Emote");
@@ -818,8 +818,8 @@ public partial class Player : CharacterBody3D
 		ChargeTime = 0;
 		CurrentDodgingDuration = 0;
 		CurrentBlockingDuration = 0;
-        ThrowQueued = false;
-        ThrowTime = 0;
+		ThrowQueued = false;
+		ThrowTime = 0;
 	}
 
 	public void KillMeLocal()
@@ -833,10 +833,10 @@ public partial class Player : CharacterBody3D
 		ChargeTime = 0;
 		CurrentDodgingDuration = 0;
 		CurrentBlockingDuration = 0;
-        HoldingBall = false;
-        PickedUpBall = null;
-        ThrowQueued = false;
-        ThrowTime = 0;
+		HoldingBall = false;
+		PickedUpBall = null;
+		ThrowQueued = false;
+		ThrowTime = 0;
 
 		var vfx = DeathVFX.Instantiate() as Node3D;
 		vfx.Position = GlobalPosition;

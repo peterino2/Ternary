@@ -235,14 +235,19 @@ public partial class CharacterMover: Node
 	{
 		LastDelta = GameNetEngine.Get().TickDelta;
 		InterpolationSpeed = (NewPositionSync - PositionSync).Length() / ((float)LastDelta);
-		PositionSync = NewPositionSync;
 		NetMoveSync = NewNetMoveSync;
 		AccumulatedMovementSinceSync = new Vector2(0, 0);
 
         if(!IsLocallyControlled)
         {
             Velocity = NetMoveSync.Normalized() * InterpolationSpeed;
+            if(NetMoveSync.Length() < 0.01 && (PositionSync - Base.Position).Length() > 0.5f)
+            {
+                Base.Position = NewPositionSync;
+            }
         }
+
+		PositionSync = NewPositionSync;
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Unreliable)]
