@@ -1,0 +1,53 @@
+[gd_scene load_steps=3 format=3 uid="uid://r71euta1aqgf"]
+
+[ext_resource type="Script" path="res://Player/KillFeedEntry.cs" id="1_ha1bj"]
+[ext_resource type="Texture2D" uid="uid://cofr5t8lkujbo" path="res://Player/killfeed_hit.png" id="2_w7sed"]
+
+[node name="KillFeedEntry" type="Control" node_paths=PackedStringArray("LeftName", "RightName")]
+custom_minimum_size = Vector2(3.795, 32)
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 3.0
+offset_bottom = -445.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_ha1bj")
+LeftName = NodePath("HBoxContainer/Left")
+RightName = NodePath("HBoxContainer/Right")
+
+[node name="ProgressBar" type="ProgressBar" parent="."]
+custom_minimum_size = Vector2(500, 40)
+layout_mode = 1
+offset_left = -10.0
+offset_top = -4.0
+offset_right = 423.0
+offset_bottom = 36.0
+show_percentage = false
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 2
+offset_right = 502.0
+offset_bottom = 35.0
+
+[node name="Left" type="RichTextLabel" parent="HBoxContainer"]
+custom_minimum_size = Vector2(209.17, 0)
+layout_direction = 2
+layout_mode = 2
+size_flags_horizontal = 2
+text = "shadow realm jimbo "
+scroll_active = false
+
+[node name="TextureRect" type="TextureRect" parent="HBoxContainer"]
+custom_minimum_size = Vector2(26.42, 0)
+layout_mode = 2
+texture = ExtResource("2_w7sed")
+expand_mode = 2
+
+[node name="Right" type="RichTextLabel" parent="HBoxContainer"]
+custom_minimum_size = Vector2(250, 0)
+layout_direction = 2
+layout_mode = 2
+text = "player1"
+scroll_active = false

@@ -1,10 +1,12 @@
-[gd_scene load_steps=4 format=3 uid="uid://dhvpcnfrou3we"]
+[gd_scene load_steps=6 format=3 uid="uid://dhvpcnfrou3we"]
 
 [ext_resource type="Script" path="res://Scenes/IngameUI.cs" id="1_u85pd"]
+[ext_resource type="PackedScene" uid="uid://r71euta1aqgf" path="res://Player/KillFeedEntry.tscn" id="2_07bxu"]
 [ext_resource type="Texture2D" uid="uid://irti6e5e5b2" path="res://Scenes/youwin.png" id="2_pbm8s"]
 [ext_resource type="Texture2D" uid="uid://310jng5locgc" path="res://Scenes/Youlose.png" id="3_aavgy"]
+[ext_resource type="Script" path="res://Scenes/KillFeed.cs" id="4_ym8qk"]
 
-[node name="IngameUI" type="Control" node_paths=PackedStringArray("ChargeBar", "Time", "PlayerCount", "YouWin", "YouLose")]
+[node name="IngameUI" type="Control" node_paths=PackedStringArray("ChargeBar", "DodgeCooldown", "BlockCooldown", "BlockDuration", "Time", "PlayerCount", "YouWin", "YouLose", "KillFeed")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -13,10 +15,15 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_u85pd")
 ChargeBar = NodePath("ProgressBar")
+DodgeCooldown = NodePath("DodgeCooldown")
+BlockCooldown = NodePath("BlockCooldown")
+BlockDuration = NodePath("BlockDuration")
 Time = NodePath("Time")
 PlayerCount = NodePath("PlayerCount")
 YouWin = NodePath("YouWin")
 YouLose = NodePath("YouLose")
+KillFeed = NodePath("KillFeed")
+KillFeedEntryScene = ExtResource("2_07bxu")
 
 [node name="Time" type="RichTextLabel" parent="."]
 layout_mode = 1
@@ -46,11 +53,18 @@ bbcode_enabled = true
 text = "[center][color=#aaaaff]0[/color] vs [color=#ff4444]0[/color][/center]"
 
 [node name="ProgressBar" type="ProgressBar" parent="."]
-layout_mode = 0
-offset_left = 280.0
-offset_top = 340.0
-offset_right = 376.0
-offset_bottom = 367.0
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -50.0
+offset_top = 105.0
+offset_right = 46.0
+offset_bottom = 132.0
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="YouWin" type="TextureRect" parent="."]
 visible = false
@@ -68,6 +82,52 @@ grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("2_pbm8s")
 
+[node name="BlockDuration" type="ProgressBar" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -61.0
+offset_top = 77.0
+offset_right = 64.0
+offset_bottom = 90.0
+grow_horizontal = 2
+grow_vertical = 2
+max_value = 1.0
+show_percentage = false
+
+[node name="BlockCooldown" type="ProgressBar" parent="."]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 63.0
+offset_top = -52.0
+offset_right = 104.0
+offset_bottom = -17.0
+grow_vertical = 0
+max_value = 1.0
+value = 1.0
+fill_mode = 3
+show_percentage = false
+
+[node name="DodgeCooldown" type="ProgressBar" parent="."]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 15.0
+offset_top = -52.0
+offset_right = 56.0
+offset_bottom = -17.0
+grow_vertical = 0
+max_value = 1.0
+value = 0.51
+fill_mode = 3
+show_percentage = false
+
 [node name="YouLose" type="TextureRect" parent="."]
 visible = false
 layout_mode = 1
@@ -83,3 +143,40 @@ offset_bottom = 45.0
 grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("3_aavgy")
+
+[node name="KillFeed" type="VFlowContainer" parent="."]
+layout_mode = 0
+offset_left = 13.0
+offset_top = 89.0
+offset_right = 512.0
+offset_bottom = 338.0
+script = ExtResource("4_ym8qk")
+
+[node name="KillFeedEntry" parent="KillFeed" instance=ExtResource("2_07bxu")]
+layout_mode = 2
+
+[node name="RichTextLabel" type="RichTextLabel" parent="."]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 13.0
+offset_top = -45.0
+offset_right = 83.0
+offset_bottom = -5.0
+grow_vertical = 0
+theme_override_font_sizes/normal_font_size = 14
+text = "Dodge"
+
+[node name="RichTextLabel2" type="RichTextLabel" parent="."]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 66.0
+offset_top = -44.0
+offset_right = 136.0
+offset_bottom = -4.0
+grow_vertical = 0
+theme_override_font_sizes/normal_font_size = 14
+text = "Block"

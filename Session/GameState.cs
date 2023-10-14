@@ -38,6 +38,7 @@ public partial class GameState: Node
 
 	// used by the server for validation
 	public Dictionary<long, Player> AvatarSpawnedServer = new Dictionary<long, Player>();
+	public Dictionary<long, Player> AvatarSpawnedLocal = new Dictionary<long, Player>();
 
     private List<Player> Team1PlayersDead = new List<Player>();
     private List<Player> Team2PlayersDead = new List<Player>();
@@ -183,6 +184,10 @@ public partial class GameState: Node
     public delegate void GameWinDelegate(int Team);
     public event GameWinDelegate OnGameWin;
 
+    public delegate void KilledDelegate(Player Killer, Player Killed);
+    public event KilledDelegate OnKill;
+
+
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)] 
     public void GameStartMulticast()
     {
@@ -307,6 +312,12 @@ public partial class GameState: Node
         OnPlayerCountChanged?.Invoke();
     }
 
+	[Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)] 
+    public void BroadcastKill(long KillerId, long KilledId)
+    {
+        OnKill?.Invoke(AvatarSpawnedLocal[KillerId], AvatarSpawnedLocal[KilledId]);
+    }
+
     public void TickServerState(double delta)
     {
         if(!GameSession.Get().IsServer())
@@ -324,5 +335,13 @@ public partial class GameState: Node
 
             Rpc(nameof(BroadcastGameState), new Variant[]{PlayerCountTeam1, PlayerCountTeam2});
         }
+
+    }
+
+    public void ServerBroadcastKill(long KillerId, long KilledId)
+    {
+        Rpc(nameof(BroadcastKill), new Variant[]{
+            KillerId, KilledId
+        });
     }
 }

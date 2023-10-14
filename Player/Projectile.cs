@@ -48,7 +48,7 @@ public partial class Projectile : Node3D
 
 	public override void _Process(double delta)
 	{
-		DebugDraw3D.DrawSphere(Position, HurtRadius, Colors.Orange, 0.03f);
+		//DebugDraw3D.DrawSphere(Position, HurtRadius, Colors.Orange, 0.03f);
 		Advance(delta);
 
 		if(LifeTime < 0)
@@ -129,7 +129,7 @@ public partial class Projectile : Node3D
 			{
 				if(colliderAsCharacterBody != PlayerBody)
 				{
-					DebugDraw3D.DrawSphere(Position, HurtRadius, Colors.Red, 5.0f);
+					// DebugDraw3D.DrawSphere(Position, HurtRadius, Colors.Red, 5.0f);
 
 					if(GameSession.Get().IsServer())
 					{
@@ -163,6 +163,8 @@ public partial class Projectile : Node3D
 								if(colliderAsPlayer.TeamId != TeamId)
 								{
 									GameState.Get().KillPlayer(colliderAsPlayer);
+                                    GameState.Get().ServerBroadcastKill(OwnerId, colliderAsPlayer.OwnerId);
+
 									colliderAsPlayer.ServerAddImpulse(new Vector2(dir.X, dir.Z) * 6.0f);
 									SignalBounceBack(Position, dir);
 									FreezeAndKill();
@@ -199,7 +201,7 @@ public partial class Projectile : Node3D
 					var ColliderAsStatic = R["collider"].Obj as StaticBody3D;
 					if(ColliderAsStatic != null)
 					{
-						DebugDraw3D.DrawSphere(Position, HurtRadius, Colors.Red, 5.0f);
+						// DebugDraw3D.DrawSphere(Position, HurtRadius, Colors.Red, 5.0f);
 						FreezeAndKill();
 						if(GameSession.Get().IsServer())
 						{

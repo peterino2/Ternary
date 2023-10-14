@@ -1,4 +1,4 @@
-[gd_scene load_steps=35 format=3 uid="uid://rsjcev5cw42o"]
+[gd_scene load_steps=43 format=3 uid="uid://rsjcev5cw42o"]
 
 [ext_resource type="Script" path="res://Player/Player.cs" id="1_akdl1"]
 [ext_resource type="Script" path="res://Locomotion/CharacterMover.cs" id="2_1ooas"]
@@ -15,6 +15,9 @@
 [ext_resource type="Material" path="res://RedHat.tres" id="10_xwc7h"]
 [ext_resource type="Texture2D" uid="uid://bm8islyt4kleb" path="res://dogenormalsY.png" id="11_r3vms"]
 [ext_resource type="Material" path="res://Bluehat.tres" id="11_vtns7"]
+[ext_resource type="Shader" uid="uid://d0rew86wceaa6" path="res://Scenes/VFX/Shaders/FireShader.tres" id="16_mi2im"]
+[ext_resource type="Texture2D" uid="uid://ormv0j34fdmb" path="res://Scenes/VFX/Textures/Voronoi01.png" id="17_cjrmd"]
+[ext_resource type="Texture2D" uid="uid://rqta6lorc425" path="res://Scenes/VFX/Textures/Flame02.png" id="18_wup8k"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_dku72"]
 radius = 0.6
@@ -269,6 +272,33 @@ shadow_mesh = SubResource("ArrayMesh_yd7r1")
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_w325t"]
 albedo_color = Color(0.2, 0.372549, 1, 1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_qhfdl"]
+render_priority = 0
+shader = ExtResource("16_mi2im")
+shader_parameter/DissolveTiling = Vector2(1, 1)
+shader_parameter/DissolveSpeed = null
+shader_parameter/DissolveAmount = 0.0
+shader_parameter/MainTex = ExtResource("18_wup8k")
+shader_parameter/DissolveTex = ExtResource("17_cjrmd")
+
+[sub_resource type="Curve" id="Curve_c0ikd"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0.157895), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_kgfv3"]
+curve = SubResource("Curve_c0ikd")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_1w1qy"]
+emission_shape = 1
+emission_sphere_radius = 0.01
+gravity = Vector3(0, 2, 0)
+scale_min = 0.0
+scale_max = 0.3
+scale_curve = SubResource("CurveTexture_kgfv3")
+color = Color(100, 0.0392157, 0.160784, 0.8)
+
+[sub_resource type="QuadMesh" id="QuadMesh_hocxv"]
 
 [sub_resource type="Animation" id="Animation_t4ha2"]
 resource_name = "Armature|Dodge"
@@ -829,7 +859,7 @@ _data = {
 "Armature|Throw": SubResource("Animation_aasly")
 }
 
-[node name="Player" type="CharacterBody3D" node_paths=PackedStringArray("Mover", "Projectiles", "ArrowBase", "Sync", "Indicator", "HoldingBallMesh", "DogeMeshBase", "Team1Hat", "Team2Hat", "DogeMeshAnimplayer")]
+[node name="Player" type="CharacterBody3D" node_paths=PackedStringArray("Mover", "Projectiles", "ArrowBase", "Sync", "Indicator", "HoldingBallMesh", "DogeMeshBase", "HyperEyes", "Team1Hat", "Team2Hat", "DogeMeshAnimplayer")]
 collision_layer = 9
 collision_mask = 9
 script = ExtResource("1_akdl1")
@@ -842,6 +872,7 @@ Indicator = NodePath("Indicator")
 HoldingBallMesh = NodePath("DogeAnimations/RootNode/Armature/Skeleton3D/BoneAttachment3D/PickedUpBall")
 DogeMeshBase = NodePath("DogeAnimations")
 DeathVFX = ExtResource("3_od8nm")
+HyperEyes = NodePath("DogeAnimations/RootNode/Armature/Skeleton3D/HatAttachment/eyes/Flames")
 Team1Hat = NodePath("DogeAnimations/RootNode/Armature/Skeleton3D/HatAttachment/bluehat")
 Team2Hat = NodePath("DogeAnimations/RootNode/Armature/Skeleton3D/HatAttachment/redhat")
 BlockingDuration = 1.0
@@ -1354,6 +1385,18 @@ transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0)
 mesh = SubResource("ArrayMesh_mgtg5")
 skeleton = NodePath("")
 surface_material_override/0 = SubResource("StandardMaterial3D_w325t")
+
+[node name="eyes" type="Node3D" parent="DogeAnimations/RootNode/Armature/Skeleton3D/HatAttachment"]
+transform = Transform3D(0.0187956, -0.00246819, -0.0063743, -0.00611761, 0.00224616, -0.0189084, 0.00304936, 0.0197196, 0.00135593, -0.00149315, 0.00887505, -0.00298306)
+
+[node name="Flames" type="GPUParticles3D" parent="DogeAnimations/RootNode/Armature/Skeleton3D/HatAttachment/eyes"]
+transform = Transform3D(1, 8.9407e-07, -2.23517e-08, -1.78814e-07, 1, 1.3411e-07, 2.23517e-07, 1.78814e-07, 1, 0.0427753, 0.546417, 0.197207)
+material_override = SubResource("ShaderMaterial_qhfdl")
+emitting = false
+amount = 20
+lifetime = 1.2
+process_material = SubResource("ParticleProcessMaterial_1w1qy")
+draw_pass_1 = SubResource("QuadMesh_hocxv")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="DogeAnimations"]
 libraries = {

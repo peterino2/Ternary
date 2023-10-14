@@ -19,17 +19,18 @@ public partial class Player : CharacterBody3D
 	[Export] public MeshInstance3D HoldingBallMesh;
 	[Export] public Node3D DogeMeshBase;
 	[Export] public PackedScene DeathVFX;
+	[Export] public GpuParticles3D HyperEyes;
 
 	public bool Emoting = false;
 
 	[Export] public Node3D Team1Hat;
 	[Export] public Node3D Team2Hat;
 
-	[Export] double BlockingCooldown = 10.0;
-	double CurrentBlockingCooldown = 0.0;
-	[Export] double BlockingDuration = 5.0;
-	[Export] double CatchingDuration = 5.0;
-	double CurrentBlockingDuration = 0.0;
+	[Export] public double BlockingCooldown = 10.0;
+	public double CurrentBlockingCooldown = 0.0;
+	[Export] public double BlockingDuration = 5.0;
+	[Export] public double CatchingDuration = 5.0;
+	public double CurrentBlockingDuration = 0.0;
 	Vector3 BlockingDirection;
 	[Export] AnimationPlayer DogeMeshAnimplayer;
 
@@ -290,6 +291,15 @@ public partial class Player : CharacterBody3D
 	
 	void TickCharging(double delta)
 	{
+
+		if(GameState.Get().GameTime < 30)
+		{
+			HyperEyes.Emitting = true;
+		}
+		else 
+		{
+			HyperEyes.Emitting = false;
+		}
 		if(IsLocalPlayer)
 		{
 			if(FireButtonDown)
@@ -297,6 +307,10 @@ public partial class Player : CharacterBody3D
 				Mover.MovementSpeed = CachedBaseMoveSpeed * ChargingSlowFactor;
 				Mover.MinSpeed = CachedMinMoveSpeed * ChargingSlowFactor;
 				ChargeTime += delta;
+				if(GameState.Get().GameTime < 30)
+				{
+					ChargeTime += delta * 2;
+				}
 				ChargeTime = Math.Clamp(ChargeTime, 0.0f, ChargeTimeToThrow);
 			}
 			else 
@@ -485,6 +499,8 @@ public partial class Player : CharacterBody3D
 		{
 			IngameUI.Get().SetupPlayer(this);
 		}
+
+		GameState.Get().AvatarSpawnedLocal[OwnerId] = this;
 	}
 
 	public void ShutDownNet() 
@@ -605,10 +621,10 @@ public partial class Player : CharacterBody3D
 
 	// ============== Dodging ===============
 
-	[Export] double DodgeDuration = 0.2;
-	double CurrentDodgingDuration = 0.0;
-	[Export] double DodgingCooldown = 3.0;
-	double CurrentDodgingCooldown = 0.0;
+	[Export] public double DodgeDuration = 0.2;
+	public double CurrentDodgingDuration = 0.0;
+	[Export] public double DodgingCooldown = 3.0;
+	public double CurrentDodgingCooldown = 0.0;
 
 	[Export] float DodgeImpulse = 15.0f;
 
