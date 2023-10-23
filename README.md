@@ -8,12 +8,12 @@ I make no garuntees anything works in this game.
 
 # Controls 
 
-WASD - Move
-Mouse - Aim
-Left Click - Pick up ball / Charge throw
-Right Click - Block with ball / Try to catch ball
-Space - Dodge Roll
-TAB - Bring up team select options.
+* WASD - Move
+* Mouse - Aim
+* Left Click - Pick up ball / Charge throw
+* Right Click - Block with ball / Try to catch ball
+* Space - Dodge Roll
+* TAB - Bring up team select options.
 
 Pick up red balls to throw at opponents. Eliminate all opponents to win.
 
