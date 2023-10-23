@@ -1,0 +1,165 @@
+[gd_scene load_steps=4 format=3 uid="uid://ccrbauyfso401"]
+
+[ext_resource type="Script" path="res://Scenes/LocalLobby/LocalLobbyControls.cs" id="1_ku488"]
+[ext_resource type="PackedScene" uid="uid://c5hl3lxu85y7p" path="res://Scenes/LocalLobby/LocalLobbyEntry.tscn" id="1_pupt2"]
+[ext_resource type="Theme" uid="uid://o8aixbvb1lx3" path="res://Scenes/LocalLobby/LocalLobbyControls.tres" id="2_8tqif"]
+
+[node name="LocalLobbyControls" type="Control" node_paths=PackedStringArray("Team1Label", "Team2Label", "SpectatorsLabel", "Team1PlayerList", "Team2PlayerList", "JoinTeam1Button", "JoinTeam2Button", "JoinSpectatorsButton", "DisconnectButton")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_ku488")
+Team1Label = NodePath("Team1PlayerCount")
+Team2Label = NodePath("Team2PlayerCount")
+SpectatorsLabel = NodePath("SpectatorsCount")
+Team1PlayerList = NodePath("Team1 Players")
+Team2PlayerList = NodePath("Team 2 Players")
+JoinTeam1Button = NodePath("JoinTeam1Button")
+JoinTeam2Button = NodePath("JoinTeam2Button")
+JoinSpectatorsButton = NodePath("JoinSpectatorsButton")
+DisconnectButton = NodePath("Disconnect")
+PlayerTeamEntry = ExtResource("1_pupt2")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.0823529, 0.0823529, 0.0823529, 0.835294)
+
+[node name="JoinSpectatorsButton" type="Button" parent="ColorRect"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 219.0
+offset_top = -70.0
+offset_right = 408.0
+offset_bottom = -31.0
+grow_vertical = 0
+text = "Spectate"
+
+[node name="Team1 Players" type="VFlowContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 41.0
+offset_right = -336.0
+offset_bottom = -52.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="LocalLobbyEntry" parent="Team1 Players" instance=ExtResource("1_pupt2")]
+layout_mode = 2
+
+[node name="Team 2 Players" type="VFlowContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 344.0
+offset_top = 41.0
+offset_bottom = -52.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="LocalLobbyEntry" parent="Team 2 Players" instance=ExtResource("1_pupt2")]
+layout_mode = 2
+
+[node name="Team1PlayerCount" type="RichTextLabel" parent="."]
+layout_mode = 0
+offset_left = 22.0
+offset_top = 8.0
+offset_right = 278.0
+offset_bottom = 48.0
+bbcode_enabled = true
+text = "[color=#aaaaff]Team 1[/color]"
+
+[node name="SpectatorsCount" type="RichTextLabel" parent="."]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -55.0
+offset_top = 9.0
+offset_right = 201.0
+offset_bottom = 49.0
+grow_horizontal = 2
+bbcode_enabled = true
+text = "Spectators: 2"
+
+[node name="Team2PlayerCount" type="RichTextLabel" parent="."]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -156.0
+offset_top = 8.0
+offset_right = 100.0
+offset_bottom = 48.0
+grow_horizontal = 0
+bbcode_enabled = true
+text = "[color=#ffaaaa]Team 2[/color]"
+
+[node name="JoinTeam1Button" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 17.0
+offset_top = -45.0
+offset_right = 206.0
+offset_bottom = -6.0
+grow_vertical = 0
+text = "Join Team 1"
+
+[node name="JoinTeam2Button" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 428.0
+offset_top = -48.0
+offset_right = 617.0
+offset_bottom = -9.0
+grow_vertical = 0
+text = "Join Team 2"
+
+[node name="Disconnect" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 263.0
+offset_top = -24.0
+offset_right = 362.0
+offset_bottom = -1.0
+grow_vertical = 0
+theme = ExtResource("2_8tqif")
+theme_override_colors/icon_normal_color = Color(0.917647, 0, 0, 1)
+theme_override_colors/icon_pressed_color = Color(0.839216, 0, 0, 1)
+theme_override_colors/icon_hover_color = Color(0.835294, 0, 0, 1)
+theme_override_colors/icon_hover_pressed_color = Color(0.768627, 0, 0, 1)
+theme_override_colors/icon_focus_color = Color(0.764706, 0, 0, 1)
+theme_override_colors/icon_disabled_color = Color(0.756863, 0, 0, 1)
+text = "Disconnect
+"
+
+[node name="JoinSpectatorsButton" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 219.0
+offset_top = -70.0
+offset_right = 408.0
+offset_bottom = -31.0
+grow_vertical = 0
+text = "Spectate"

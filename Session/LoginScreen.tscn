@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://Session/LoginScreenUI.cs" id="1_6i4np"]
 
-[node name="LoginScreen" type="Control" node_paths=PackedStringArray("ConnectToServer", "HostServerButton", "SwitchTeamsButton", "DebugResetGame", "IPAddressTextEdit", "PortTextEdit", "PlayerName", "ErrorLabel", "RequestGameStartButton")]
+[node name="LoginScreen" type="Control" node_paths=PackedStringArray("ConnectToServer", "HostServerButton", "IPAddressTextEdit", "PortTextEdit", "PlayerName", "CancelButton", "ErrorLabel")]
 layout_mode = 3
 anchors_preset = 0
 offset_right = 644.0
@@ -10,13 +10,11 @@ offset_bottom = 480.0
 script = ExtResource("1_6i4np")
 ConnectToServer = NodePath("ConnectToServerButton")
 HostServerButton = NodePath("HostServerButton")
-SwitchTeamsButton = NodePath("SwitchTeams")
-DebugResetGame = NodePath("ResetGameButton")
 IPAddressTextEdit = NodePath("IPAddressTextEdit")
 PortTextEdit = NodePath("PortTextButton")
 PlayerName = NodePath("PlayerNameTextEdit")
+CancelButton = NodePath("CancelButton")
 ErrorLabel = NodePath("ErrorMessage")
-RequestGameStartButton = NodePath("RequestGameStart")
 
 [node name="ConnectToServerButton" type="Button" parent="."]
 layout_mode = 2
@@ -65,7 +63,7 @@ offset_left = 244.0
 offset_top = 141.0
 offset_right = 410.0
 offset_bottom = 172.0
-text = "(DEBUG) Host server"
+text = "Host server"
 
 [node name="PlayerNameTextEdit" type="TextEdit" parent="."]
 layout_mode = 0
@@ -105,22 +103,10 @@ grow_vertical = 2
 theme_override_colors/font_color = Color(1, 0.27451, 0, 1)
 text = "ERROR:"
 
-[node name="SwitchTeams" type="Button" parent="."]
-layout_mode = 1
-anchors_preset = 2
-anchor_top = 1.0
-anchor_bottom = 1.0
-offset_left = 9.0
-offset_top = -36.0
-offset_right = 175.0
-offset_bottom = -5.0
-grow_vertical = 0
-text = "Switch Teams"
-
-[node name="ResetGameButton" type="Button" parent="."]
-layout_mode = 0
-offset_left = 391.0
-offset_top = 60.0
-offset_right = 498.0
-offset_bottom = 93.0
-text = "Reset Game"
+[node name="CancelButton" type="Button" parent="."]
+visible = false
+offset_left = 245.0
+offset_top = 186.0
+offset_right = 411.0
+offset_bottom = 217.0
+text = "Cancel"

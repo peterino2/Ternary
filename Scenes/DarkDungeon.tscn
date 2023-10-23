@@ -42,25 +42,26 @@ spawn_limit = 32
 [node name="Entities" type="Node3D" parent="."]
 
 [node name="Wall3" parent="." instance=ExtResource("4_6rr58")]
-transform = Transform3D(60.2902, 0, 0, 0, 2.61051, 0, 0, 0, 0.5, -0.244834, 0.0492735, 11.685)
+transform = Transform3D(60.2902, 0, 0, 0, 2.61051, 0, 0, 0, 2.57434, -0.185102, 0.0932055, 12.6947)
 
 [node name="Wall4" parent="." instance=ExtResource("4_6rr58")]
-transform = Transform3D(60.2902, 0, 0, 0, 2.61051, 0, 0, 0, 0.5, -0.244834, 0.0492735, -11.8247)
+transform = Transform3D(60.2902, 0, 0, 0, 2.61051, 0, 0, 0, 2.64883, -0.244834, 0.0492735, -13.1079)
 
 [node name="Wall5" parent="." instance=ExtResource("4_6rr58")]
-transform = Transform3D(-2.63537e-06, 0, 0.5, 0, 2.61051, 0, -60.2902, 0, -2.18557e-08, -17.7288, 0.0492735, 2.443)
+transform = Transform3D(-2.63537e-06, 0, 2.68927, 0, 2.61051, 0, -60.2902, 0, -1.17552e-07, -19.0755, 0.0492735, 2.443)
 
 [node name="Wall6" parent="." instance=ExtResource("4_6rr58")]
-transform = Transform3D(-2.63537e-06, 0, 0.5, 0, 2.61051, 0, -60.2902, 0, -2.18557e-08, 17.6611, 0.501718, 2.56851)
+transform = Transform3D(-2.63537e-06, 0, 3.67044, 0, 2.61051, 0, -60.2902, 0, -1.6044e-07, 19.5748, 0.501718, 2.56851)
 
 [node name="Team1Spawn" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.2822, 0, -0.677097)
 script = ExtResource("5_g30ou")
+TeamId = 1
 
 [node name="Team2Spawn" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.2926, 0, -0.241368)
 script = ExtResource("5_g30ou")
-TeamId = 1
+TeamId = 2
 
 [node name="StaticBody3D" type="StaticBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 3.38971)
@@ -163,7 +164,7 @@ transform = Transform3D(1, 0, 0, 0, 0.640378, 0.76806, 0, -0.76806, 0.640378, 0,
 shadow_enabled = true
 
 [node name="MiddleSplit" type="StaticBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 3.38971)
+transform = Transform3D(0.880852, 0, 0, 0, 1.00351, 0, 0, 0, 1.00351, 0, 0, 3.38971)
 collision_layer = 8
 collision_mask = 8
 script = ExtResource("7_eke3n")

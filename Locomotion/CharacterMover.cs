@@ -371,16 +371,16 @@ public partial class CharacterMover: Node
 
 		var MovedPosition = StartPosition + DeltaPosition;
 
-		var motionParameters = new PhysicsTestMotionParameters3D();
-		motionParameters.From = new Transform3D(new Basis(1,0,0,0,1,0,0,0,1), StartPosition);
-		motionParameters.Motion = DeltaPosition;
 
 		if(BaseIsCharacter)
 		{
 			if(DeltaPosition.Length() > 0.001 && !Ghosting)
 			{
-				PhysicsTestMotionResult3D Results = new PhysicsTestMotionResult3D();
+                var motionParameters = new PhysicsTestMotionParameters3D();
+                motionParameters.From = new Transform3D(new Basis(1,0,0,0,1,0,0,0,1), StartPosition);
+                motionParameters.Motion = DeltaPosition;
 
+				PhysicsTestMotionResult3D Results = new PhysicsTestMotionResult3D();
 				PhysicsServer3D.BodyTestMotion(BaseAsCharacterBody.GetRid(), motionParameters, Results);
 
 				var Travel = Results.GetTravel();
@@ -436,5 +436,27 @@ public partial class CharacterMover: Node
 		NetMoveSync = new Vector2(0,0);
 		PositionSync = NewPosition;
         Base.Position = NewPosition;
+    }
+
+    // if ClientAuthority is set, the server shall accept the client's position as true.
+    [Export] bool ClientAuthority = false;
+    public void ServerSetClientAuthority(bool NewClientAuthority)
+    {
+        ClientAuthority =  NewClientAuthority;
+
+        RpcId(OwnerId, nameof(BroadcastSetClientAuthority), new Variant[] {
+            ClientAuthority
+        });
+    }
+
+    [Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    public void BroadcastSetClientAuthority(bool NewClientAuthority)
+    {
+        SetClientAuthorityLocal(NewClientAuthority);
+    }
+
+    public void SetClientAuthorityLocal(bool NewClientAuthority)
+    {
+        ClientAuthority = NewClientAuthority;
     }
 }

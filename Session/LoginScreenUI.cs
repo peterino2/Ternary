@@ -14,15 +14,14 @@ public partial class LoginScreenUI : Control
 	//
 	[Export] private Button ConnectToServer;
 	[Export] private Button HostServerButton;
-	[Export] private Button SwitchTeamsButton;
-	[Export] private Button DebugResetGame;
 	
 	[Export] private TextEdit IPAddressTextEdit;
 	[Export] private TextEdit PortTextEdit;
 	[Export] private TextEdit PlayerName;
 
+	[Export] private Button CancelButton;
+
 	[Export] private Button ErrorLabel;
-	[Export] private Button RequestGameStartButton;
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
@@ -30,13 +29,11 @@ public partial class LoginScreenUI : Control
 		StaticInstance = this;
 		HostServerButton.ButtonDown += OnHostServerButton;
 		ConnectToServer.ButtonDown += OnConnectToServerButton;
-		RequestGameStartButton.ButtonDown += OnRequestGameStart;
 
 		ErrorLabel.ButtonDown += OnErrorAck;
 		GameState.Get().OnGameStart += OnGameStartClient;
-		SwitchTeamsButton.ButtonDown += SwitchTeams;
-		DebugResetGame.ButtonDown += OnResetGame;
-	}
+        CancelButton.ButtonDown += OnCancel;	
+    }
 
 	public void OnResetGame()
 	{
@@ -45,13 +42,6 @@ public partial class LoginScreenUI : Control
 
 	public void OnGameStartClient()
 	{
-		HostServerButton.Visible = false;
-		ConnectToServer.Visible = false;
-		RequestGameStartButton.Visible = false;
-		IPAddressTextEdit.Visible = false;
-		PortTextEdit.Visible = false;
-		SwitchTeamsButton.Visible = false;
-		Visible = false;
 	}
 
 	public void OnRequestGameStart() 
@@ -66,6 +56,7 @@ public partial class LoginScreenUI : Control
 
 	private void OnConnectToServerButton()
 	{
+        CancelButton.Visible = true;
 		GameSession.Get().PlayerName = PlayerName.Text;
 		GameSession.Get().ConnectAsClient(IPAddressTextEdit.Text, Int32.Parse(PortTextEdit.Text));
 	}
@@ -95,15 +86,23 @@ public partial class LoginScreenUI : Control
 
 		if(Session.LoginVerifiedClient)
 		{
+			Visible = false;
 			IPAddressTextEdit.Editable = false;
 			PortTextEdit.Editable = false;
 			PlayerName.Editable = false;
-			RequestGameStartButton.Visible = true;
 		}
 	}
 
-	public void SwitchTeams()
+    public void OnCancel()
+    {
+        CancelButton.Visible = false;
+        GameSession.Get().CloseClient();
+    }
+
+	public void Unlock()
 	{
-		GameSession.Get().SwitchTeams();
+		IPAddressTextEdit.Editable = true;
+		PortTextEdit.Editable = true;
+		PlayerName.Editable = true;
 	}
 }

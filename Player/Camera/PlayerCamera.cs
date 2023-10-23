@@ -29,11 +29,11 @@ public partial class PlayerCamera : Node3D
 		// team 2, red is on the right, - on x
 
 		TeamId = GameSession.Get().GetTeam();
-		if(TeamId == 0)
+		if(TeamId == 1)
 		{
 			Offset = new Vector3(5.0f, 0.0f, 0.0f);
 		}
-		else 
+		else if(TeamId == 2)
 		{
 			Offset = new Vector3(-5.0f, 0.0f, 0.0f);
 		}

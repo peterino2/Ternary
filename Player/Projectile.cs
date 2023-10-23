@@ -6,7 +6,6 @@ public partial class Projectile : Node3D
 	[Export] VfxFire Fire;
 	public long OwnerId = 0;
 	public ProjectileSpawner SpawnOwner;
-	public int TeamId = 0;
 	public bool IsLocallyControlled = false;
 	public int PredictionKey = 0;
 
@@ -22,11 +21,14 @@ public partial class Projectile : Node3D
 	static Rid ShapeRid;
 	static bool ShapeRidReady = false;
 
+	public int TeamId() {
+		return (SpawnOwner.GetOwnerBody() as Player).TeamId;
+	}
+
 	public void Init(ProjectileSpawner Spawner, int pk, Vector3 InitDirection)
 	{
 		OwnerId = Spawner.OwnerId;
 		SpawnOwner = Spawner;
-		TeamId = (SpawnOwner.GetOwnerBody() as Player).TeamId;
 
 		if(OwnerId == GameSession.Get().PeerId)
 		{
@@ -162,8 +164,8 @@ public partial class Projectile : Node3D
 							{
 								if(colliderAsPlayer.TeamId != SpawnOwner.PlayerRef.TeamId)
 								{
-									GameState.Get().KillPlayer(colliderAsPlayer);
-                                    GameState.Get().ServerBroadcastKill(OwnerId, colliderAsPlayer.OwnerId);
+									GameState.Get().KillPlayer_s(colliderAsPlayer);
+									GameState.Get().ServerBroadcastKill(OwnerId, colliderAsPlayer.OwnerId);
 
 									colliderAsPlayer.ServerAddImpulse(new Vector2(dir.X, dir.Z) * 6.0f);
 									SignalBounceBack(Position, dir);
@@ -178,7 +180,7 @@ public partial class Projectile : Node3D
 						var colliderAsPlayer = colliderAsCharacterBody as Player;
 						if(colliderAsPlayer != null)
 						{
-							if(!colliderAsPlayer.IsDead && (colliderAsPlayer.TeamId != TeamId) && !colliderAsPlayer.IsDodging())
+							if(!colliderAsPlayer.IsDead && (colliderAsPlayer.TeamId != TeamId()) && !colliderAsPlayer.IsDodging())
 							{
 								FreezeAndKill();
 							}

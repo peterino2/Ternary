@@ -22,6 +22,12 @@ public partial class GameSession: Node
 
     public Godot.Collections.Dictionary<long, int>TeamIds = new Godot.Collections.Dictionary<long, int>();
 
+	public delegate void TeamIdChangedDelegate(long id, int newTeam);
+	public event TeamIdChangedDelegate OnTeamChanged;
+
+	public delegate void NewServerStateBroadcasted();
+	public event NewServerStateBroadcasted OnNewServerState;
+
 	// Client/Server session information
 	public long PeerId = 0; // 0 for disconnected, 1 for server, Other positive numbers are clients
 	public string HostName = ""; // loopback host name.
@@ -149,6 +155,8 @@ public partial class GameSession: Node
 		GD.PrintRich($"[color=green] Successfully connected as server peer: " + Multiplayer.GetUniqueId().ToString());
 		PeerId = Multiplayer.GetUniqueId();
 		RpcId(1, nameof(ValidatePlayerServer), new Variant[] {PlayerName});
+
+        LoginScreenUI.Get().SetVisiblityAndProcess(false);
 	}
 
 
@@ -199,11 +207,18 @@ public partial class GameSession: Node
 		}
 
 		ENetMultiplayerPeer peer = new ENetMultiplayerPeer();
-		peer.CreateClient(host, port);
+        try {
+		    peer.CreateClient(host, port);
+        } catch {
+            CloseClient();
+            return;
+        }
 
 		if(peer.GetConnectionStatus() == MultiplayerPeer.ConnectionStatus.Disconnected)
 		{
 			GD.PrintRich($"[color=red] Failed to create client for " + host + ":" + port.ToString());
+            LoginScreenUI.Get().ShowError("[color=red] Failed to create client for " + host + ":" + port.ToString() + "[/color]");
+            LoginScreenUI.Get().OnCancel();
 			return;
 		}
 
@@ -229,7 +244,17 @@ public partial class GameSession: Node
 		{
 			Rpc(nameof(RecievePlayerInfoClient), new Variant[]{ pair.Key, pair.Value, TeamIds[pair.Key] });
 		}
+
+        Rpc(nameof(BroadcastPlayerListSent_c), new Variant[]{});
 	}
+
+
+    
+    [Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    public void BroadcastPlayerListSent_c()
+    {
+       OnNewServerState?.Invoke(); 
+    }
 
 	// Server validation of the new incomming player.
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
@@ -252,7 +277,7 @@ public partial class GameSession: Node
 		IdsByName[PlayerName] =  Multiplayer.GetRemoteSenderId();
 		NamesById[Multiplayer.GetRemoteSenderId()] = PlayerName;
 		Verification[Multiplayer.GetRemoteSenderId()] = true;
-        TeamIds[Multiplayer.GetRemoteSenderId()] = 0;
+        TeamIds[Multiplayer.GetRemoteSenderId()] = 1;
 
 		BroadCastPlayerList();
 
@@ -264,6 +289,11 @@ public partial class GameSession: Node
 				UI_ServerAdmin.Get().StartGame();
 			}
 		}
+
+        if(GameStarted)
+        {
+            GameState.Get().NewPlayerJoined(Multiplayer.GetRemoteSenderId(), PlayerName, 0);
+        }
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
@@ -273,6 +303,8 @@ public partial class GameSession: Node
 		{
 			LoginVerifiedClient = true;
 			LoginScreenUI.Get().UpdateSessionState();
+            LoginScreenUI.Get().SetVisiblityAndProcess(false);
+            LocalLobbyControls.Get().SetVisiblityAndProcess(true);
 		}
 
 		if(!NamesById.ContainsKey(ClientId))
@@ -303,6 +335,7 @@ public partial class GameSession: Node
 		}
 		NU.Error("Server issued a disconnect with message: " + Message);
 		LoginScreenUI.Get().ShowError("Server issued a disconnect with message: " + Message);
+        LoginScreenUI.Get().SetVisiblityAndProcess(true);
 	}
 
 	// =========================
@@ -363,27 +396,29 @@ public partial class GameSession: Node
         return 0;
     }
 
-    public void SwitchTeams()
+    public void RequestTeamChange(int newTeam)
     {
-        RpcId(1, nameof(SwitchTeamsServer), new Variant[]{});
+        RpcId(1, nameof(TeamChange_s), new Variant[]{newTeam});
     }
 
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-    public void SwitchTeamsServer()
+    public void TeamChange_s(int newTeam)
     {
         var Sender = Multiplayer.GetRemoteSenderId();
-        if(TeamIds[Sender] == 0)
-        {
-            TeamIds[Sender] = 1;
-        }
-        else 
-        {
-            TeamIds[Sender] = 0;
-        }
+        TeamIds[Sender] = newTeam;
+
+        OnTeamChanged?.Invoke(Sender, newTeam);
 
         BroadCastPlayerList();
     }
 
+    public void CloseClient()
+    {
+		MaybeTerminatePeer();
+        LoginScreenUI.Get().SetVisiblityAndProcess(true);
+        LoginScreenUI.Get().Unlock();
+        IngameUI.Get().Visible = false;
+    }
 }
 
 

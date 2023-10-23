@@ -30,13 +30,9 @@ public partial class UI_PlayerListEntry: Control
 		if(TeamId != NewTeamId)
 		{
 			TeamId = NewTeamId;
-			string colorcode = "#aaaaff";
-			if(TeamId == 1)
-			{
-				colorcode = "#ff4444";
-			}
+            string colorcode = TeamText.ColorsList[NewTeamId];
 			TeamLabel.Clear();
-			TeamLabel.AppendText("[color=" + colorcode +"]Team: " + (TeamId + 1).ToString() + "[/color]");
+			TeamLabel.AppendText("[color=" + colorcode +"]Team: " + (TeamId).ToString() + "[/color]");
 		}
 	}
 

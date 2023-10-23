@@ -2,10 +2,13 @@
 
 [ext_resource type="PackedScene" uid="uid://qrtdwhrqmacy" path="res://Scenes/UI_ServerAdmin.tscn" id="2_mik0y"]
 [ext_resource type="PackedScene" uid="uid://d1h16g1vrg2o4" path="res://Session/LoginScreen.tscn" id="3_4b4fp"]
-[ext_resource type="Script" path="res://Scenes/TeamText.cs" id="3_ar5bk"]
+[ext_resource type="PackedScene" uid="uid://ccrbauyfso401" path="res://Scenes/LocalLobby/LocalLobbyControls.tscn" id="4_b5k3t"]
 [ext_resource type="PackedScene" uid="uid://dhvpcnfrou3we" path="res://Scenes/IngameUI.tscn" id="4_qx81r"]
 
 [node name="Session" type="Node3D"]
+
+[node name="IngameUI" parent="." instance=ExtResource("4_qx81r")]
+visible = false
 
 [node name="Login Controls" parent="." instance=ExtResource("3_4b4fp")]
 offset_left = 3.0
@@ -20,26 +23,5 @@ visible = false
 _spawnable_scenes = PackedStringArray("res://Scenes/DarkDungeon.tscn")
 spawn_path = NodePath("..")
 
-[node name="Control" type="Control" parent="."]
-layout_mode = 3
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -117.0
-offset_top = -51.0
-grow_horizontal = 0
-grow_vertical = 0
-
-[node name="RichTextLabel" type="RichTextLabel" parent="Control"]
-layout_mode = 0
-offset_left = -194.0
-offset_right = -13.0
-offset_bottom = 40.0
-text = "Team: "
-fit_content = true
-script = ExtResource("3_ar5bk")
-
-[node name="IngameUI" parent="." instance=ExtResource("4_qx81r")]
+[node name="LocalLobbyControls" parent="." instance=ExtResource("4_b5k3t")]
 visible = false

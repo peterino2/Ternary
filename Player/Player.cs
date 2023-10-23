@@ -58,7 +58,8 @@ public partial class Player : CharacterBody3D
 	float CachedMinMoveSpeed = 0.0f;
 	float ChargingSlowFactor = 0.5f;
 
-	[Export] public int TeamId = 0;
+	[Export] public int TeamId = 1;
+	int OldTeamId = 1;
 	public bool IsDead = false;
 
 	[Export] public double ChargeTimeToThrow = 1.0;
@@ -103,6 +104,7 @@ public partial class Player : CharacterBody3D
 		SetupNetTickables();
 	}
 
+	
 	public void SetOwnerServer(long NewOwner)
 	{
 		OwnerId = NewOwner;
@@ -234,6 +236,12 @@ public partial class Player : CharacterBody3D
 			}
 		}
 
+		if(OldTeamId != TeamId)
+		{
+			UpdateTeamVisuals();
+			OldTeamId = TeamId;
+		}
+
 		TickCharging(delta);
 		Mover.TickUpdates(delta);
 		UpdateVelocityAndFacing(delta);
@@ -243,12 +251,12 @@ public partial class Player : CharacterBody3D
 		TickBlocking(delta);
 		TickDodging(delta);
 
-		if(TeamId == 0)
+		if(TeamId == 1)
 		{
 			DebugDraw3D.DrawSphere(GlobalPosition, 0.5f, Colors.Blue, 0.00f);
 		}
 
-		if(TeamId == 1)
+		if(TeamId == 2)
 		{
 			DebugDraw3D.DrawSphere(GlobalPosition, 0.5f, Colors.Red, 0.00f);
 		}
@@ -482,6 +490,25 @@ public partial class Player : CharacterBody3D
 		ShutDownNet();
 	}
 
+	public void UpdateTeamVisuals()
+	{
+		if(TeamId == 0)
+		{
+			Team1Hat.Visible = false;
+			Team2Hat.Visible = false;
+		}
+		if(TeamId == 1)
+		{
+			Team1Hat.Visible = true;
+			Team2Hat.Visible = false;
+		}
+		else if(TeamId == 2)
+		{
+			Team1Hat.Visible = false;
+			Team2Hat.Visible = true;
+		}
+	}
+
 	public void SetupNetTickables()
 	{
 		if(OwnerId == GameSession.Get().PeerId)
@@ -494,23 +521,14 @@ public partial class Player : CharacterBody3D
 			GameNetEngine.Get().OnSyncFrame += OnSyncFrame;
 		}
 
-		if(TeamId == 0)
-		{
-			Team1Hat.Visible = true;
-			Team2Hat.Visible = false;
-		}
-		else 
-		{
-			Team1Hat.Visible = false;
-			Team2Hat.Visible = true;
-		}
-
 		if(IsLocalPlayer)
 		{
 			IngameUI.Get().SetupPlayer(this);
 		}
 
 		GameState.Get().AvatarSpawnedLocal[OwnerId] = this;
+
+		SetTeam(TeamId);
 	}
 
 	public void ShutDownNet() 
@@ -872,6 +890,16 @@ public partial class Player : CharacterBody3D
 	public void SetTeam(int NewTeamId)
 	{
 		TeamId = NewTeamId;
+		UpdateTeamVisuals();
+
+		if(TeamId == 0)
+		{
+			Mover.SetClientAuthorityLocal(true);
+		}
+		else 
+		{
+			Mover.SetClientAuthorityLocal(false);
+		}
 	}
 
 	public bool IsDodging()
@@ -905,7 +933,5 @@ public partial class Player : CharacterBody3D
 		}
 	}
 }
-
-
 
 

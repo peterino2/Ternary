@@ -1,8 +1,17 @@
 using Godot;
 
 public partial class TeamText : RichTextLabel
-{ 
+{
 	int TeamId = -1;
+	public const string SpectatorColor = "#000000";
+	public const string Team1Color = "#aaaaff";
+	public const string Team2Color = "#ff4444";
+	
+	public static readonly string[] ColorsList = {
+		"#cccccc",
+		"#aaaaff",
+		"#ff4444"
+	};
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
@@ -18,13 +27,16 @@ public partial class TeamText : RichTextLabel
 			if(newTeamId != TeamId)
 			{
 				TeamId = newTeamId;
-				string colorcode = "#aaaaff";
-				if(TeamId == 1)
-				{
-					colorcode = "#ff4444";
-				}
+				string colorcode = ColorsList[TeamId];
 				this.Clear();
-				this.AppendText("[color=" + colorcode +"]You are on Team: " + (TeamId + 1).ToString() + "[/color]");
+				if(TeamId != 0)
+				{
+					this.AppendText("[color=" + colorcode +"]You are on Team: " + (TeamId).ToString() + "[/color]");
+				}
+				else 
+				{
+					this.AppendText("[color=" + colorcode + "]You are a Spectator[/color]");
+				}
 			}
 		}
 	}
